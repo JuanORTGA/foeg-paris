@@ -392,7 +392,7 @@ export default function AdminPedidosClient({ initialOrders }: AdminPedidosClient
                       suppressHydrationWarning
                       disabled={updatingId === ord.id}
                       onChange={(e) => handleStatusChange(ord.id, e.target.value)}
-                      className={`w-full text-[10px] uppercase tracking-wider font-medium py-1.5 px-2 border focus:outline-none focus:border-foeg-navy cursor-pointer ${
+                      className={`w-full text-[10.5px] uppercase font-medium py-1.5 px-2 tracking-normal border focus:outline-none focus:border-foeg-navy cursor-pointer truncate rounded-none ${
                         ord.status === 'Livré'
                           ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                           : ord.status === 'Expédié'
@@ -400,9 +400,15 @@ export default function AdminPedidosClient({ initialOrders }: AdminPedidosClient
                           : 'bg-amber-50 text-amber-800 border-amber-300'
                       }`}
                     >
-                      <option value="En préparation à l’Atelier">{t('admin.orderDetail.statusPrep')}</option>
-                      <option value="Expédié">{t('admin.orderDetail.statusShipped')}</option>
-                      <option value="Livré">{t('admin.orderDetail.statusDelivered')}</option>
+                      <option value="En préparation à l’Atelier">
+                        {language === 'es' ? 'En preparación' : language === 'en' ? 'In preparation' : 'En préparation'}
+                      </option>
+                      <option value="Expédié">
+                        {language === 'es' ? 'Enviado' : language === 'en' ? 'Shipped' : 'Expédié'}
+                      </option>
+                      <option value="Livré">
+                        {language === 'es' ? 'Entregado' : language === 'en' ? 'Delivered' : 'Livré'}
+                      </option>
                     </select>
                   )}
                 </div>

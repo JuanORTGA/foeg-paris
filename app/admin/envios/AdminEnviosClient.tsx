@@ -44,7 +44,7 @@ interface AdminEnviosClientProps {
 }
 
 export default function AdminEnviosClient({ initialSettings }: AdminEnviosClientProps) {
-  const { t, language } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const [settings, setSettings] = useState<ShippingSettings>(initialSettings);
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -471,7 +471,10 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
                 <button
                   key={lng}
                   type="button"
-                  onClick={() => setContentLang(lng)}
+                  onClick={() => {
+                    setContentLang(lng);
+                    setLanguage(lng);
+                  }}
                   className={`px-3 py-1 text-xs uppercase tracking-wider font-medium transition-all cursor-pointer border ${
                     contentLang === lng
                       ? 'bg-foeg-navy text-white border-foeg-navy shadow-2xs'

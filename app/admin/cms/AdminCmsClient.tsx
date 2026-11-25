@@ -75,9 +75,9 @@ function CmsEditorToolbar() {
       )}
 
       {/* Barre Supérieure Studio Créatif Haute Couture */}
-      <header className="fixed top-0 inset-x-0 z-50 h-16 bg-[#1B2A4A] text-white border-b border-white/10 px-6 sm:px-8 flex items-center justify-between shadow-[0_4px_25px_rgba(0,0,0,0.3)] select-none">
+      <header className="fixed top-0 inset-x-0 z-50 h-14 sm:h-16 bg-[#1B2A4A] text-white border-b border-white/10 px-3 sm:px-8 flex items-center justify-between shadow-[0_4px_25px_rgba(0,0,0,0.3)] select-none">
         {/* Lado Izquierdo: Botón Atrás + Título Editorial */}
-        <div className="flex items-center space-x-4 sm:space-x-5">
+        <div className="flex items-center space-x-2 sm:space-x-5 shrink-0">
           <Link
             href="/admin"
             className="p-1.5 -ml-1 text-white/50 hover:text-white transition-colors duration-300 rounded-none cursor-pointer flex items-center justify-center hover:bg-white/5"
@@ -86,15 +86,15 @@ function CmsEditorToolbar() {
             <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
           </Link>
 
-          <div className="flex items-center space-x-3">
-            <span className="p-1.5 bg-white/5 border border-white/10 text-white/80 hidden sm:flex items-center justify-center">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <span className="p-1.5 bg-white/5 border border-white/10 text-white/80 hidden md:flex items-center justify-center">
               <Feather className="w-3.5 h-3.5 text-[#F7F5F0]" strokeWidth={1.5} />
             </span>
             <div>
-              <h1 className="font-serif text-sm sm:text-base tracking-[0.2em] uppercase font-normal text-[#F7F5F0] leading-none">
+              <h1 className="font-serif text-xs sm:text-base tracking-[0.15em] sm:tracking-[0.2em] uppercase font-normal text-[#F7F5F0] leading-none whitespace-nowrap">
                 Studio Créatif
               </h1>
-              <p className="text-[10px] tracking-widest uppercase text-white/60 font-light mt-1">
+              <p className="text-[9px] tracking-widest uppercase text-white/60 font-light mt-0.5 hidden sm:block whitespace-nowrap">
                 Maison FOEG · Édition en Direct
               </p>
             </div>
@@ -102,16 +102,16 @@ function CmsEditorToolbar() {
         </div>
 
         {/* Lado Derecho: Controles Editoriales */}
-        <div className="flex items-center space-x-3 sm:space-x-5">
+        <div className="flex items-center space-x-1.5 sm:space-x-5">
           {/* Selector de idioma FR / EN / ES Editorial */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1 sm:space-x-3">
             {(['fr', 'en', 'es'] as const).map((lang) => (
               <button
                 key={lang}
                 type="button"
                 suppressHydrationWarning
                 onClick={() => handleLangChange(lang)}
-                className={`text-[11px] font-mono uppercase tracking-widest transition-all duration-300 cursor-pointer ${
+                className={`text-[10px] sm:text-[11px] font-mono uppercase tracking-wider transition-all duration-300 cursor-pointer px-1 py-0.5 ${
                   activeLanguage === lang
                     ? 'text-white border-b border-white pb-0.5 font-medium'
                     : 'text-white/40 hover:text-white/80 pb-0.5'
@@ -129,11 +129,12 @@ function CmsEditorToolbar() {
             type="button"
             suppressHydrationWarning
             onClick={() => setIsEditing(!isEditing)}
-            className={`px-3.5 py-1.5 text-xs uppercase tracking-widest font-light flex items-center space-x-2 border transition-all duration-300 cursor-pointer rounded-none ${
+            className={`p-1.5 sm:px-3.5 sm:py-1.5 text-xs uppercase tracking-widest font-light flex items-center space-x-2 border transition-all duration-300 cursor-pointer rounded-none shrink-0 ${
               isEditing
                 ? 'bg-white/15 text-white border-white/40 shadow-xs'
                 : 'bg-transparent text-white/70 border-white/20 hover:text-white hover:border-white/40 hover:bg-white/5'
             }`}
+            title={isEditing ? 'Mode Édition' : 'Mode Aperçu'}
           >
             {isEditing ? (
               <Edit3 className="w-3.5 h-3.5 text-white" strokeWidth={1.5} />
@@ -151,7 +152,8 @@ function CmsEditorToolbar() {
             suppressHydrationWarning
             disabled={isPublishing}
             onClick={handlePublish}
-            className="px-4 py-1.5 bg-[#F7F5F0] hover:bg-white text-foeg-navy border border-[#E5DECF] text-xs uppercase tracking-widest font-medium transition-all duration-300 shadow-subtle cursor-pointer flex items-center space-x-2 rounded-none disabled:opacity-60"
+            className="p-1.5 sm:px-4 sm:py-1.5 bg-[#F7F5F0] hover:bg-white text-foeg-navy border border-[#E5DECF] text-xs uppercase tracking-widest font-medium transition-all duration-300 shadow-subtle cursor-pointer flex items-center space-x-2 rounded-none disabled:opacity-60 shrink-0"
+            title="Publier en direct"
           >
             {isPublishing ? (
               <Loader2 className="w-3.5 h-3.5 text-foeg-navy animate-spin" strokeWidth={1.5} />
@@ -182,7 +184,7 @@ function CmsEditorToolbar() {
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 border border-white/20 hover:border-white/50 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 cursor-pointer rounded-none flex items-center justify-center"
+            className="p-1.5 sm:p-2 border border-white/20 hover:border-white/50 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 cursor-pointer rounded-none flex items-center justify-center shrink-0"
             title="Ouvrir la boutique publique en direct"
           >
             <ExternalLink className="w-3.5 h-3.5" strokeWidth={1.5} />

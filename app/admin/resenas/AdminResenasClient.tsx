@@ -552,17 +552,17 @@ export default function AdminResenasClient({ initialReviews, products }: AdminRe
                 </div>
 
                 {/* Badges de Calce y Estado traducidos */}
-                <div className="flex items-center space-x-2 text-[10px] uppercase tracking-wider">
-                  <span className="px-2.5 py-0.5 bg-foeg-surface border border-foeg-border text-foeg-black font-medium">
-                    {t('admin.reviews.fit')}: {getFitLabel(rev.fit)}
+                <div className="flex flex-wrap items-center gap-1.5 text-[9px] sm:text-[10px] uppercase tracking-wide">
+                  <span className="px-2 py-0.5 bg-foeg-surface border border-foeg-border text-foeg-black/80 font-normal">
+                    {getFitLabel(rev.fit)}
                   </span>
 
                   {rev.isApproved ? (
-                    <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 font-medium">
+                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 font-medium">
                       {t('admin.reviews.approvedStatus')}
                     </span>
                   ) : (
-                    <span className="px-2.5 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 font-medium animate-pulse">
+                    <span className="px-2 py-0.5 bg-amber-50 text-amber-900 border border-amber-300 font-medium animate-pulse">
                       {t('admin.reviews.pendingStatus')}
                     </span>
                   )}
