@@ -114,7 +114,20 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
     return item.fr !== undefined && item.fr !== null ? item.fr : fallback;
   };
 
-  const savedCardPosRaw = getCms('hero_banner_card_pos', '');
+  // Detección reactiva de pantalla móvil vs escritorio para posiciones independientes
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileScreen(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const currentPosKey = isMobileScreen ? 'hero_banner_card_pos_mobile' : 'hero_banner_card_pos';
+  const savedCardPosRaw = getCms(currentPosKey, '');
   const parsedSavedPos = React.useMemo(() => {
     try {
       if (savedCardPosRaw) {
@@ -164,7 +177,7 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
 
-      // Sauvegarde persistante de la position en base de données Neon
+      // Sauvegarde persistante de la position PC en base de données Neon
       if (isEditing) {
         setLiveOverride('hero_banner_card_pos', JSON.stringify(latestPos));
         registerSaveStart('hero_banner_card_pos');
@@ -203,9 +216,11 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
       const moveTouch = moveEvent.touches[0];
       const dx = moveTouch.clientX - dragCardStartRef.current.startMouseX;
       const dy = moveTouch.clientY - dragCardStartRef.current.startMouseY;
+      // Seguridad móvil: evitar empujar hacia abajo de la pantalla
+      const safeDy = Math.min(dy, 25);
       latestPos = {
         x: dragCardStartRef.current.initialPosX + dx,
-        y: dragCardStartRef.current.initialPosY + dy,
+        y: dragCardStartRef.current.initialPosY + safeDy,
       };
       setBannerCardPos(latestPos);
       if (moveEvent.cancelable) {
@@ -220,18 +235,19 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchEnd);
 
+      // Sauvegarde persistante de la position MOBILE en base de données Neon
       if (isEditing) {
-        setLiveOverride('hero_banner_card_pos', JSON.stringify(latestPos));
-        registerSaveStart('hero_banner_card_pos');
+        setLiveOverride('hero_banner_card_pos_mobile', JSON.stringify(latestPos));
+        registerSaveStart('hero_banner_card_pos_mobile');
         try {
-          const res = await updateContentField('hero_banner_card_pos', JSON.stringify(latestPos));
+          const res = await updateContentField('hero_banner_card_pos_mobile', JSON.stringify(latestPos));
           if (res.success) {
-            registerSaveEnd('hero_banner_card_pos', true);
+            registerSaveEnd('hero_banner_card_pos_mobile', true);
           } else {
-            registerSaveEnd('hero_banner_card_pos', false);
+            registerSaveEnd('hero_banner_card_pos_mobile', false);
           }
         } catch (_) {
-          registerSaveEnd('hero_banner_card_pos', false);
+          registerSaveEnd('hero_banner_card_pos_mobile', false);
         }
       }
     };
@@ -246,13 +262,13 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
     const zeroPos = { x: 0, y: 0 };
     setBannerCardPos(zeroPos);
     if (isEditing) {
-      setLiveOverride('hero_banner_card_pos', JSON.stringify(zeroPos));
-      registerSaveStart('hero_banner_card_pos');
+      setLiveOverride(currentPosKey, JSON.stringify(zeroPos));
+      registerSaveStart(currentPosKey);
       try {
-        await updateContentField('hero_banner_card_pos', JSON.stringify(zeroPos));
-        registerSaveEnd('hero_banner_card_pos', true);
+        await updateContentField(currentPosKey, JSON.stringify(zeroPos));
+        registerSaveEnd(currentPosKey, true);
       } catch (_) {
-        registerSaveEnd('hero_banner_card_pos', false);
+        registerSaveEnd(currentPosKey, false);
       }
     }
   };
