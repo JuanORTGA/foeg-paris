@@ -653,6 +653,22 @@ export const DICTIONARIES: Record<Language, Record<string, string>> = {
     'admin.perfil.sessionDesc': 'Votre session bénéficie du chiffrement TLS 256-bit et de jetons JWT sécurisés. Vous pouvez fermer votre session à tout moment.',
     'admin.perfil.logoutBtn': 'Fermer la session',
 
+    // Admin Login
+    'admin.login.back': 'Retour à la Maison',
+    'admin.login.title': 'Accès Privilégié',
+    'admin.login.subtitle': 'Portail de gestion et d’administration des ateliers FOEG.',
+    'admin.login.emailLabel': 'Identifiant / Courriel',
+    'admin.login.emailPlaceholder': 'direction@foeg-paris.com',
+    'admin.login.passwordLabel': 'Mot de Passe Atelier',
+    'admin.login.passwordPlaceholder': '••••••••••••',
+    'admin.login.submit': 'Déverrouiller l’Atelier',
+    'admin.login.submitting': 'Vérification...',
+    'admin.login.footerNote': 'Accès crypté réservé à la direction de la Maison',
+    'admin.login.footerCopy': '© 2026 FOEG Paris. Système de gestion interne sécurisé.',
+    'admin.login.toggleShow': 'Afficher le mot de passe',
+    'admin.login.toggleHide': 'Masquer le mot de passe',
+    'admin.login.authError': 'Une erreur est survenue lors de l’authentification.',
+
     // Boutique Publique
     'boutique.heroTag': 'Présence Physique Internationale',
     'boutique.heroTitle': 'Nos Boutiques & Salons Privés',
@@ -1677,6 +1693,22 @@ export const DICTIONARIES: Record<Language, Record<string, string>> = {
     'admin.perfil.sessionDesc': 'Your session is protected by TLS 256-bit encryption and secure JWT tokens. You can log out at any time.',
     'admin.perfil.logoutBtn': 'Log Out',
 
+    // Admin Login
+    'admin.login.back': 'Back to House',
+    'admin.login.title': 'Privileged Access',
+    'admin.login.subtitle': 'Management and administration portal for FOEG ateliers.',
+    'admin.login.emailLabel': 'Username / Email',
+    'admin.login.emailPlaceholder': 'direction@foeg-paris.com',
+    'admin.login.passwordLabel': 'Atelier Password',
+    'admin.login.passwordPlaceholder': '••••••••••••',
+    'admin.login.submit': 'Unlock Atelier',
+    'admin.login.submitting': 'Verifying...',
+    'admin.login.footerNote': 'Encrypted access reserved for House management',
+    'admin.login.footerCopy': '© 2026 FOEG Paris. Secure internal management system.',
+    'admin.login.toggleShow': 'Show password',
+    'admin.login.toggleHide': 'Hide password',
+    'admin.login.authError': 'An error occurred during authentication.',
+
     // Boutique Publique
     'boutique.heroTag': 'International Physical Presence',
     'boutique.heroTitle': 'Our Boutiques & Private Salons',
@@ -2700,6 +2732,22 @@ export const DICTIONARIES: Record<Language, Record<string, string>> = {
     'admin.perfil.sessionTitle': 'Sesión de Administración Segura',
     'admin.perfil.sessionDesc': 'Su sesión cuenta con cifrado TLS 256-bit y tokens JWT seguros. Puede cerrar su sesión en cualquier momento.',
     'admin.perfil.logoutBtn': 'Cerrar sesión',
+
+    // Admin Login
+    'admin.login.back': 'Volver a la Maison',
+    'admin.login.title': 'Acceso Privilegiado',
+    'admin.login.subtitle': 'Portal de gestión y administración de los talleres FOEG.',
+    'admin.login.emailLabel': 'Usuario / Correo Electrónico',
+    'admin.login.emailPlaceholder': 'direccion@foeg-paris.com',
+    'admin.login.passwordLabel': 'Contraseña del Atelier',
+    'admin.login.passwordPlaceholder': '••••••••••••',
+    'admin.login.submit': 'Desbloquear el Atelier',
+    'admin.login.submitting': 'Verificando...',
+    'admin.login.footerNote': 'Acceso cifrado reservado a la dirección de la Maison',
+    'admin.login.footerCopy': '© 2026 FOEG Paris. Sistema de gestión interna seguro.',
+    'admin.login.toggleShow': 'Mostrar contraseña',
+    'admin.login.toggleHide': 'Ocultar contraseña',
+    'admin.login.authError': 'Ocurrió un error durante la autenticación.',
 
     // Boutique Publique
     'boutique.heroTag': 'Presencia Física Internacional',

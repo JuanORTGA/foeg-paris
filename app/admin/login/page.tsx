@@ -10,8 +10,8 @@ import { loginAdminAction } from './actions';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { language, setLanguage } = useLanguage();
-  const [email, setEmail] = useState('admin@foeg-paris.com');
+  const { t, language, setLanguage } = useLanguage();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
         // Redirection interne de Next.js
         return;
       }
-      setErrorMessage('Une erreur est survenue lors de l’authentification.');
+      setErrorMessage(t('admin.login.authError'));
       setLoading(false);
     }
   };
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
           href="/"
           className="text-xs uppercase tracking-[0.25em] text-foeg-muted hover:text-foeg-black transition-colors font-light"
         >
-          ← Retour à la Maison
+          ← {t('admin.login.back')}
         </Link>
         <div className="flex items-center space-x-4">
           <span className="text-[10px] uppercase tracking-[0.3em] text-foeg-navy font-medium hidden sm:inline">
@@ -94,10 +94,10 @@ export default function AdminLoginPage() {
 
           <div className="space-y-1">
             <h1 className="font-serif text-3xl sm:text-4xl font-light text-foeg-black tracking-tight">
-              Accès Privilégié
+              {t('admin.login.title')}
             </h1>
             <p className="text-xs text-foeg-muted font-light tracking-wide">
-              Portail de gestion et d’administration des ateliers FOEG.
+              {t('admin.login.subtitle')}
             </p>
           </div>
         </div>
@@ -114,13 +114,13 @@ export default function AdminLoginPage() {
         <form onSubmit={handleLogin} className="space-y-6" suppressHydrationWarning>
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase tracking-[0.22em] text-foeg-muted block font-medium">
-              Identifiant / Courriel
+              {t('admin.login.emailLabel')}
             </label>
             <input
               type="email"
               required
               suppressHydrationWarning
-              placeholder="admin@foeg-paris.com"
+              placeholder={t('admin.login.emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-transparent border-b border-gray-300 focus:border-foeg-navy text-xs text-foeg-black py-2.5 focus:outline-none transition-colors font-light placeholder:text-gray-300 rounded-none"
@@ -129,7 +129,7 @@ export default function AdminLoginPage() {
 
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase tracking-[0.22em] text-foeg-muted block font-medium">
-              Mot de Passe Atelier
+              {t('admin.login.passwordLabel')}
             </label>
             <div className="relative flex items-center">
               <input
@@ -141,7 +141,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                placeholder="••••••••••••"
+                placeholder={t('admin.login.passwordPlaceholder')}
                 className="w-full bg-transparent border-b border-gray-300 focus:border-foeg-navy text-xs text-foeg-black py-2.5 pr-10 focus:outline-none transition-colors font-light placeholder:text-gray-300 rounded-none"
               />
               <button
@@ -154,7 +154,7 @@ export default function AdminLoginPage() {
                 }}
                 onMouseDown={(e) => e.preventDefault()}
                 className="absolute right-0 z-10 p-2 text-foeg-muted hover:text-foeg-black transition-colors focus:outline-none cursor-pointer"
-                aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                aria-label={showPassword ? t('admin.login.toggleHide') : t('admin.login.toggleShow')}
               >
                 {showPassword ? (
                   <EyeOff className="w-4 h-4 text-foeg-navy" strokeWidth={1.5} />
@@ -172,7 +172,7 @@ export default function AdminLoginPage() {
               suppressHydrationWarning
               className="w-full bg-foeg-navy hover:bg-foeg-black text-foeg-white py-4 px-6 text-xs uppercase tracking-[0.24em] font-medium transition-colors duration-300 flex items-center justify-center space-x-2 shadow-subtle cursor-pointer disabled:opacity-50"
             >
-              <span>{loading ? 'Vérification...' : 'Déverrouiller l’Atelier'}</span>
+              <span>{loading ? t('admin.login.submitting') : t('admin.login.submit')}</span>
               <ArrowRight className="w-3.5 h-3.5" strokeWidth={1} />
             </button>
           </div>
@@ -181,13 +181,13 @@ export default function AdminLoginPage() {
         {/* Aviso de confidencialidad */}
         <div className="text-center pt-4 border-t border-foeg-border/60 text-[10px] text-foeg-muted font-light flex items-center justify-center space-x-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-foeg-navy" strokeWidth={1} />
-          <span>Accès crypté réservé à la direction de la Maison</span>
+          <span>{t('admin.login.footerNote')}</span>
         </div>
       </div>
 
       {/* Pie inferior con copyright */}
       <div className="text-center text-[11px] text-foeg-muted font-light tracking-wide max-w-7xl mx-auto w-full pt-8">
-        © 2026 FOEG Paris. Système de gestion interne sécurisé.
+        {t('admin.login.footerCopy')}
       </div>
     </div>
   );

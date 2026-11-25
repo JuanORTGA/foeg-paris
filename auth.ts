@@ -59,8 +59,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID || 'foeg_google_client_id_placeholder',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'foeg_google_client_secret_placeholder',
+      clientId: process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID || 'foeg_google_client_id_placeholder',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET || 'foeg_google_client_secret_placeholder',
       allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
