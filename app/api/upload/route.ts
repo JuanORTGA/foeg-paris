@@ -67,24 +67,43 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Stockage local ultra-rapide dans public/uploads (URL légère /uploads/...)
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    await fs.mkdir(uploadsDir, { recursive: true });
+    // 2. Gestion de l'environnement Serverless (Vercel) vs Local
+    const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+    const mimeType = file.type || (isVideo ? 'video/mp4' : 'image/jpeg');
+    const base64Data = `data:${mimeType};base64,${buffer.toString('base64')}`;
 
-    const rawExt = file.name.split('.').pop() || (isVideo ? 'mp4' : 'jpg');
-    const ext = rawExt.toLowerCase().replace(/[^a-z0-9]/g, '') || (isVideo ? 'mp4' : 'jpg');
-    const filename = `foeg-${isVideo ? 'reel' : 'media'}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
-    const filePath = path.join(uploadsDir, filename);
+    // Si on est en environnement local avec accès en écriture sur le disque
+    if (!isServerless) {
+      try {
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+        await fs.mkdir(uploadsDir, { recursive: true });
 
-    await fs.writeFile(filePath, buffer);
+        const rawExt = file.name.split('.').pop() || (isVideo ? 'mp4' : 'jpg');
+        const ext = rawExt.toLowerCase().replace(/[^a-z0-9]/g, '') || (isVideo ? 'mp4' : 'jpg');
+        const filename = `foeg-${isVideo ? 'reel' : 'media'}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+        const filePath = path.join(uploadsDir, filename);
 
-    const publicUrl = `/uploads/${filename}`;
+        await fs.writeFile(filePath, buffer);
 
+        const publicUrl = `/uploads/${filename}`;
+
+        return NextResponse.json({
+          success: true,
+          secure_url: publicUrl,
+          isVideo,
+          message: isVideo ? 'Vidéo / Reel enregistré avec succès.' : 'Média enregistré avec succès.',
+        });
+      } catch (fsErr) {
+        console.warn('[FS UPLOAD WARNING, FALLBACK TO BASE64]:', fsErr);
+      }
+    }
+
+    // 3. Fallback universel haute compatibilité pour Vercel Serverless (Data URI direct sans dépendance disque)
     return NextResponse.json({
       success: true,
-      secure_url: publicUrl,
+      secure_url: base64Data,
       isVideo,
-      message: isVideo ? 'Vidéo / Reel enregistré avec succès.' : 'Média enregistré avec succès.',
+      message: isVideo ? 'Vidéo / Reel synchronisé avec succès.' : 'Média synchronisé avec succès.',
     });
   } catch (error: any) {
     console.error('[UPLOAD ROUTE ERROR]:', error);

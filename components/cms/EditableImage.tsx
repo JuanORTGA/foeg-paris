@@ -49,7 +49,7 @@ export default function EditableImage({
   heroControls = false,
 }: EditableMediaProps) {
   const router = useRouter();
-  const { isEditing, registerSaveStart, registerSaveEnd } = useCmsEditor();
+  const { isEditing, setLiveOverride, registerSaveStart, registerSaveEnd } = useCmsEditor();
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
   const [isGrayscale, setIsGrayscale] = useState(defaultGrayscale);
   const [uploading, setUploading] = useState(false);
@@ -249,6 +249,7 @@ export default function EditableImage({
       if (tempSrc !== currentSrc) {
         hasUserUploaded.current = true;
         setCurrentSrc(tempSrc);
+        setLiveOverride(contentKey, tempSrc);
         const saveRes = await updateContentField(contentKey, tempSrc);
         if (!saveRes.success) {
           throw new Error(saveRes.error || 'Erreur de sauvegarde média.');
