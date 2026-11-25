@@ -63,6 +63,9 @@ export async function getAdminProfile(): Promise<AdminProfileData> {
       createdAt: user.createdAt.toISOString(),
     };
   } catch (err: any) {
+    if (err?.digest === 'DYNAMIC_SERVER_USAGE' || err?.message?.includes('Dynamic server usage')) {
+      throw err;
+    }
     console.error('[GET ADMIN PROFILE ERROR]:', err);
     return {
       id: 'admin-fallback',
