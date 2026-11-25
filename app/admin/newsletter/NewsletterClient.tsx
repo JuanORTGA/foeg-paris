@@ -400,11 +400,11 @@ export default function NewsletterClient({
         </div>
 
         {/* Botones de Acción */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full xl:w-auto">
           <button
             type="button"
             onClick={handleOpenAddSubscriber}
-            className="inline-flex items-center space-x-2 px-4 py-2.5 bg-foeg-navy text-white hover:bg-black transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer shadow-subtle"
+            className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 bg-foeg-navy text-white hover:bg-black transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer shadow-subtle"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{t('admin.newsletter.addSubscriber')}</span>
@@ -416,31 +416,33 @@ export default function NewsletterClient({
               setPreviewMode(false);
               setCampaignModalOpen(true);
             }}
-            className="inline-flex items-center space-x-2 px-4 py-2.5 bg-white border border-foeg-navy text-foeg-navy hover:bg-foeg-navy hover:text-white transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer shadow-subtle"
+            className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 bg-white border border-foeg-navy text-foeg-navy hover:bg-foeg-navy hover:text-white transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer shadow-subtle"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{t('admin.newsletter.composeCampaign')}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="inline-flex items-center space-x-2 px-3.5 py-2.5 bg-white border border-foeg-border/80 text-foeg-black hover:bg-foeg-surface/60 transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer"
-            title={t('admin.newsletter.printDossier')}
-          >
-            <Printer className="w-3.5 h-3.5 text-foeg-muted" />
-            <span className="hidden sm:inline">{t('admin.newsletter.printDossier')}</span>
-          </button>
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-2 px-3.5 py-2.5 bg-white border border-foeg-border/80 text-foeg-black hover:bg-foeg-surface/60 transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer"
+              title={t('admin.newsletter.printDossier')}
+            >
+              <Printer className="w-3.5 h-3.5 text-foeg-muted" />
+              <span>{t('admin.newsletter.printDossier')}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={handleExportCSV}
-            className="inline-flex items-center space-x-2 px-3.5 py-2.5 bg-white border border-foeg-border/80 text-foeg-black hover:bg-foeg-surface/60 transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer"
-            title={t('admin.newsletter.exportCsv')}
-          >
-            <Download className="w-3.5 h-3.5 text-foeg-muted" />
-            <span className="hidden sm:inline">{t('admin.newsletter.exportCsv')}</span>
-          </button>
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-2 px-3.5 py-2.5 bg-white border border-foeg-border/80 text-foeg-black hover:bg-foeg-surface/60 transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer"
+              title={t('admin.newsletter.exportCsv')}
+            >
+              <Download className="w-3.5 h-3.5 text-foeg-muted" />
+              <span>{t('admin.newsletter.exportCsv')}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -474,7 +476,7 @@ export default function NewsletterClient({
       {/* =========================================================================
           2. NAVEGACIÓN POR PESTAÑAS (SUSCRIPTORES vs CAMPAÑAS)
          ========================================================================= */}
-      <div className="flex border-b border-foeg-border/80 space-x-8 text-xs uppercase tracking-[0.2em]">
+      <div className="flex border-b border-foeg-border/80 space-x-6 sm:space-x-8 text-xs uppercase tracking-[0.2em] overflow-x-auto no-scrollbar whitespace-nowrap">
         <button
           type="button"
           onClick={() => setActiveTab('subscribers')}
@@ -578,7 +580,7 @@ export default function NewsletterClient({
           {/* Filtros de Segmento + Barra de Búsqueda */}
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white p-4 border border-foeg-border/80 shadow-subtle">
             {/* Píldoras de segmento */}
-            <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar whitespace-nowrap pb-1 lg:pb-0">
               {[
                 { id: 'ALL', label: t('admin.newsletter.filterAll'), count: subscribers.length },
                 { id: 'VIP', label: t('admin.newsletter.filterVip'), count: vipCount },
@@ -610,7 +612,7 @@ export default function NewsletterClient({
                   key={btn.id}
                   type="button"
                   onClick={() => setSegmentFilter(btn.id)}
-                  className={`px-3 py-1.5 uppercase tracking-wider text-[11px] font-medium transition-colors cursor-pointer border ${
+                  className={`px-3 py-1.5 uppercase tracking-wider text-[10px] sm:text-[11px] font-medium transition-colors cursor-pointer border shrink-0 ${
                     segmentFilter === btn.id
                       ? 'bg-foeg-navy text-white border-foeg-navy'
                       : 'bg-white text-foeg-muted border-foeg-border/80 hover:border-foeg-navy hover:text-foeg-black'
@@ -622,7 +624,7 @@ export default function NewsletterClient({
             </div>
 
             {/* Input de Búsqueda */}
-            <div className="flex items-center bg-foeg-surface/40 border border-foeg-border px-3.5 py-1.5 min-w-[260px]">
+            <div className="flex items-center bg-foeg-surface/40 border border-foeg-border px-3.5 py-2 w-full lg:w-auto min-w-0 lg:min-w-[260px]">
               <Search className="w-3.5 h-3.5 text-foeg-muted mr-2.5 shrink-0" />
               <input
                 type="text"
@@ -644,8 +646,8 @@ export default function NewsletterClient({
           </div>
 
           {/* Tabla de Suscriptores con CRUD */}
-          <div className="bg-white border border-foeg-border/80 overflow-x-auto shadow-subtle">
-            <table className="w-full text-left text-xs font-light">
+          <div className="bg-white border border-foeg-border/80 overflow-x-auto no-scrollbar shadow-subtle">
+            <table className="w-full text-left text-xs font-light whitespace-nowrap min-w-[650px]">
               <thead className="bg-foeg-surface/60 border-b border-foeg-border text-[10px] uppercase tracking-[0.2em] text-foeg-muted font-medium">
                 <tr>
                   <th className="py-3.5 px-6">{t('admin.newsletter.thEmail')}</th>

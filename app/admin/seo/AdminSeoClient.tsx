@@ -113,11 +113,11 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
       </div>
 
       {/* Selector de Pestañas por Sección */}
-      <div className="flex border-b border-foeg-border/80 space-x-8 text-xs uppercase tracking-[0.2em] font-medium">
+      <div className="flex border-b border-foeg-border/80 space-x-6 sm:space-x-8 text-xs uppercase tracking-[0.2em] font-medium overflow-x-auto no-scrollbar whitespace-nowrap pb-0.5">
         <button
           type="button"
           onClick={() => setActiveTab('home')}
-          className={`pb-3 transition-colors cursor-pointer ${
+          className={`pb-3 transition-colors cursor-pointer shrink-0 ${
             activeTab === 'home'
               ? 'border-b-2 border-foeg-navy text-foeg-navy font-semibold'
               : 'text-foeg-muted hover:text-foeg-black'
@@ -128,7 +128,7 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
         <button
           type="button"
           onClick={() => setActiveTab('femme')}
-          className={`pb-3 transition-colors cursor-pointer ${
+          className={`pb-3 transition-colors cursor-pointer shrink-0 ${
             activeTab === 'femme'
               ? 'border-b-2 border-foeg-navy text-foeg-navy font-semibold'
               : 'text-foeg-muted hover:text-foeg-black'
@@ -139,7 +139,7 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
         <button
           type="button"
           onClick={() => setActiveTab('homme')}
-          className={`pb-3 transition-colors cursor-pointer ${
+          className={`pb-3 transition-colors cursor-pointer shrink-0 ${
             activeTab === 'homme'
               ? 'border-b-2 border-foeg-navy text-foeg-navy font-semibold'
               : 'text-foeg-muted hover:text-foeg-black'
@@ -150,7 +150,7 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
       </div>
 
       {/* VISTA PREVIA EN VIVO DE GOOGLE (SERP Snippet) */}
-      <div className="bg-foeg-surface/50 border border-foeg-border/80 p-6 space-y-3 shadow-subtle">
+      <div className="bg-foeg-surface/50 border border-foeg-border/80 p-4 sm:p-6 space-y-3 shadow-subtle overflow-hidden">
         <div className="flex items-center justify-between">
           <span className="text-[10px] uppercase tracking-[0.25em] text-foeg-navy font-semibold flex items-center space-x-1.5">
             <Search className="w-3.5 h-3.5" />
@@ -161,32 +161,32 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
           </span>
         </div>
 
-        <div className="bg-white p-5 border border-foeg-border/60 max-w-2xl rounded-sm space-y-1 font-sans">
+        <div className="bg-white p-4 sm:p-5 border border-foeg-border/60 max-w-full rounded-sm space-y-1.5 font-sans break-words overflow-hidden">
           <div className="flex items-center space-x-2 text-xs text-[#202124]">
-            <div className="w-4 h-4 rounded-full bg-[#1A2836] flex items-center justify-center text-[9px] text-white font-serif">
+            <div className="w-5 h-5 rounded-full bg-[#1A2836] flex items-center justify-center text-[10px] text-white font-serif shrink-0">
               F
             </div>
-            <div className="leading-tight">
-              <span className="text-xs text-[#202124] block">FOEG Paris</span>
-              <span className="text-[11px] text-[#4d5156] font-light block">{preview.url}</span>
+            <div className="leading-tight min-w-0 flex-1 truncate">
+              <span className="text-xs text-[#202124] block truncate font-medium">FOEG Paris</span>
+              <span className="text-[11px] text-[#4d5156] font-light block truncate">{preview.url}</span>
             </div>
           </div>
-          <h3 className="text-[#1a0dab] hover:underline cursor-pointer text-base sm:text-lg font-normal leading-snug line-clamp-1 pt-1">
+          <h3 className="text-[#1a0dab] hover:underline cursor-pointer text-sm sm:text-base md:text-lg font-normal leading-snug line-clamp-2 pt-0.5">
             {preview.title}
           </h3>
-          <p className="text-[#4d5156] text-xs leading-relaxed line-clamp-2 font-light">
+          <p className="text-[#4d5156] text-[11px] sm:text-xs leading-relaxed line-clamp-3 font-light">
             {preview.desc}
           </p>
         </div>
       </div>
 
       {/* FORMULARIO EDITABLE */}
-      <form onSubmit={handleSubmit} className="bg-white border border-foeg-border/80 p-8 space-y-8 shadow-subtle">
+      <form onSubmit={handleSubmit} className="bg-white border border-foeg-border/80 p-4 sm:p-8 space-y-6 sm:space-y-8 shadow-subtle">
         {activeTab === 'home' && (
           <div className="space-y-6 animate-fadeIn">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+                <label className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
                   {t('admin.seo.metaTitleLabel')} — {t('admin.seo.tabHome')}
                 </label>
                 <span className={`text-[10px] font-mono ${formData.seo_home_title.length > 60 ? 'text-amber-700' : 'text-foeg-muted'}`}>
@@ -206,7 +206,7 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+                <label className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
                   {t('admin.seo.metaDescLabel')} — {t('admin.seo.tabHome')}
                 </label>
                 <span className={`text-[10px] font-mono ${formData.seo_home_desc.length > 160 ? 'text-amber-700' : 'text-foeg-muted'}`}>
@@ -225,24 +225,30 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+              <label className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
                 {t('admin.seo.ogImageLabel')}
               </label>
-              <div className="flex items-center space-x-3">
+              <div className="space-y-3">
                 <input
                   type="url"
                   name="seo_home_image"
                   value={formData.seo_home_image || ''}
                   onChange={handleChange}
                   placeholder="https://images.unsplash.com/photo-..."
-                  className="flex-1 bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-3 focus:outline-none focus:border-foeg-navy rounded-none font-light"
+                  className="w-full bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-3 focus:outline-none focus:border-foeg-navy rounded-none font-light"
                 />
                 {formData.seo_home_image && (
-                  <img
-                    src={formData.seo_home_image}
-                    alt="OG Preview"
-                    className="w-12 h-10 object-cover border border-foeg-border shrink-0"
-                  />
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-foeg-surface/40 border border-foeg-border/60">
+                    <img
+                      src={formData.seo_home_image}
+                      alt="OG Preview"
+                      className="w-full sm:w-36 h-28 sm:h-24 object-cover border border-foeg-border shrink-0 shadow-2xs"
+                    />
+                    <div className="text-[11px] text-foeg-muted font-light leading-relaxed">
+                      <span className="font-medium text-foeg-black block mb-0.5">Vista Previa Redes Sociales (Open Graph)</span>
+                      Esta imagen aparecerá cuando se comparta el enlace de la tienda en WhatsApp, Facebook, Instagram o Twitter.
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -292,24 +298,30 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+              <label className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
                 {t('admin.seo.ogImageLabel')}
               </label>
-              <div className="flex items-center space-x-3">
+              <div className="space-y-3">
                 <input
                   type="url"
                   name="seo_femme_image"
                   value={formData.seo_femme_image || ''}
                   onChange={handleChange}
                   placeholder="https://images.unsplash.com/photo-..."
-                  className="flex-1 bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-3 focus:outline-none focus:border-foeg-navy rounded-none font-light"
+                  className="w-full bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-3 focus:outline-none focus:border-foeg-navy rounded-none font-light"
                 />
                 {formData.seo_femme_image && (
-                  <img
-                    src={formData.seo_femme_image}
-                    alt="OG Preview"
-                    className="w-12 h-10 object-cover border border-foeg-border shrink-0"
-                  />
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-foeg-surface/40 border border-foeg-border/60">
+                    <img
+                      src={formData.seo_femme_image}
+                      alt="OG Preview"
+                      className="w-full sm:w-36 h-28 sm:h-24 object-cover border border-foeg-border shrink-0 shadow-2xs"
+                    />
+                    <div className="text-[11px] text-foeg-muted font-light leading-relaxed">
+                      <span className="font-medium text-foeg-black block mb-0.5">Vista Previa Redes Sociales (Open Graph)</span>
+                      Esta imagen aparecerá cuando se comparta el vestuario femenino en redes.
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -320,7 +332,7 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
           <div className="space-y-6 animate-fadeIn">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+                <label className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
                   {t('admin.seo.metaTitleLabel')} — {t('admin.seo.tabHomme')}
                 </label>
                 <span className={`text-[10px] font-mono ${formData.seo_homme_title.length > 60 ? 'text-amber-700' : 'text-foeg-muted'}`}>
@@ -340,7 +352,7 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+                <label className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
                   {t('admin.seo.metaDescLabel')} — {t('admin.seo.tabHomme')}
                 </label>
                 <span className={`text-[10px] font-mono ${formData.seo_homme_desc.length > 160 ? 'text-amber-700' : 'text-foeg-muted'}`}>
@@ -359,24 +371,30 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+              <label className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
                 {t('admin.seo.ogImageLabel')}
               </label>
-              <div className="flex items-center space-x-3">
+              <div className="space-y-3">
                 <input
                   type="url"
                   name="seo_homme_image"
                   value={formData.seo_homme_image || ''}
                   onChange={handleChange}
                   placeholder="https://images.unsplash.com/photo-..."
-                  className="flex-1 bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-3 focus:outline-none focus:border-foeg-navy rounded-none font-light"
+                  className="w-full bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-3 focus:outline-none focus:border-foeg-navy rounded-none font-light"
                 />
                 {formData.seo_homme_image && (
-                  <img
-                    src={formData.seo_homme_image}
-                    alt="OG Preview"
-                    className="w-12 h-10 object-cover border border-foeg-border shrink-0"
-                  />
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-foeg-surface/40 border border-foeg-border/60">
+                    <img
+                      src={formData.seo_homme_image}
+                      alt="OG Preview"
+                      className="w-full sm:w-36 h-28 sm:h-24 object-cover border border-foeg-border shrink-0 shadow-2xs"
+                    />
+                    <div className="text-[11px] text-foeg-muted font-light leading-relaxed">
+                      <span className="font-medium text-foeg-black block mb-0.5">Vista Previa Redes Sociales (Open Graph)</span>
+                      Esta imagen aparecerá cuando se comparta el vestuario masculino en redes.
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -384,16 +402,16 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
         )}
 
         {/* BOTÓN DE GUARDAR */}
-        <div className="pt-6 border-t border-foeg-border/80 flex items-center justify-between">
-          <span className="text-[11px] text-foeg-muted font-light flex items-center space-x-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-foeg-navy" strokeWidth={1.5} />
+        <div className="pt-6 border-t border-foeg-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
+          <span className="text-[11px] text-foeg-muted font-light flex items-center space-x-1.5 order-2 sm:order-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-foeg-navy shrink-0" strokeWidth={1.5} />
             <span>{language === 'es' ? 'Surte efecto inmediato en las etiquetas HTML <head>.' : language === 'en' ? 'Takes effect immediately on HTML <head> tags.' : 'Prend effet immédiatement sur le code source HTML (balises <head>).'}</span>
           </span>
 
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center space-x-2 bg-foeg-navy hover:bg-foeg-black text-foeg-white py-4 px-8 text-xs uppercase tracking-[0.2em] font-medium transition-all duration-200 rounded-none shadow-subtle cursor-pointer active:scale-[0.99] disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-foeg-navy hover:bg-foeg-black text-foeg-white py-3.5 px-6 sm:px-8 text-xs uppercase tracking-[0.2em] font-medium transition-all duration-200 rounded-none shadow-subtle cursor-pointer active:scale-[0.99] disabled:opacity-50 order-1 sm:order-2"
           >
             {isPending ? (
               <>

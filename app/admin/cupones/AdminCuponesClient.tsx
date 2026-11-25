@@ -172,9 +172,9 @@ export default function AdminCuponesClient({ initialCoupons }: AdminCuponesClien
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Colonne Gauche: Formulaire de Création */}
-        <div className="bg-white border border-foeg-border/80 p-6 md:p-8 space-y-6 shadow-subtle">
+        <div className="bg-white border border-foeg-border/80 p-4 sm:p-6 md:p-8 space-y-6 shadow-subtle">
           <div className="flex items-center space-x-2.5 border-b border-foeg-border/60 pb-3">
             <span className="p-1.5 bg-foeg-navy/5 text-foeg-navy border border-foeg-navy/10">
               <Plus className="w-4 h-4" strokeWidth={1.5} />
@@ -207,7 +207,7 @@ export default function AdminCuponesClient({ initialCoupons }: AdminCuponesClien
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[10px] uppercase tracking-[0.22em] text-foeg-muted font-medium mb-1">
                   {language === 'es'
@@ -308,32 +308,32 @@ export default function AdminCuponesClient({ initialCoupons }: AdminCuponesClien
             </h2>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[550px]">
+          <div className="overflow-x-auto no-scrollbar">
+            <table className="w-full text-left text-xs min-w-[500px]">
               <thead>
-                <tr className="border-b border-foeg-border/80 text-[10px] uppercase tracking-[0.22em] text-foeg-muted font-medium bg-foeg-surface/40">
-                  <th className="py-4 px-6">
+                <tr className="border-b border-foeg-border/80 text-[10px] uppercase tracking-[0.22em] text-foeg-muted font-medium bg-foeg-surface/40 whitespace-nowrap">
+                  <th className="py-4 px-4 sm:px-6">
                     {language === 'es' ? 'Código' : language === 'en' ? 'Code' : 'Code'}
                   </th>
-                  <th className="py-4 px-6">
+                  <th className="py-4 px-4 sm:px-6">
                     {language === 'es' ? 'Descuento' : language === 'en' ? 'Discount' : 'Remise'}
                   </th>
-                  <th className="py-4 px-6">
+                  <th className="py-4 px-4 sm:px-6">
                     {language === 'es'
                       ? 'Expiración'
                       : language === 'en'
                       ? 'Expiration'
                       : 'Expiration'}
                   </th>
-                  <th className="py-4 px-6">
+                  <th className="py-4 px-4 sm:px-6">
                     {language === 'es' ? 'Estado' : language === 'en' ? 'Status' : 'Statut'}
                   </th>
-                  <th className="py-4 px-6 text-right">
+                  <th className="py-4 px-4 sm:px-6 text-right">
                     {language === 'es' ? 'Acciones' : language === 'en' ? 'Actions' : 'Actions'}
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-foeg-border/60 font-light">
+              <tbody className="divide-y divide-foeg-border/60 font-light whitespace-nowrap">
                 {coupons.map((c) => (
                   <tr key={c.id} className="hover:bg-foeg-surface/20 transition-colors">
                     <td className="py-4 px-6">

@@ -404,11 +404,11 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
       </div>
 
       {/* Pestañas Principales del Módulo de Envíos */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-foeg-border/70 pb-2">
+      <div className="flex items-center gap-2 border-b border-foeg-border/70 pb-2 overflow-x-auto no-scrollbar whitespace-nowrap">
         <button
           type="button"
           onClick={() => setActiveTab('rates')}
-          className={`px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all cursor-pointer font-medium border ${
+          className={`px-3.5 sm:px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all cursor-pointer font-medium border shrink-0 ${
             activeTab === 'rates'
               ? 'bg-foeg-navy text-white border-foeg-navy shadow-xs'
               : 'bg-white border-foeg-border text-foeg-muted hover:text-foeg-black hover:border-foeg-navy/50'
@@ -423,7 +423,7 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
         <button
           type="button"
           onClick={() => setActiveTab('countries')}
-          className={`px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all cursor-pointer font-medium border ${
+          className={`px-3.5 sm:px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all cursor-pointer font-medium border shrink-0 ${
             activeTab === 'countries'
               ? 'bg-foeg-navy text-white border-foeg-navy shadow-xs'
               : 'bg-white border-foeg-border text-foeg-muted hover:text-foeg-black hover:border-foeg-navy/50'
@@ -439,7 +439,7 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
         <button
           type="button"
           onClick={() => setActiveTab('simulator')}
-          className={`px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all cursor-pointer font-medium border ${
+          className={`px-3.5 sm:px-4 py-2 text-xs uppercase tracking-[0.18em] transition-all cursor-pointer font-medium border shrink-0 ${
             activeTab === 'simulator'
               ? 'bg-foeg-navy text-white border-foeg-navy shadow-xs'
               : 'bg-white border-foeg-border text-foeg-muted hover:text-foeg-black hover:border-foeg-navy/50'
@@ -750,11 +750,11 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
           </div>
 
           {/* Bouton de Sauvegarde */}
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-4">
             <button
               type="submit"
               disabled={isSaving}
-              className="px-8 py-3.5 bg-foeg-navy hover:bg-black text-white text-xs uppercase tracking-[0.22em] font-medium transition-colors cursor-pointer flex items-center space-x-2 shadow-subtle disabled:opacity-50"
+              className="w-full sm:w-auto px-8 py-3.5 bg-foeg-navy hover:bg-black text-white text-xs uppercase tracking-[0.22em] font-medium transition-colors cursor-pointer flex items-center justify-center space-x-2 shadow-subtle disabled:opacity-50"
             >
               {isSaving ? (
                 <>
@@ -811,11 +811,11 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
             </div>
 
             {/* Pestañas de Filtrado Rápido */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-foeg-border/50 text-[11px]">
+            <div className="flex items-center gap-1.5 pt-2 border-t border-foeg-border/50 text-[11px] overflow-x-auto no-scrollbar whitespace-nowrap">
               <button
                 type="button"
                 onClick={() => setCountryFilter('all')}
-                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border ${
+                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border shrink-0 ${
                   countryFilter === 'all'
                     ? 'bg-foeg-navy text-white border-foeg-navy'
                     : 'bg-white border-foeg-border text-foeg-muted hover:text-foeg-black'
@@ -827,7 +827,7 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
               <button
                 type="button"
                 onClick={() => setCountryFilter('eu')}
-                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border ${
+                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border shrink-0 ${
                   countryFilter === 'eu'
                     ? 'bg-foeg-navy text-white border-foeg-navy'
                     : 'bg-white border-foeg-border text-foeg-muted hover:text-foeg-black'
@@ -839,7 +839,7 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
               <button
                 type="button"
                 onClick={() => setCountryFilter('intl')}
-                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border ${
+                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border shrink-0 ${
                   countryFilter === 'intl'
                     ? 'bg-foeg-navy text-white border-foeg-navy'
                     : 'bg-white border-foeg-border text-foeg-muted hover:text-foeg-black'
@@ -851,7 +851,7 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
               <button
                 type="button"
                 onClick={() => setCountryFilter('active')}
-                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border ${
+                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border shrink-0 ${
                   countryFilter === 'active'
                     ? 'bg-emerald-800 text-white border-emerald-800'
                     : 'bg-white border-foeg-border text-foeg-muted hover:text-foeg-black'
@@ -863,7 +863,7 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
               <button
                 type="button"
                 onClick={() => setCountryFilter('disabled')}
-                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border ${
+                className={`px-3 py-1 uppercase tracking-wider font-medium transition-all cursor-pointer border shrink-0 ${
                   countryFilter === 'disabled'
                     ? 'bg-neutral-700 text-white border-neutral-700'
                     : 'bg-white border-foeg-border text-foeg-muted hover:text-foeg-black'
@@ -875,8 +875,8 @@ export default function AdminEnviosClient({ initialSettings }: AdminEnviosClient
           </div>
 
           {/* Tabla de Países con Acciones CRUD */}
-          <div className="bg-white border border-foeg-border shadow-subtle overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="bg-white border border-foeg-border shadow-subtle overflow-x-auto no-scrollbar">
+            <table className="w-full text-left border-collapse text-xs min-w-[620px] whitespace-nowrap">
               <thead>
                 <tr className="border-b border-foeg-border bg-foeg-surface/30 text-[10px] uppercase tracking-[0.2em] text-foeg-muted font-medium">
                   <th className="py-3.5 px-6">{t('admin.envios.thCountry')}</th>

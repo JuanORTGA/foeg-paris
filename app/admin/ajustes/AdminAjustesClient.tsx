@@ -89,7 +89,7 @@ export default function AdminAjustesClient({ initialSettings }: AdminAjustesClie
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white border border-foeg-border/80 p-8 space-y-10 shadow-subtle">
+      <form onSubmit={handleSubmit} className="bg-white border border-foeg-border/80 p-4 sm:p-8 space-y-8 sm:space-y-10 shadow-subtle">
         {/* SECCIÓN 1: COORDONNÉES DE L'ATELIER & CONCIERGERIE */}
         <div className="space-y-6">
           <div className="flex items-center space-x-2 border-b border-foeg-border/60 pb-3">
@@ -257,16 +257,16 @@ export default function AdminAjustesClient({ initialSettings }: AdminAjustesClie
         </div>
 
         {/* BOTÓN GUARDAR */}
-        <div className="pt-6 border-t border-foeg-border/80 flex items-center justify-between">
-          <span className="text-[11px] text-foeg-muted font-light flex items-center space-x-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-foeg-navy" />
+        <div className="pt-6 border-t border-foeg-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
+          <span className="text-[11px] text-foeg-muted font-light flex items-center space-x-1 order-2 sm:order-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-foeg-navy shrink-0" />
             <span>{t('admin.ajustes.syncNotice')}</span>
           </span>
 
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center space-x-2 bg-foeg-navy hover:bg-foeg-black text-foeg-white py-4 px-8 text-xs uppercase tracking-[0.2em] font-medium transition-all duration-200 rounded-none shadow-subtle cursor-pointer active:scale-[0.99] disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-foeg-navy hover:bg-foeg-black text-foeg-white py-3.5 px-6 sm:px-8 text-xs uppercase tracking-[0.2em] font-medium transition-all duration-200 rounded-none shadow-subtle cursor-pointer active:scale-[0.99] disabled:opacity-50 order-1 sm:order-2"
           >
             {isPending ? (
               <>

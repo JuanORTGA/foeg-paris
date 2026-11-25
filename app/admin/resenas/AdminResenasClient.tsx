@@ -322,11 +322,11 @@ export default function AdminResenasClient({ initialReviews, products }: AdminRe
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
           <button
             type="button"
             onClick={handleExportCSV}
-            className="px-4 py-2.5 bg-white border border-foeg-border hover:border-foeg-navy text-foeg-black text-xs uppercase tracking-wider font-medium transition-colors cursor-pointer flex items-center space-x-2"
+            className="flex-1 sm:flex-initial px-4 py-2.5 bg-white border border-foeg-border hover:border-foeg-navy text-foeg-black text-xs uppercase tracking-wider font-medium transition-colors cursor-pointer flex items-center justify-center space-x-2"
             title={t('admin.reviews.exportCsv')}
           >
             <Download className="w-3.5 h-3.5 text-foeg-muted" />
@@ -336,7 +336,7 @@ export default function AdminResenasClient({ initialReviews, products }: AdminRe
           <button
             type="button"
             onClick={() => window.print()}
-            className="px-4 py-2.5 bg-white border border-foeg-border hover:border-foeg-navy text-foeg-black text-xs uppercase tracking-wider font-medium transition-colors cursor-pointer flex items-center space-x-2"
+            className="flex-1 sm:flex-initial px-4 py-2.5 bg-white border border-foeg-border hover:border-foeg-navy text-foeg-black text-xs uppercase tracking-wider font-medium transition-colors cursor-pointer flex items-center justify-center space-x-2"
             title={t('admin.reviews.printDossier')}
           >
             <Printer className="w-3.5 h-3.5 text-foeg-muted" />
@@ -346,7 +346,7 @@ export default function AdminResenasClient({ initialReviews, products }: AdminRe
           <button
             type="button"
             onClick={handleOpenCreateModal}
-            className="px-5 py-2.5 bg-foeg-navy hover:bg-black text-white text-xs uppercase tracking-[0.18em] font-medium transition-colors cursor-pointer flex items-center space-x-2 shadow-subtle shrink-0"
+            className="w-full sm:w-auto px-5 py-2.5 bg-foeg-navy hover:bg-black text-white text-xs uppercase tracking-[0.18em] font-medium transition-colors cursor-pointer flex items-center justify-center space-x-2 shadow-subtle shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{t('admin.reviews.addReview')}</span>
@@ -354,65 +354,65 @@ export default function AdminResenasClient({ initialReviews, products }: AdminRe
         </div>
       </div>
 
-      {/* Cartes KPI */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-        <div className="p-6 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
+      {/* Cartes KPI (Grille 2x2 en mobile) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="p-3.5 sm:p-6 bg-white border border-foeg-border/80 space-y-1.5 sm:space-y-2 shadow-subtle">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium truncate">
               {t('admin.reviews.avgRating')}
             </span>
-            <div className="flex items-center space-x-0.5 text-amber-500">
-              <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+            <div className="flex items-center space-x-0.5 text-amber-500 shrink-0">
+              <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
             </div>
           </div>
-          <p className="font-serif text-3xl text-foeg-black">{averageRating} <span className="text-base font-light text-foeg-muted">/ 5.0</span></p>
-          <span className="text-[10px] text-foeg-muted block">
-            {reviews.length} {language === 'es' ? 'testimonios moderados' : language === 'en' ? 'moderated reviews' : 'avis modérés'}
+          <p className="font-serif text-2xl sm:text-3xl text-foeg-black">{averageRating} <span className="text-xs sm:text-base font-light text-foeg-muted">/ 5.0</span></p>
+          <span className="text-[9px] sm:text-[10px] text-foeg-muted block truncate">
+            {reviews.length} {language === 'es' ? 'testimonios' : language === 'en' ? 'reviews' : 'avis'}
           </span>
         </div>
 
-        <div className="p-6 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
+        <div className="p-3.5 sm:p-6 bg-white border border-foeg-border/80 space-y-1.5 sm:space-y-2 shadow-subtle">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium truncate">
               {t('admin.reviews.totalPublished')}
             </span>
-            <Check className="w-4 h-4 text-emerald-600" />
+            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
           </div>
-          <p className="font-serif text-3xl text-emerald-800">{approvedCount}</p>
-          <span className="text-[10px] text-emerald-700 block">
-            {language === 'es' ? 'Visibles en las fichas de producto' : language === 'en' ? 'Visible on product pages' : 'Visibles sur les fiches produit'}
+          <p className="font-serif text-2xl sm:text-3xl text-emerald-800">{approvedCount}</p>
+          <span className="text-[9px] sm:text-[10px] text-emerald-700 block truncate">
+            {language === 'es' ? 'Publicados' : language === 'en' ? 'Published' : 'Publiés'}
           </span>
         </div>
 
-        <div className={`p-6 border space-y-2 shadow-subtle ${
+        <div className={`p-3.5 sm:p-6 border space-y-1.5 sm:space-y-2 shadow-subtle ${
           pendingCount > 0 ? 'bg-amber-50/40 border-amber-300' : 'bg-white border-foeg-border/80'
         }`}>
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium truncate">
               {t('admin.reviews.awaitingCount')}
             </span>
-            <AlertCircle className={`w-4 h-4 ${pendingCount > 0 ? 'text-amber-600 animate-pulse' : 'text-foeg-muted'}`} />
+            <AlertCircle className={`w-3.5 h-3.5 shrink-0 ${pendingCount > 0 ? 'text-amber-600 animate-pulse' : 'text-foeg-muted'}`} />
           </div>
-          <p className={`font-serif text-3xl ${pendingCount > 0 ? 'text-amber-900 font-normal' : 'text-foeg-black'}`}>
+          <p className={`font-serif text-2xl sm:text-3xl ${pendingCount > 0 ? 'text-amber-900 font-normal' : 'text-foeg-black'}`}>
             {pendingCount}
           </p>
-          <span className="text-[10px] text-amber-800 block">
+          <span className="text-[9px] sm:text-[10px] text-amber-800 block truncate">
             {pendingCount > 0
-              ? (language === 'es' ? 'Requieren validación' : language === 'en' ? 'Require validation' : 'Nécessitent validation')
-              : (language === 'es' ? 'Bandeja al día' : language === 'en' ? 'All caught up' : 'Boîte à jour')}
+              ? (language === 'es' ? 'Por validar' : language === 'en' ? 'Pending' : 'À valider')
+              : (language === 'es' ? 'Al día' : language === 'en' ? 'All caught up' : 'À jour')}
           </span>
         </div>
 
-        <div className="p-6 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
+        <div className="p-3.5 sm:p-6 bg-white border border-foeg-border/80 space-y-1.5 sm:space-y-2 shadow-subtle">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium truncate">
               {t('admin.reviews.fitTrue')}
             </span>
-            <ThumbsUp className="w-4 h-4 text-foeg-navy" />
+            <ThumbsUp className="w-3.5 h-3.5 text-foeg-navy shrink-0" />
           </div>
-          <p className="font-serif text-3xl text-foeg-navy">{trueToSizePercent}%</p>
-          <span className="text-[10px] text-foeg-muted block">
-            {language === 'es' ? 'Índice de calce perfecto' : language === 'en' ? 'Perfect fit ratio' : 'Indice de coupe parfaite'}
+          <p className="font-serif text-2xl sm:text-3xl text-foeg-navy">{trueToSizePercent}%</p>
+          <span className="text-[9px] sm:text-[10px] text-foeg-muted block truncate">
+            {language === 'es' ? 'Calce perfecto' : language === 'en' ? 'True to size' : 'Coupe parfaite'}
           </span>
         </div>
       </div>
@@ -446,7 +446,7 @@ export default function AdminResenasClient({ initialReviews, products }: AdminRe
         </div>
 
         {/* Pestañas de Filtrado */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-foeg-border/50 text-[11px]">
+        <div className="flex items-center gap-1.5 pt-2 border-t border-foeg-border/50 text-[11px] overflow-x-auto no-scrollbar whitespace-nowrap">
           <button
             type="button"
             onClick={() => setFilter('pending')}
@@ -515,7 +515,7 @@ export default function AdminResenasClient({ initialReviews, products }: AdminRe
           {displayedReviews.map((rev) => (
             <div
               key={rev.id}
-              className={`p-6 border bg-white space-y-4 shadow-subtle transition-all ${
+              className={`p-4 sm:p-6 border bg-white space-y-3.5 sm:space-y-4 shadow-subtle transition-all ${
                 !rev.isApproved ? 'border-amber-300/80 bg-amber-50/10' : 'border-foeg-border/80'
               }`}
             >
