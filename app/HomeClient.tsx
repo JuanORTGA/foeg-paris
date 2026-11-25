@@ -95,17 +95,25 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
       ? journalArticles.slice(0, 3)
       : JOURNAL_ARTICLES.slice(0, 3);
 
+  // Gestion du déplacement libre de la fenêtre du Banner (Cercle Privé)
+  const { isEditing, liveOverrides, setLiveOverride, registerSaveStart, registerSaveEnd } = useCmsEditor();
+
   // Helper CMS dynamique avec fallback automatique
   const getCms = (key: string, fallback: string): string => {
+    // 1. Si une valeur a été éditée en direct pendant la session active, priorité absolue
+    if (liveOverrides && liveOverrides[key] !== undefined) {
+      return liveOverrides[key];
+    }
     const item = cmsContent[key];
     if (!item) return fallback;
-    if (language === 'en' && item.en) return item.en;
-    if (language === 'es' && item.es) return item.es;
-    return item.fr || fallback;
+    const val = language === 'en' ? item.en : language === 'es' ? item.es : item.fr;
+    // Si l'utilisateur a supprimé le texte (chaîne vide), respecter la suppression sans remettre le fallback
+    if (val !== undefined && val !== null) {
+      return val;
+    }
+    return item.fr !== undefined && item.fr !== null ? item.fr : fallback;
   };
 
-  // Gestion du déplacement libre de la fenêtre du Banner (Cercle Privé)
-  const { isEditing, registerSaveStart, registerSaveEnd } = useCmsEditor();
   const savedCardPosRaw = getCms('hero_banner_card_pos', '');
   const parsedSavedPos = React.useMemo(() => {
     try {
@@ -158,6 +166,7 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
 
       // Sauvegarde persistante de la position en base de données Neon
       if (isEditing) {
+        setLiveOverride('hero_banner_card_pos', JSON.stringify(latestPos));
         registerSaveStart('hero_banner_card_pos');
         try {
           const res = await updateContentField('hero_banner_card_pos', JSON.stringify(latestPos));
@@ -212,6 +221,7 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
       window.removeEventListener('touchcancel', handleTouchEnd);
 
       if (isEditing) {
+        setLiveOverride('hero_banner_card_pos', JSON.stringify(latestPos));
         registerSaveStart('hero_banner_card_pos');
         try {
           const res = await updateContentField('hero_banner_card_pos', JSON.stringify(latestPos));
@@ -236,6 +246,7 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
     const zeroPos = { x: 0, y: 0 };
     setBannerCardPos(zeroPos);
     if (isEditing) {
+      setLiveOverride('hero_banner_card_pos', JSON.stringify(zeroPos));
       registerSaveStart('hero_banner_card_pos');
       try {
         await updateContentField('hero_banner_card_pos', JSON.stringify(zeroPos));

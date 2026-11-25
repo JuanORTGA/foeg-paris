@@ -11,6 +11,8 @@ interface CmsEditorContextType {
   lastSavedKey: string | null;
   registerSaveStart: (key: string) => void;
   registerSaveEnd: (key: string, success: boolean) => void;
+  liveOverrides: Record<string, string>;
+  setLiveOverride: (key: string, value: string) => void;
 }
 
 const CmsEditorContext = createContext<CmsEditorContextType>({
@@ -22,6 +24,8 @@ const CmsEditorContext = createContext<CmsEditorContextType>({
   lastSavedKey: null,
   registerSaveStart: () => {},
   registerSaveEnd: () => {},
+  liveOverrides: {},
+  setLiveOverride: () => {},
 });
 
 export function CmsEditorProvider({
@@ -37,6 +41,7 @@ export function CmsEditorProvider({
   const [activeLanguage, setActiveLanguage] = useState<'fr' | 'en' | 'es'>(initialLanguage);
   const [savingCount, setSavingCount] = useState(0);
   const [lastSavedKey, setLastSavedKey] = useState<string | null>(null);
+  const [liveOverrides, setLiveOverrides] = useState<Record<string, string>>({});
 
   const registerSaveStart = useCallback((key: string) => {
     setSavingCount((prev) => prev + 1);
@@ -52,6 +57,10 @@ export function CmsEditorProvider({
     }
   }, []);
 
+  const setLiveOverride = useCallback((key: string, value: string) => {
+    setLiveOverrides((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
   return (
     <CmsEditorContext.Provider
       value={{
@@ -63,6 +72,8 @@ export function CmsEditorProvider({
         lastSavedKey,
         registerSaveStart,
         registerSaveEnd,
+        liveOverrides,
+        setLiveOverride,
       }}
     >
       {children}

@@ -24,7 +24,7 @@ export default function EditableText({
   multiline = false,
 }: EditableTextProps) {
   const effectiveDefault = initialValue !== undefined ? initialValue : defaultValue;
-  const { isEditing, activeLanguage, registerSaveStart, registerSaveEnd } = useCmsEditor();
+  const { isEditing, activeLanguage, setLiveOverride, registerSaveStart, registerSaveEnd } = useCmsEditor();
   const { language } = useLanguage();
   const currentLang = isEditing ? activeLanguage : language;
 
@@ -52,6 +52,7 @@ export default function EditableText({
     if (newText === text) return;
 
     setText(newText);
+    setLiveOverride(contentKey, newText);
     setIsSaving(true);
     registerSaveStart(contentKey);
 

@@ -59,7 +59,21 @@ export async function updateContentField(
       valueEs: trimmed,
     };
 
-    if (isUrl) {
+    if (trimmed === '') {
+      // Si el texto fue eliminado/vaciado intencionalmente, vaciarlo en los 3 idiomas
+      updateData = {
+        valueFr: '',
+        valueEn: '',
+        valueEs: '',
+      };
+      createData = {
+        key,
+        section,
+        valueFr: '',
+        valueEn: '',
+        valueEs: '',
+      };
+    } else if (isUrl) {
       // Pour les images et vidéos, on synchronise les 3 langues à la même URL
       updateData = {
         valueFr: trimmed,
@@ -92,19 +106,13 @@ export async function updateContentField(
         createData.valueEs = finalEs;
       } catch (trErr) {
         console.warn('[TRANSLATION WARN in CMS updateContentField]:', trErr);
-        if (lang === 'fr') {
-          updateData.valueFr = trimmed;
-          if (!existing?.valueEn) updateData.valueEn = trimmed;
-          if (!existing?.valueEs) updateData.valueEs = trimmed;
-        } else if (lang === 'en') {
-          updateData.valueEn = trimmed;
-          if (!existing?.valueFr) updateData.valueFr = trimmed;
-          if (!existing?.valueEs) updateData.valueEs = trimmed;
-        } else if (lang === 'es') {
-          updateData.valueEs = trimmed;
-          if (!existing?.valueFr) updateData.valueFr = trimmed;
-          if (!existing?.valueEn) updateData.valueEn = trimmed;
-        }
+        // Fallback robusto: sincronizar el nuevo texto en los tres idiomas
+        updateData.valueFr = trimmed;
+        updateData.valueEn = trimmed;
+        updateData.valueEs = trimmed;
+        createData.valueFr = trimmed;
+        createData.valueEn = trimmed;
+        createData.valueEs = trimmed;
       }
     }
 
@@ -143,6 +151,7 @@ export async function updateContentField(
     try {
       revalidatePath('/', 'layout');
       revalidatePath('/');
+      revalidatePath('/(shop)', 'layout');
       revalidatePath('/admin/cms');
       revalidatePath('/admin/contenido');
     } catch (_) {}

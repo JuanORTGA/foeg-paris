@@ -6,7 +6,8 @@ import { JOURNAL_ARTICLES } from '@/lib/journal-data';
 import { getSeoSettings } from '@/lib/settings-actions';
 import HomeClient, { CmsDictionary, ProductItem } from './HomeClient';
 
-export const revalidate = 60; // Habilita ISR de 60s para respuestas instantáneas en 0ms
+export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Carga en vivo sin cache estática para reflejar cambios del CMS en 0ms
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoSettings();
