@@ -67,13 +67,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Gestion de l'environnement Serverless (Vercel) vs Local
-    const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+    // 2. Gestion stricte de l'environnement : En Production (Vercel), JAMAIS d'écriture disque pour éviter EROFS
+    const isProduction =
+      process.env.NODE_ENV === 'production' ||
+      Boolean(process.env.VERCEL || process.env.VERCEL_ENV || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
     const mimeType = file.type || (isVideo ? 'video/mp4' : 'image/jpeg');
     const base64Data = `data:${mimeType};base64,${buffer.toString('base64')}`;
 
-    // Si on est en environnement local avec accès en écriture sur le disque
-    if (!isServerless) {
+    // Si on est STRICTEMENT en développement local (localhost)
+    if (!isProduction) {
       try {
         const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
         await fs.mkdir(uploadsDir, { recursive: true });
@@ -98,7 +101,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Fallback universel haute compatibilité pour Vercel Serverless (Data URI direct sans dépendance disque)
+    // 3. Fallback universel sécurisé pour Production Vercel (Base64 direct sans dépendance disque)
     return NextResponse.json({
       success: true,
       secure_url: base64Data,
