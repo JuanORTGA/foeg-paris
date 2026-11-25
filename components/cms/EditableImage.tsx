@@ -159,6 +159,42 @@ export default function EditableImage({
     window.addEventListener('mouseup', handleMouseUp);
   };
 
+  const handleHeaderTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    isDraggingModal.current = true;
+    dragStartRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      initialX: modalPos.x,
+      initialY: modalPos.y,
+    };
+
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      if (!isDraggingModal.current || moveEvent.touches.length !== 1) return;
+      const moveTouch = moveEvent.touches[0];
+      const dx = moveTouch.clientX - dragStartRef.current.startX;
+      const dy = moveTouch.clientY - dragStartRef.current.startY;
+      const nextX = Math.max(5, Math.min(window.innerWidth - 300, dragStartRef.current.initialX + dx));
+      const nextY = Math.max(5, Math.min(window.innerHeight - 80, dragStartRef.current.initialY + dy));
+      setModalPos({ x: nextX, y: nextY });
+      if (moveEvent.cancelable) {
+        moveEvent.preventDefault();
+      }
+    };
+
+    const handleTouchEnd = () => {
+      isDraggingModal.current = false;
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+    };
+
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
+  };
+
   // Téléversement de fichier (Image ou Vidéo)
   const handleUploadFile = async (file: File) => {
     setUploading(true);
@@ -263,8 +299,9 @@ export default function EditableImage({
         {/* Barre d'en-tête (Grip Header Arrastrable) */}
         <div
           onMouseDown={handleHeaderMouseDown}
-          className="shrink-0 flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 bg-[#EFECE6] border-b border-[#E5E0D8] cursor-move select-none"
-          title="Maintenez le clic pour déplacer cette fenêtre"
+          onTouchStart={handleHeaderTouchStart}
+          className="shrink-0 flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 bg-[#EFECE6] border-b border-[#E5E0D8] cursor-move select-none touch-none"
+          title="Arrastre para mover esta ventana (Mouse o Dedo en móvil)"
         >
           <div className="flex items-center space-x-2">
             <GripHorizontal className="w-3.5 h-3.5 text-foeg-muted" strokeWidth={1.5} />

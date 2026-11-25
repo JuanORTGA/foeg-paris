@@ -176,7 +176,62 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  const handleResetBannerPos = async (e: React.MouseEvent) => {
+  const handleBannerCardTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    isDraggingCard.current = true;
+    dragCardStartRef.current = {
+      startMouseX: touch.clientX,
+      startMouseY: touch.clientY,
+      initialPosX: bannerCardPos.x,
+      initialPosY: bannerCardPos.y,
+    };
+
+    let latestPos = { x: bannerCardPos.x, y: bannerCardPos.y };
+
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      if (!isDraggingCard.current || moveEvent.touches.length !== 1) return;
+      const moveTouch = moveEvent.touches[0];
+      const dx = moveTouch.clientX - dragCardStartRef.current.startMouseX;
+      const dy = moveTouch.clientY - dragCardStartRef.current.startMouseY;
+      latestPos = {
+        x: dragCardStartRef.current.initialPosX + dx,
+        y: dragCardStartRef.current.initialPosY + dy,
+      };
+      setBannerCardPos(latestPos);
+      if (moveEvent.cancelable) {
+        moveEvent.preventDefault();
+      }
+    };
+
+    const handleTouchEnd = async () => {
+      if (!isDraggingCard.current) return;
+      isDraggingCard.current = false;
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+
+      if (isEditing) {
+        registerSaveStart('hero_banner_card_pos');
+        try {
+          const res = await updateContentField('hero_banner_card_pos', JSON.stringify(latestPos));
+          if (res.success) {
+            registerSaveEnd('hero_banner_card_pos', true);
+          } else {
+            registerSaveEnd('hero_banner_card_pos', false);
+          }
+        } catch (_) {
+          registerSaveEnd('hero_banner_card_pos', false);
+        }
+      }
+    };
+
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
+  };
+
+  const handleResetBannerPos = async (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     const zeroPos = { x: 0, y: 0 };
     setBannerCardPos(zeroPos);
@@ -329,22 +384,27 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
                 {isEditing && (
                   <div
                     onMouseDown={handleBannerCardMouseDown}
-                    className="flex items-center justify-between pb-2 mb-3 border-b border-white/20 cursor-move active:cursor-grabbing hover:bg-white/10 px-2 py-1 select-none transition-colors group/drag rounded-none"
-                    title="Maintenez le clic pour déplacer cette fenêtre sur le banner"
+                    onTouchStart={handleBannerCardTouchStart}
+                    className="flex items-center justify-between pb-2 mb-3 border-b border-white/20 cursor-move active:cursor-grabbing hover:bg-white/10 px-2 py-1 select-none transition-colors group/drag rounded-none touch-none"
+                    title="Arrastre para mover esta ventana (Mouse o Dedo en móvil)"
                   >
                     <div className="flex items-center space-x-1.5 text-white/70 group-hover/drag:text-white">
-                      <GripHorizontal className="w-3.5 h-3.5" />
-                      <span className="text-[9px] uppercase tracking-widest font-mono">
+                      <GripHorizontal className="w-3.5 h-3.5 shrink-0" />
+                      <span className="text-[9px] uppercase tracking-widest font-mono truncate">
                         Déplacer la fenêtre
                       </span>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 shrink-0">
                       {(bannerCardPos.x !== 0 || bannerCardPos.y !== 0) && (
                         <button
                           type="button"
                           onClick={handleResetBannerPos}
-                          className="text-[9px] uppercase tracking-wider text-amber-300 hover:text-white underline cursor-pointer"
-                          title="Réinitialiser la position d'origine"
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            handleResetBannerPos(e);
+                          }}
+                          className="text-[9px] uppercase tracking-wider text-amber-300 hover:text-white underline cursor-pointer px-1 py-0.5"
+                          title="Restablecer posición inicial"
                         >
                           Reset
                         </button>
