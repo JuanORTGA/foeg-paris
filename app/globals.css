@@ -1,0 +1,382 @@
+/* FOEG Paris · Vestiaire Permanent */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-foeg-white: #F7F5F0;
+    --text-foeg-black: #1A1A1A;
+    --brand-foeg-navy: #1B2A4A;
+  }
+
+  * {
+    border-color: #E6E3DC;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    /* CALIBRACIÓN DE ESCALA EDITORIAL HAUTE COUTURE:
+       A zoom 100% por defecto en desktop, font-size: 90% (14.4px) reproduce
+       con precisión la sensación amplia, desahogada y elegante que el usuario aprecia al 90% de zoom. */
+    font-size: 90%;
+    background-color: #F7F5F0;
+    color: #1A1A1A;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Vista Móvil (< 768px):
+     Escala calibrada a 15px para lectura refinada y protección obligatoria de 16px en campos
+     para evitar que iOS Safari haga auto-zoom brusco al escribir */
+  @media (max-width: 767px) {
+    html {
+      font-size: 15px;
+    }
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Pantallas ultra-panorámicas */
+  @media (min-width: 1920px) {
+    html {
+      font-size: 93.75%;
+    }
+  }
+
+  body {
+    background-color: #F7F5F0;
+    color: #1A1A1A;
+    min-height: 100vh;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+  }
+
+  ::selection {
+    background-color: #1B2A4A;
+    color: #F7F5F0;
+  }
+
+  /* Règle stricte : suppression des arrondis excessifs, curseur pointer par défaut et scrollbar discrète */
+  button {
+    cursor: pointer;
+  }
+
+  button, input, textarea, select {
+    border-radius: 0px;
+  }
+
+  /* Masquer l'icône de mot de passe native d'Edge/IE pour éviter les doublons */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
+}
+
+/* Micro-détail éditorial : scrollbar fine de luxe pour la page */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 5px;
+}
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: #F7F5F0;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: #D9D5CC;
+}
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: #1B2A4A;
+}
+
+/* Règle stricte pour masquer totalement la scrollbar sur les conteneurs éditoriaux, tabs et le sidebar */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar,
+[class*="no-scrollbar"]::-webkit-scrollbar,
+[class*="scrollbar-none"]::-webkit-scrollbar,
+aside::-webkit-scrollbar,
+aside *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+.no-scrollbar,
+.scrollbar-none,
+[class*="no-scrollbar"],
+[class*="scrollbar-none"],
+aside,
+aside * {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+aside::-webkit-scrollbar-track,
+aside *::-webkit-scrollbar-track,
+aside::-webkit-scrollbar-thumb,
+aside *::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  display: none !important;
+}
+
+/* =========================================================================
+   ANIMATION NATURELLE DU LOGO FOEG (Arrivée de Face, Battement, Posé & Regard)
+   ========================================================================= */
+
+.bird-flight-box {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: birdFrontFlight 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+  perspective: 600px;
+}
+
+.bird-wing-left,
+.bird-wing-right {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.bird-wing-left {
+  z-index: 1;
+  transform-origin: 48% 42%; /* Épaule gauche */
+  animation: birdWingLeftFlapAndFold 1.5s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.bird-body-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.bird-wing-right {
+  z-index: 3;
+  transform-origin: 58% 42%; /* Épaule droite */
+  animation: birdWingRightFlapAndFold 1.5s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.bird-head-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  transform-origin: 63% 34.7%; /* Articulation cervicale */
+  animation: birdHeadLookAtFoeg 3.5s cubic-bezier(0.35, 0.05, 0.25, 1) forwards;
+  will-change: transform;
+  backface-visibility: visible;
+}
+
+/* 1. Trajectoire de vol frontal en perspective 3D, décélération majestueuse et posé naturel */
+@keyframes birdFrontFlight {
+  0% {
+    opacity: 0;
+    transform: scale(0.32) translateY(-26px);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(0.55) translateY(-17px);
+  }
+  50% {
+    transform: scale(0.82) translateY(-7px);
+  }
+  75% {
+    /* Épanouissement majestueux et plané avant le contact */
+    transform: scale(1.03) translateY(-1.5px);
+  }
+  86% {
+    /* Contact doux des pattes avec la perche */
+    transform: scale(1.0) translateY(0px);
+  }
+  92% {
+    /* Amorti physique souple et pondéré (flexion naturelle) */
+    transform: scaleX(1.015) scaleY(0.97) translateY(1.8px);
+  }
+  97% {
+    /* Micro-relâchement élastique */
+    transform: scaleX(0.995) scaleY(1.005) translateY(-0.3px);
+  }
+  100% {
+    /* Posture noble et parfaitement stable */
+    opacity: 1;
+    transform: scale(1.0) translateY(0px);
+  }
+}
+
+/* 2. Battement fluide et sinusoïdal de l'aile gauche, repliement soyeux au posé */
+@keyframes birdWingLeftFlapAndFold {
+  0% {
+    opacity: 0;
+    transform: rotate(26deg) scale(0.9);
+  }
+  14% {
+    opacity: 1;
+    transform: rotate(-20deg) scale(1.03);
+  }
+  28% {
+    transform: rotate(28deg) scale(0.97);
+  }
+  42% {
+    transform: rotate(-22deg) scale(1.04);
+  }
+  58% {
+    transform: rotate(24deg) scale(0.99);
+  }
+  72% {
+    /* Grandes ailes déployées en plané pour freiner avec grâce */
+    transform: rotate(30deg) scale(1.05);
+    opacity: 1;
+  }
+  82% {
+    /* Début du repliement continu et doux le long du corps */
+    transform: rotate(-6deg) scale(0.88);
+    opacity: 0.85;
+  }
+  91% {
+    transform: rotate(-30deg) scale(0.65);
+    opacity: 0.35;
+  }
+  100% {
+    /* Ailes complètement rangées dans la silhouette officielle */
+    transform: rotate(-48deg) scale(0.38);
+    opacity: 0;
+  }
+}
+
+/* 3. Battement symétrique de l'aile droite, repliement soyeux au posé */
+@keyframes birdWingRightFlapAndFold {
+  0% {
+    opacity: 0;
+    transform: rotate(-26deg) scale(0.9);
+  }
+  14% {
+    opacity: 1;
+    transform: rotate(20deg) scale(1.03);
+  }
+  28% {
+    transform: rotate(-28deg) scale(0.97);
+  }
+  42% {
+    transform: rotate(22deg) scale(1.04);
+  }
+  58% {
+    transform: rotate(-24deg) scale(0.99);
+  }
+  72% {
+    /* Grandes ailes déployées en plané pour freiner avec grâce */
+    transform: rotate(-30deg) scale(1.05);
+    opacity: 1;
+  }
+  82% {
+    /* Début du repliement continu et doux le long du corps */
+    transform: rotate(6deg) scale(0.88);
+    opacity: 0.85;
+  }
+  91% {
+    transform: rotate(30deg) scale(0.65);
+    opacity: 0.35;
+  }
+  100% {
+    /* Ailes complètement rangées dans la silhouette officielle */
+    transform: rotate(48deg) scale(0.38);
+    opacity: 0;
+  }
+}
+
+/* 4. Rotation vivante, noble et ultra-fluide de la tête vers le mot "FOEG" */
+@keyframes birdHeadLookAtFoeg {
+  /* Regarde devant pendant le vol, l'atterrissage et l'installation */
+  0%,
+  50% {
+    transform: rotate(0deg) scaleX(1);
+  }
+  /* Tourne doucement la tête vers la DROITE pour admirer "FOEG" */
+  58%,
+  76% {
+    transform: rotate(2deg) scaleX(-1);
+  }
+  /* Retour doux et progressif vers la GAUCHE */
+  84%,
+  100% {
+    transform: rotate(0deg) scaleX(1);
+  }
+}
+
+/* =========================================================================
+   STYLE D'IMPRESSION OFFICIEL MAISON FOEG (FACTURE CLEAN A4 SANS CHROME ADMIN)
+   ========================================================================= */
+@media print {
+  /* Réinitialiser le document pour une impression blanche impeccable */
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Masquer tous les éléments du body par défaut */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Rendre visible UNIQUEMENT la facture et ses éléments enfants */
+  #printable-invoice,
+  #printable-invoice * {
+    visibility: visible;
+  }
+
+  /* Repositionner la facture en plein écran A4 propre sans décalage */
+  #printable-invoice {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  /* Masquer impérativement le header du admin, sidebar, navigation, toasts et boutons */
+  header,
+  aside,
+  nav,
+  button,
+  select,
+  input,
+  .no-print,
+  .print\:hidden {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 15mm 15mm;
+  }
+}
+

@@ -1,0 +1,229 @@
+// Prisma schema for FOEG Paris
+// Conexión a Neon PostgreSQL con soporte para Connection Pooling
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  name         String
+  price        Float
+  currency     String        @default("€")
+  description  String        @db.Text
+  category     String        // 'Mujer' | 'Hombre'
+  subcategory  String?       // 'Manteaux' | 'Chemises' | 'Pantalons' | 'Robes' | 'Chaussures' | 'Accessoires'
+  badge        String?       // 'LIMITED' | 'SALE' | 'NEW' | 'EXCLUSIVE' | 'UNIQUE' | null
+  images       String[]      // URLs de imágenes en alta definición
+  isNew        Boolean       @default(true)
+  composition  String
+  origin       String
+  care         String[]
+  variants     Variant[]
+  measurements Measurement[]
+  wishlists    Wishlist[]
+  reviews      Review[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Variant {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String   // 'S' | 'M' | 'L' | 'XL'
+  stock     Int      @default(0)
+  color     String
+
+  @@unique([productId, size, color])
+}
+
+model Measurement {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String  // 'S' | 'M' | 'L'
+  chest     String
+  waist     String
+  hips      String
+  length    String
+
+  @@unique([productId, size])
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email          String
+  firstName      String
+  lastName       String
+  address        String
+  city           String
+  postalCode     String
+  shippingMethod String        @default("SHIPPING") // "SHIPPING" | "PICKUP"
+  paymentMethod  String        @default("STRIPE")   // "STRIPE" | "PAYPAL" | "ZELLE" | "BINANCE" | "ZINLI" | "PAGO_MOVIL"
+  addressString  String?       @db.Text
+  total          Float
+  currency       String        @default("EUR")
+  status         String        @default("En préparation à l’Atelier") // "En préparation à l’Atelier" | "Expédié" | "Livré"
+  trackingNumber String?
+  items          OrderItem[]
+  transactions   Transaction[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Transaction {
+  id             String   @id @default(cuid())
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount         Float
+  currency       String   @default("EUR")
+  status         String   @default("PAID") // "PAID" | "PENDING" | "FAILED"
+  paymentMethod  String   @default("CARD") // "CARD" | "APPLE_PAY" | "KLARNA"
+  transactionRef String   @unique
+  createdAt      DateTime @default(now())
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  productName String
+  size        String
+  quantity    Int      @default(1)
+  price       Float
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  password  String     // Mot de passe sécurisé (hash bcrypt)
+  role      Role       @default(CUSTOMER)
+  orders    Order[]
+  wishlists Wishlist[]
+  reviews   Review[]
+  addresses Address[]
+  notifications Notification[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName  String
+  lastName   String
+  address    String
+  city       String
+  postalCode String
+  country    String
+  phone      String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  discountType  DiscountType @default(PERCENTAGE)
+  discountValue Float
+  isActive      Boolean      @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+enum FitRating {
+  SMALL
+  TRUE_TO_SIZE
+  LARGE
+}
+
+model Review {
+  id         String    @id @default(cuid())
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating     Int
+  fit        FitRating @default(TRUE_TO_SIZE)
+  comment    String    @db.Text
+  imageUrl   String?
+  isApproved Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+}
+
+model SiteContent {
+  id          String   @id @default(cuid())
+  key         String   @unique // 'hero_title_line1', 'hero_title_line2', 'hero_season', 'philosophy_chapter', 'philosophy_title', 'philosophy_desc'
+  section     String   // 'hero' | 'philosophy' | 'values' | 'general'
+  valueFr     String   @db.Text
+  valueEn     String   @db.Text
+  valueEs     String   @db.Text
+  isGrayscale Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("info") // 'product' | 'order' | 'info'
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("Cercle Privé")
+  status    String   @default("ACTIVE") // 'ACTIVE' | 'PAUSED' | 'UNSUBSCRIBED'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
