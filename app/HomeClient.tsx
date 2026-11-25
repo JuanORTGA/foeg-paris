@@ -377,7 +377,7 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
                     ? { transform: `translate3d(${bannerCardPos.x}px, ${bannerCardPos.y}px, 0)` }
                     : undefined
                 }
-                className={`w-full lg:w-96 bg-black/60 sm:bg-black/50 backdrop-blur-md p-4 sm:p-6 md:p-8 border border-white/20 rounded-none shadow-floating pointer-events-auto relative mt-4 lg:mt-0 ${isEditing ? 'hover:border-white/50 transition-colors' : ''
+                className={`w-full max-w-[calc(100vw-2.5rem)] sm:max-w-md lg:w-96 bg-black/75 sm:bg-black/50 backdrop-blur-md p-3.5 sm:p-6 md:p-8 border border-white/20 rounded-none shadow-floating pointer-events-auto relative mt-2 sm:mt-4 lg:mt-0 ${isEditing ? 'hover:border-white/50 transition-colors' : ''
                   }`}
               >
                 {/* Poignée de déplacement supérieure (Mode Studio CMS) */}
@@ -416,14 +416,14 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
                 <EditableText
                   contentKey="hero_cercle_title"
                   defaultValue={getCms('hero_cercle_title', t('hero.cercleTitle'))}
-                  className="text-[10px] uppercase tracking-[0.25em] text-white/90 block font-medium mb-1"
+                  className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/90 block font-medium mb-1"
                 />
                 <EditableText
                   contentKey="hero_cercle_desc"
                   defaultValue={getCms('hero_cercle_desc', t('hero.cercleDesc'))}
                   as="p"
                   multiline={true}
-                  className="text-xs text-white/70 font-light leading-relaxed mb-4 block"
+                  className="text-[11px] sm:text-xs text-white/70 font-light leading-relaxed mb-3 sm:mb-4 block"
                 />
 
                 <form onSubmit={handleNewsletterSubmit} className="relative flex items-center" suppressHydrationWarning>
@@ -434,7 +434,7 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder={t('hero.emailPlaceholder')}
-                    className="w-full bg-transparent border-b border-white py-2 pr-8 text-xs text-white placeholder:text-white/40 focus:outline-none transition-colors duration-200 font-light rounded-none"
+                    className="w-full bg-transparent border-b border-white py-1.5 sm:py-2 pr-8 text-[11px] sm:text-xs text-white placeholder:text-white/40 focus:outline-none transition-colors duration-200 font-light rounded-none"
                     aria-label="Adresse courriel pour le Cercle Privé"
                   />
                   <button
