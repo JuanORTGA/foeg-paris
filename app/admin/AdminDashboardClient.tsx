@@ -102,66 +102,66 @@ export default function AdminDashboardClient({
       {/* =========================================================================
           4 TARJETAS DE MÉTRICAS CON DATOS REALES DE LA BASE DE DATOS
       ========================================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {/* Tarjeta 1: Ventas del día */}
-        <div className="bg-white border border-foeg-border/80 p-6 space-y-4 shadow-subtle">
-          <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-foeg-muted font-light">
-            <span>{t('admin.todaySales')}</span>
-            <TrendingUp className="w-4 h-4 text-emerald-700" strokeWidth={1} />
+        <div className="bg-white border border-foeg-border/80 p-3.5 sm:p-6 space-y-2 sm:space-y-4 shadow-subtle">
+          <div className="flex items-center justify-between text-[9px] sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em] text-foeg-muted font-light">
+            <span className="truncate pr-1">{t('admin.todaySales')}</span>
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-700 shrink-0" strokeWidth={1} />
           </div>
           <div>
-            <span className="font-serif text-3xl sm:text-4xl font-normal text-foeg-black tracking-tight">
+            <span className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal text-foeg-black tracking-tight block">
               {displaySales.toLocaleString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : 'fr-FR')} €
             </span>
-            <p className="text-[11px] text-emerald-800 font-light mt-1">
+            <p className="text-[10px] sm:text-[11px] text-emerald-800 font-light mt-0.5 truncate">
               {t('admin.todaySalesDesc')}
             </p>
           </div>
         </div>
 
         {/* Tarjeta 2: Total Pedidos */}
-        <div className="bg-white border border-foeg-border/80 p-6 space-y-4 shadow-subtle">
-          <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-foeg-muted font-light">
-            <span>{t('admin.totalOrders')}</span>
-            <Shirt className="w-4 h-4 text-foeg-navy" strokeWidth={1} />
+        <div className="bg-white border border-foeg-border/80 p-3.5 sm:p-6 space-y-2 sm:space-y-4 shadow-subtle">
+          <div className="flex items-center justify-between text-[9px] sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em] text-foeg-muted font-light">
+            <span className="truncate pr-1">{t('admin.totalOrders')}</span>
+            <Shirt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-foeg-navy shrink-0" strokeWidth={1} />
           </div>
           <div>
-            <span className="font-serif text-3xl sm:text-4xl font-normal text-foeg-black tracking-tight">
+            <span className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal text-foeg-black tracking-tight block">
               {displayOrdersCount}
             </span>
-            <p className="text-[11px] text-foeg-muted font-light mt-1">
+            <p className="text-[10px] sm:text-[11px] text-foeg-muted font-light mt-0.5 truncate">
               {t('admin.totalOrdersDesc')}
             </p>
           </div>
         </div>
 
         {/* Tarjeta 3: Clientes */}
-        <div className="bg-white border border-foeg-border/80 p-6 space-y-4 shadow-subtle">
-          <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-foeg-muted font-light">
-            <span>{t('admin.privateClients')}</span>
-            <Users className="w-4 h-4 text-foeg-navy" strokeWidth={1} />
+        <div className="bg-white border border-foeg-border/80 p-3.5 sm:p-6 space-y-2 sm:space-y-4 shadow-subtle">
+          <div className="flex items-center justify-between text-[9px] sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em] text-foeg-muted font-light">
+            <span className="truncate pr-1">{t('admin.privateClients')}</span>
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-foeg-navy shrink-0" strokeWidth={1} />
           </div>
           <div>
-            <span className="font-serif text-3xl sm:text-4xl font-normal text-foeg-black tracking-tight">
+            <span className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal text-foeg-black tracking-tight block">
               {displayClientsCount}
             </span>
-            <p className="text-[11px] text-foeg-muted font-light mt-1">
+            <p className="text-[10px] sm:text-[11px] text-foeg-muted font-light mt-0.5 truncate">
               {t('admin.privateClientsDesc')}
             </p>
           </div>
         </div>
 
         {/* Tarjeta 4: Stock critique */}
-        <div className="bg-white border border-foeg-border/80 p-6 space-y-4 shadow-subtle">
-          <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-foeg-muted font-light">
-            <span>{t('admin.criticalStock')}</span>
-            <AlertTriangle className="w-4 h-4 text-amber-700" strokeWidth={1} />
+        <div className="bg-white border border-foeg-border/80 p-3.5 sm:p-6 space-y-2 sm:space-y-4 shadow-subtle">
+          <div className="flex items-center justify-between text-[9px] sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em] text-foeg-muted font-light">
+            <span className="truncate pr-1">{t('admin.criticalStock')}</span>
+            <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-700 shrink-0" strokeWidth={1} />
           </div>
           <div>
-            <span className="font-serif text-3xl sm:text-4xl font-normal text-amber-800 tracking-tight">
+            <span className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal text-amber-800 tracking-tight block">
               {displayLowStock} {displayLowStock === 1 ? t('admin.atelierRestock') : t('admin.atelierRestocks')}
             </span>
-            <p className="text-[11px] text-foeg-muted font-light mt-1">
+            <p className="text-[10px] sm:text-[11px] text-foeg-muted font-light mt-0.5 truncate">
               {t('admin.criticalStockDesc')}
             </p>
           </div>

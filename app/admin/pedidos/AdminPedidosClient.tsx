@@ -271,7 +271,7 @@ export default function AdminPedidosClient({ initialOrders }: AdminPedidosClient
       </div>
 
       {/* Barre de Recherche et Filtres */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-foeg-surface/40 p-4 border border-foeg-border/60 print:hidden">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 bg-foeg-surface/40 p-3 sm:p-4 border border-foeg-border/60 print:hidden">
         <div className="relative w-full sm:w-80">
           <input
             type="text"
@@ -284,18 +284,18 @@ export default function AdminPedidosClient({ initialOrders }: AdminPedidosClient
           <Search className="w-4 h-4 text-foeg-muted absolute left-2.5 top-2.5" strokeWidth={1} />
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-          <span className="text-[11px] uppercase tracking-wider text-foeg-muted font-light shrink-0">
+        <div className="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+          <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-foeg-muted font-light shrink-0">
             {t('admin.table.status')}:
           </span>
-          <div className="flex flex-wrap gap-1.5 text-xs">
+          <div className="flex items-center gap-1.5 text-xs whitespace-nowrap">
             {statusFilterKeys.map((key) => (
               <button
                 key={key}
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setStatusFilter(key)}
-                className={`px-3 py-1.5 uppercase tracking-wider text-[11px] transition-colors cursor-pointer ${
+                className={`px-2.5 sm:px-3 py-1.5 uppercase tracking-wider text-[10px] sm:text-[11px] transition-colors cursor-pointer shrink-0 ${
                   statusFilter === key
                     ? key === 'verify'
                       ? 'bg-amber-600 text-white font-medium'
@@ -310,8 +310,139 @@ export default function AdminPedidosClient({ initialOrders }: AdminPedidosClient
         </div>
       </div>
 
-      {/* Tableau des Commandes */}
-      <div className="bg-white border border-foeg-border shadow-subtle overflow-x-auto">
+      {/* Cartes Responsives pour Mobile (md:hidden) */}
+      <div className="md:hidden space-y-3 print:hidden">
+        {filteredOrders.length === 0 ? (
+          <div className="bg-white border border-foeg-border p-8 text-center text-foeg-muted font-light text-xs">
+            {t('catalog.noResults')}
+          </div>
+        ) : (
+          filteredOrders.map((ord) => (
+            <div key={ord.id} className="bg-white border border-foeg-border p-4 space-y-3 shadow-2xs">
+              {/* Header card: Pedido + Fecha + Total */}
+              <div className="flex items-start justify-between border-b border-foeg-border/50 pb-2.5">
+                <div>
+                  <Link
+                    href={`/admin/pedidos/${ord.id}`}
+                    className="font-mono text-xs font-semibold text-foeg-black hover:text-foeg-navy hover:underline block"
+                  >
+                    #{ord.orderNumber}
+                  </Link>
+                  <span className="block text-[10px] text-foeg-muted font-light mt-0.5">
+                    {new Date(ord.createdAt).toLocaleDateString(
+                      language === 'es' ? 'es-ES' : language === 'en' ? 'en-US' : 'fr-FR',
+                      { day: 'numeric', month: 'short', year: 'numeric' }
+                    )}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="font-serif text-base font-normal text-foeg-black">
+                    {ord.total.toLocaleString(language === 'es' ? 'es-ES' : language === 'en' ? 'en-US' : 'fr-FR', {
+                      style: 'currency',
+                      currency: ord.currency || 'EUR',
+                    })}
+                  </span>
+                </div>
+              </div>
+
+              {/* Cliente y Artículos */}
+              <div className="space-y-1.5 text-xs">
+                <div className="font-serif text-sm text-foeg-black font-medium">
+                  {ord.firstName} {ord.lastName}
+                </div>
+                <div className="text-[11px] text-foeg-muted font-light flex items-center gap-1.5 truncate">
+                  <span>{ord.city}</span>
+                  <span>·</span>
+                  <span className="truncate">{ord.email}</span>
+                </div>
+
+                <div className="text-[11px] text-foeg-muted bg-foeg-surface/40 p-2.5 border border-foeg-border/40 mt-1">
+                  {ord.items.length > 0 ? (
+                    <span className="text-foeg-black font-light">
+                      {ord.items[0].productName} ({t('admin.orders.size')} {ord.items[0].size})
+                      {ord.items.length > 1 && (
+                        <span className="text-foeg-navy font-medium ml-1">
+                          +{ord.items.length - 1} {ord.items.length - 1 === 1 ? t('admin.orders.moreItems') : t('admin.orders.moreItemsPlural')}
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    'Pièces sur-mesure'
+                  )}
+                </div>
+              </div>
+
+              {/* Estado y Acciones */}
+              <div className="flex items-center justify-between pt-2.5 border-t border-foeg-border/50 gap-2">
+                <div className="flex-1 min-w-0">
+                  {ord.status === 'PENDING_VERIFICATION' || ord.status.includes('attente') || ord.status === 'À Vérifier' ? (
+                    <button
+                      type="button"
+                      suppressHydrationWarning
+                      disabled={updatingId === ord.id}
+                      onClick={() => handleApprovePayment(ord.id)}
+                      className="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-1.5 px-2 text-[10px] uppercase tracking-wider font-medium flex items-center justify-center space-x-1 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <Check className="w-3 h-3" strokeWidth={2} />
+                      <span>{t('admin.orders.validatePayment')}</span>
+                    </button>
+                  ) : (
+                    <select
+                      value={ord.status}
+                      suppressHydrationWarning
+                      disabled={updatingId === ord.id}
+                      onChange={(e) => handleStatusChange(ord.id, e.target.value)}
+                      className={`w-full text-[10px] uppercase tracking-wider font-medium py-1.5 px-2 border focus:outline-none focus:border-foeg-navy cursor-pointer ${
+                        ord.status === 'Livré'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                          : ord.status === 'Expédié'
+                          ? 'bg-blue-50 text-foeg-navy border-blue-300'
+                          : 'bg-amber-50 text-amber-800 border-amber-300'
+                      }`}
+                    >
+                      <option value="En préparation à l’Atelier">{t('admin.orderDetail.statusPrep')}</option>
+                      <option value="Expédié">{t('admin.orderDetail.statusShipped')}</option>
+                      <option value="Livré">{t('admin.orderDetail.statusDelivered')}</option>
+                    </select>
+                  )}
+                </div>
+
+                <div className="flex items-center space-x-1 shrink-0">
+                  <Link
+                    href={`/admin/pedidos/${ord.id}`}
+                    className="p-1.5 border border-foeg-border text-foeg-muted hover:text-foeg-navy hover:bg-foeg-surface transition-colors"
+                    title={t('admin.orders.openInvoice')}
+                  >
+                    <Printer className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  </Link>
+                  <button
+                    type="button"
+                    suppressHydrationWarning
+                    onClick={() => setSelectedOrder(ord)}
+                    className="p-1.5 border border-foeg-border text-foeg-muted hover:text-foeg-navy hover:bg-foeg-surface transition-colors cursor-pointer"
+                    title={t('admin.orders.slipTitle')}
+                  >
+                    <Eye className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  </button>
+                  <button
+                    type="button"
+                    suppressHydrationWarning
+                    disabled={updatingId === ord.id}
+                    onClick={() => handleDeleteOrder(ord.id, ord.orderNumber)}
+                    className="p-1.5 border border-foeg-border text-foeg-muted hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
+                    title={t('admin.orders.delete')}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Tableau des Commandes (Desktop et Impression) */}
+      <div className="hidden md:block print:block bg-white border border-foeg-border shadow-subtle overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs min-w-[650px]">
           <thead>
             <tr className="border-b border-foeg-border bg-foeg-surface/30 text-[10px] uppercase tracking-[0.22em] text-foeg-muted font-medium">

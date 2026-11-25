@@ -97,14 +97,14 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 md:p-8 animate-fadeIn"
     >
       {/* Contenedor Principal Split-Screen (60% / 40% Desktop, Stacked Mobile) */}
-      <div className="relative w-full max-w-4xl bg-foeg-white border border-foeg-border rounded-none shadow-floating flex flex-col md:flex-row overflow-hidden max-h-[92vh] md:max-h-[82vh]">
-        {/* TAREA 1: Columna Izquierda (60% del ancho) - Imagen Editorial de Alta Definición */}
-        <div className="w-full md:w-[58%] lg:w-[60%] shrink-0 relative bg-foeg-surface overflow-hidden aspect-[4/3] sm:aspect-[3/4] md:aspect-auto md:h-auto min-h-[220px] sm:min-h-[280px] md:min-h-[500px]">
+      <div className="relative w-full max-w-4xl bg-foeg-white border border-foeg-border rounded-none shadow-floating flex flex-col md:flex-row overflow-hidden max-h-[94vh] md:max-h-[82vh]">
+        {/* Columna Izquierda - Imagen Editorial Proporcionada */}
+        <div className="w-full md:w-[54%] lg:w-[58%] shrink-0 relative bg-foeg-surface overflow-hidden h-44 sm:h-64 md:h-auto min-h-[160px] md:min-h-[500px]">
           <MediaBox
             src={product.images[0]}
             alt={product.name}
             aspectRatio="full"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
             sizes="(max-width: 768px) 100vw, 60vw"
             priority={true}
           />
@@ -113,8 +113,8 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
           {(() => {
             if (isEntirelySoldOut) {
               return (
-                <div className="absolute top-4 left-4 z-10 pointer-events-none">
-                  <span className="bg-foeg-white text-foeg-black text-[9px] uppercase tracking-[0.25em] px-3 py-1.5 font-medium border border-foeg-border/80 shadow-subtle">
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 pointer-events-none">
+                  <span className="bg-foeg-white text-foeg-black text-[8px] sm:text-[9px] uppercase tracking-[0.25em] px-2.5 py-1 font-medium border border-foeg-border/80 shadow-subtle">
                     {t('products.outOfStock') || 'Épuisé'}
                   </span>
                 </div>
@@ -124,8 +124,8 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
             const badgeConfig = getProductBadge(product, t);
             if (badgeConfig) {
               return (
-                <div className="absolute top-4 left-4 z-10 pointer-events-none">
-                  <span className={`${badgeConfig.className} text-[9px] uppercase tracking-[0.25em] px-3 py-1 font-medium shadow-subtle`}>
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 pointer-events-none">
+                  <span className={`${badgeConfig.className} text-[8px] sm:text-[9px] uppercase tracking-[0.25em] px-2.5 py-1 font-medium shadow-subtle`}>
                     {badgeConfig.label}
                   </span>
                 </div>
@@ -136,46 +136,46 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
           })()}
         </div>
 
-        {/* TAREA 1 & 2: Columna Derecha (40% del ancho) - Panel The Row + Temu Style */}
-        <div className="w-full md:w-[42%] lg:w-[40%] flex flex-col justify-between p-6 sm:p-8 md:p-9 bg-foeg-white relative overflow-y-auto">
-          {/* TAREA 3: Botón de Cerrar (X) fino en la esquina superior derecha */}
+        {/* Columna Derecha - Panel de Información y Compra */}
+        <div className="w-full md:w-[46%] lg:w-[42%] flex flex-col justify-between p-4 sm:p-7 md:p-9 bg-foeg-white relative overflow-y-auto">
+          {/* Botón de Cerrar (X) fino en la esquina superior derecha */}
           <button
             type="button"
             suppressHydrationWarning
             onClick={onClose}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-1.5 text-foeg-muted hover:text-foeg-black transition-colors focus:outline-none cursor-pointer z-20"
+            className="absolute top-3 right-3 sm:top-5 sm:right-5 p-1.5 text-foeg-muted hover:text-foeg-black transition-colors focus:outline-none cursor-pointer z-20"
             aria-label="Fermer"
           >
             <X className="w-4 h-4" strokeWidth={1.2} />
           </button>
 
           {/* Sección Superior: Encabezado, Título, Precio y Descripción */}
-          <div className="space-y-4 pr-6 sm:pr-8">
+          <div className="space-y-2 sm:space-y-3.5 pr-6 sm:pr-8">
             {/* Encabezado Sans-serif */}
-            <span className="text-[10px] uppercase tracking-[0.25em] text-foeg-muted font-medium block">
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.22em] text-foeg-muted font-medium block">
               {product.origin ? product.origin.split(',')[0].trim().toUpperCase() : 'CONFECTIONNÉ À PARIS'}
             </span>
 
             {/* Título en tipografía Serif de gran elegancia */}
-            <h2 className="font-serif text-2xl sm:text-3xl font-light text-foeg-black tracking-tight leading-snug">
+            <h2 className="font-serif text-lg sm:text-2xl md:text-3xl font-light text-foeg-black tracking-tight leading-snug line-clamp-2">
               {product.name}
             </h2>
 
             {/* Precio en fuente Sans-serif */}
-            <p className="text-base sm:text-lg font-normal text-foeg-black tracking-wide">
+            <p className="text-sm sm:text-base md:text-lg font-normal text-foeg-black tracking-wide">
               {formatPrice(product.price)}
             </p>
 
-            {/* Descripción limitada a 3 líneas con "..." y "Lire la suite" */}
-            <div className="pt-1">
-              <p className="text-xs text-foeg-muted font-light leading-relaxed line-clamp-3">
+            {/* Descripción limitada */}
+            <div className="pt-0.5">
+              <p className="text-[11px] sm:text-xs text-foeg-muted font-light leading-relaxed line-clamp-2 sm:line-clamp-3">
                 {product.description}
               </p>
               <Link
                 href={`/producto/${product.slug}`}
                 prefetch={true}
                 onClick={onClose}
-                className="text-[11px] uppercase tracking-[0.16em] text-foeg-navy hover:text-foeg-black underline underline-offset-4 transition-colors font-medium inline-block mt-1.5"
+                className="text-[10px] sm:text-[11px] uppercase tracking-[0.16em] text-foeg-navy hover:text-foeg-black underline underline-offset-4 transition-colors font-medium inline-block mt-1"
               >
                 {t('pdp.readMore')}
               </Link>
@@ -183,26 +183,26 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
           </div>
 
           {/* Sección Inferior: Selector de Tallas y Botones de Acción */}
-          <div className="pt-6 border-t border-foeg-border/80 space-y-5 mt-6">
+          <div className="pt-3 sm:pt-5 border-t border-foeg-border/80 space-y-3 sm:space-y-4 mt-3 sm:mt-5">
             {/* Selector de Color */}
             {availableColors.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-foeg-black font-medium">
+              <div className="space-y-1">
+                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] text-foeg-black font-medium">
                   {t('pdp.colorLabel')}{' '}
                   <span className="font-semibold text-foeg-navy">
                     {getTranslatedColor(selectedColor, language)}
                   </span>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap gap-1.5">
                   {availableColors.map((col) => (
                     <button
                       key={col}
                       type="button"
                       onClick={() => setSelectedColor(col)}
-                      className={`px-2.5 py-1 text-[11px] border uppercase tracking-wider transition-all cursor-pointer ${
+                      className={`px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-[11px] border uppercase tracking-wider transition-all cursor-pointer ${
                         selectedColor === col
                           ? 'border-foeg-navy bg-foeg-navy text-white font-medium'
-                          : 'border-foeg-border text-foeg-black hover:border-foeg-navy'
+                          : 'border-foeg-border text-foeg-black hover:border-foeg-navy bg-white'
                       }`}
                     >
                       {getTranslatedColor(col, language)}
@@ -212,21 +212,21 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
               </div>
             )}
 
-            {/* SELECTOR DE TALLAS (CRÍTICO) */}
-            <div className="space-y-2.5">
+            {/* SELECTOR DE TALLAS */}
+            <div className="space-y-1.5 sm:space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-black font-medium">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.18em] text-foeg-black font-medium">
                   {t('cart.size') || 'Taille'} : <span className="font-semibold">{selectedSize}</span>
                 </span>
                 {currentSizeOutOfStock && (
-                  <span className="text-[10px] text-amber-800 uppercase tracking-wider font-light">
+                  <span className="text-[9px] text-amber-800 uppercase tracking-wider font-light">
                     {t('pdp.outOfStock')}
                   </span>
                 )}
               </div>
 
-              {/* Botones de Talla (S, M, L) - Con tachado si stock = 0 */}
-              <div className="flex items-center space-x-2.5">
+              {/* Botones de Talla - Compactos en móvil */}
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {allSizes.map((size) => {
                   const outOfStock = getStockForSize(size) <= 0;
                   const isSelected = selectedSize === size;
@@ -238,12 +238,12 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
                       suppressHydrationWarning
                       disabled={outOfStock}
                       onClick={() => setSelectedSize(size)}
-                      className={`h-10 min-w-10 px-3.5 text-xs uppercase tracking-wider font-medium transition-all duration-200 border rounded-none cursor-pointer relative ${
+                      className={`h-8 min-w-8 sm:h-10 sm:min-w-10 px-2.5 sm:px-3.5 text-[11px] sm:text-xs uppercase tracking-wider font-medium transition-all duration-200 border rounded-none cursor-pointer relative flex items-center justify-center ${
                         outOfStock
                           ? 'border-foeg-border text-foeg-muted/40 line-through cursor-not-allowed bg-foeg-surface/40'
                           : isSelected
                           ? 'bg-foeg-navy text-foeg-white border-foeg-navy shadow-subtle'
-                          : 'border-foeg-border text-foeg-black hover:border-foeg-black bg-transparent'
+                          : 'border-foeg-border text-foeg-black hover:border-foeg-black bg-white'
                       }`}
                       aria-label={`Taille ${size}${outOfStock ? ' - Épuisé' : ''}`}
                     >
@@ -255,14 +255,14 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
             </div>
 
             {/* BOTONES DE ACCIÓN */}
-            <div className="space-y-2.5 pt-1">
-              {/* Botón Principal: AJOUTER AU PANIER en Azul Marino foeg-navy */}
+            <div className="space-y-1.5 sm:space-y-2 pt-0.5">
+              {/* Botón Principal: AJOUTER AU PANIER en Azul Marino */}
               <button
                 type="button"
                 suppressHydrationWarning
                 disabled={isEntirelySoldOut || currentSizeOutOfStock}
                 onClick={handleAddToCart}
-                className={`w-full py-3.5 px-6 text-xs uppercase tracking-[0.22em] font-medium transition-all duration-300 rounded-none shadow-subtle flex items-center justify-center space-x-2 ${
+                className={`w-full py-2.5 sm:py-3.5 px-4 sm:px-6 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-medium transition-all duration-300 rounded-none shadow-subtle flex items-center justify-center space-x-2 ${
                   isEntirelySoldOut || currentSizeOutOfStock
                     ? 'bg-foeg-border text-foeg-muted cursor-not-allowed border border-foeg-border'
                     : isAdded
@@ -285,12 +285,12 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
                 )}
               </button>
 
-              {/* Enlace Secundario Sutil: Voir la fiche complète */}
+              {/* Enlace Secundario Sutil */}
               <Link
                 href={`/producto/${product.slug}`}
                 prefetch={true}
                 onClick={onClose}
-                className="block text-center text-[10px] uppercase tracking-[0.2em] text-foeg-muted hover:text-foeg-black transition-colors font-light py-1"
+                className="block text-center text-[9px] sm:text-[10px] uppercase tracking-[0.18em] text-foeg-muted hover:text-foeg-black transition-colors font-light py-0.5"
               >
                 {t('pdp.viewDetails')}
               </Link>

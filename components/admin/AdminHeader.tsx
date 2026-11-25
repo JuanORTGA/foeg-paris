@@ -51,7 +51,7 @@ export default function AdminHeader({ onToggleMobileMenu }: AdminHeaderProps) {
 
   // Mapeo dinámico de Breadcrumbs
   const getBreadcrumbTitle = () => {
-    if (pathname === '/admin') return t('admin.dashboard');
+    if (pathname === '/admin') return language === 'fr' ? 'Vue d’ensemble' : language === 'en' ? 'Overview' : 'Panel';
     if (pathname?.includes('/admin/pedidos')) return t('admin.orders');
     if (pathname?.includes('/admin/productos')) return t('admin.products');
     if (pathname?.includes('/admin/contenido')) return t('admin.content');
@@ -172,7 +172,7 @@ export default function AdminHeader({ onToggleMobileMenu }: AdminHeaderProps) {
           {t('admin.administration')}
         </Link>
         <span className="text-foeg-muted/50 font-light hidden sm:inline">/</span>
-        <span className="text-foeg-black font-medium tracking-[0.2em] truncate max-w-[120px] sm:max-w-none text-[11px] sm:text-xs">
+        <span className="text-foeg-black font-medium tracking-[0.16em] sm:tracking-[0.2em] truncate max-w-[160px] sm:max-w-none text-[11px] sm:text-xs">
           {getBreadcrumbTitle()}
         </span>
       </div>

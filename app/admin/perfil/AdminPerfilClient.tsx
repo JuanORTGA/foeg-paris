@@ -125,7 +125,7 @@ export default function AdminPerfilClient({ initialProfile }: AdminPerfilClientP
   };
 
   return (
-    <div className="space-y-10 max-w-4xl p-6 sm:p-10 relative">
+    <div className="space-y-6 sm:space-y-10 max-w-4xl p-3 sm:p-8 relative">
       {/* Toast Notification */}
       {toast && (
         <div
@@ -160,7 +160,7 @@ export default function AdminPerfilClient({ initialProfile }: AdminPerfilClientP
       {/* =========================================================================
           SECTION 1 : IDENTITÉ & COORDONNÉES ADMINISTRATEUR
       ========================================================================= */}
-      <div className="bg-white border border-foeg-border/80 p-7 sm:p-9 space-y-6 shadow-xs">
+      <div className="bg-white border border-foeg-border/80 p-4 sm:p-8 space-y-5 sm:space-y-6 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-foeg-border/60 gap-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full bg-foeg-navy text-white flex items-center justify-center font-serif text-sm font-light">
@@ -243,7 +243,7 @@ export default function AdminPerfilClient({ initialProfile }: AdminPerfilClientP
       {/* =========================================================================
           SECTION 2 : SÉCURITÉ & CHANGEMENT DE MOT DE PASSE
       ========================================================================= */}
-      <div className="bg-white border border-foeg-border/80 p-7 sm:p-9 space-y-6 shadow-xs">
+      <div className="bg-white border border-foeg-border/80 p-4 sm:p-8 space-y-5 sm:space-y-6 shadow-xs">
         <div className="pb-4 border-b border-foeg-border/60">
           <div className="flex items-center space-x-2.5">
             <Lock className="w-4 h-4 text-foeg-navy" strokeWidth={1.5} />
@@ -356,7 +356,7 @@ export default function AdminPerfilClient({ initialProfile }: AdminPerfilClientP
       {/* =========================================================================
           SECTION 3 : PROTOCOLES DE SÉCURITÉ & DÉCONNEXION
       ========================================================================= */}
-      <div className="p-6 bg-foeg-surface/60 border border-foeg-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+      <div className="p-4 sm:p-6 bg-foeg-surface/60 border border-foeg-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
         <div className="space-y-1">
           <span className="text-[10px] uppercase tracking-[0.22em] text-foeg-navy font-semibold block">
             {t('admin.perfil.sessionTitle')}

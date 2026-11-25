@@ -388,7 +388,7 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
       </div>
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-foeg-surface/40 p-4 border border-foeg-border/60">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 bg-foeg-surface/40 p-3 sm:p-4 border border-foeg-border/60">
         <div className="relative w-full sm:w-80">
           <input
             type="text"
@@ -401,18 +401,18 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
           <Search className="w-4 h-4 text-foeg-muted absolute left-2.5 top-2.5" strokeWidth={1} />
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-          <span className="text-[11px] uppercase tracking-wider text-foeg-muted font-light shrink-0">
+        <div className="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+          <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-foeg-muted font-light shrink-0">
             {t('admin.table.category')}:
           </span>
-          <div className="flex flex-wrap gap-1.5 text-xs">
+          <div className="flex items-center gap-1.5 text-xs whitespace-nowrap">
             {['Toutes', 'Mujer', 'Hombre'].map((cat) => (
               <button
                 key={cat}
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setCategoryFilter(cat)}
-                className={`px-3 py-1.5 uppercase tracking-wider text-[11px] transition-colors cursor-pointer ${
+                className={`px-2.5 sm:px-3 py-1.5 uppercase tracking-wider text-[10px] sm:text-[11px] transition-colors cursor-pointer shrink-0 ${
                   categoryFilter === cat
                     ? 'bg-foeg-navy text-white font-medium'
                     : 'bg-white border border-foeg-border text-foeg-muted hover:text-foeg-black font-light'
@@ -425,8 +425,123 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
         </div>
       </div>
 
-      {/* Tabla de Productos Conectada a Neon */}
-      <div className="bg-white border border-foeg-border shadow-subtle overflow-x-auto">
+      {/* Cartes de Produits Responsives pour Mobile (md:hidden) */}
+      <div className="md:hidden space-y-3">
+        {filteredProducts.length === 0 ? (
+          <div className="bg-white border border-foeg-border p-8 text-center text-foeg-muted font-light text-xs">
+            {t('catalog.noResults')}
+          </div>
+        ) : (
+          filteredProducts.map((p) => {
+            const totalStock =
+              p.variants?.reduce((acc, curr) => acc + (curr.stock || 0), 0) ?? 15;
+            const img =
+              p.images?.[0] ||
+              'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85';
+
+            return (
+              <div key={p.id} className="bg-white border border-foeg-border p-3.5 space-y-3 shadow-2xs">
+                <div className="flex items-start space-x-3">
+                  {/* Miniature Image */}
+                  <div className="w-16 h-20 relative bg-foeg-surface border border-foeg-border shrink-0 overflow-hidden">
+                    <MediaBox
+                      src={img}
+                      alt={p.name}
+                      aspectRatio="portrait"
+                      className="w-full h-full"
+                      imageClassName="object-cover"
+                      sizes="64px"
+                    />
+                    {Array.isArray(p.images) && p.images.length > 1 && (
+                      <span className="absolute bottom-0 right-0 bg-black/70 text-white text-[8px] font-mono px-1">
+                        +{p.images.length - 1}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Détails du Produit */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-1.5">
+                      <h3 className="font-serif text-sm font-normal text-foeg-black line-clamp-1">{p.name}</h3>
+                      <span className="font-medium text-xs text-foeg-black shrink-0">
+                        {Number(p.price).toLocaleString(
+                          language === 'es' ? 'es-ES' : language === 'en' ? 'en-US' : 'fr-FR',
+                          { style: 'currency', currency: 'EUR' }
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[10px] text-foeg-muted mt-0.5">
+                      <span className="uppercase tracking-wider font-medium text-foeg-black">
+                        {p.category === 'Mujer' ? t('nav.women') : t('nav.men')}
+                      </span>
+                      {p.subcategory && <span>· {p.subcategory}</span>}
+                    </div>
+
+                    {/* Badge */}
+                    {(() => {
+                      const badgeConfig = getProductBadge(p, t);
+                      if (badgeConfig) {
+                        return (
+                          <span className={`inline-block mt-1 text-[8px] uppercase tracking-wider px-1.5 py-0.5 font-medium ${badgeConfig.className}`}>
+                            {badgeConfig.label}
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
+
+                    {/* Stock et Actions */}
+                    <div className="mt-2.5 flex items-center justify-between text-[10px] pt-2 border-t border-foeg-border/40">
+                      <span
+                        className={`inline-flex items-center px-1.5 py-0.5 text-[9px] tracking-wider font-medium ${
+                          totalStock > 5
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            : 'bg-amber-50 text-amber-800 border border-amber-200'
+                        }`}
+                      >
+                        {totalStock} {t('admin.table.unitsInAtelier')}
+                      </span>
+
+                      <div className="flex items-center space-x-1">
+                        <Link
+                          href={`/producto/${p.slug.replace(/^\//, '')}`}
+                          target="_blank"
+                          className="p-1.5 border border-foeg-border text-foeg-muted hover:text-foeg-navy transition-colors"
+                          title={t('admin.table.viewPublic')}
+                        >
+                          <Eye className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        </Link>
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => handleOpenEdit(p)}
+                          className="p-1.5 border border-foeg-border text-foeg-muted hover:text-foeg-navy transition-colors cursor-pointer"
+                          title={t('admin.table.editPiece')}
+                        >
+                          <Pencil className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        </button>
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => handleDelete(p.id, p.name)}
+                          className="p-1.5 border border-foeg-border text-foeg-muted hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
+                          title={t('admin.table.deletePiece')}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Tabla de Productos Conectada a Neon (Desktop) */}
+      <div className="hidden md:block bg-white border border-foeg-border shadow-subtle overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs min-w-[680px]">
           <thead>
             <tr className="border-b border-foeg-border bg-foeg-surface/30 text-[10px] uppercase tracking-[0.22em] text-foeg-muted font-medium">
