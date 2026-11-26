@@ -189,6 +189,15 @@ export async function updateContentField(
       } catch (prodSyncErr) {
         console.warn('[CMS PRODUCT TITLE SYNC WARNING]:', prodSyncErr);
       }
+    } else if (key.startsWith('journal_article_image_')) {
+      const slug = key.replace('journal_article_image_', '').trim();
+      try {
+        revalidatePath('/journal');
+        revalidatePath(`/journal/${slug}`);
+        revalidatePath('/');
+        revalidatePath('/admin/cms');
+        revalidatePath('/admin/journal');
+      } catch (_) {}
     }
 
     // Revalidation instantanée du cache pour affichage direct dans la boutique

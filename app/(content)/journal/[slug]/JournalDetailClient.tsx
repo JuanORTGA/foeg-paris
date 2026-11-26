@@ -105,7 +105,7 @@ export default function JournalDetailClient({
             aspectRatio="full"
             priority={true}
             className="w-full h-full"
-            imageClassName="filter grayscale contrast-[1.05]"
+            imageClassName="w-full h-full object-cover transition-transform duration-700"
             sizes="(max-width: 1024px) 100vw, 896px"
           />
         </div>

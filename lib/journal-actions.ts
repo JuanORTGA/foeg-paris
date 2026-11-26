@@ -12,23 +12,61 @@ const JOURNAL_STORAGE_KEY = 'site_journal_articles';
  * Récupère tous les articles du Journal enregistrés dans Neon PostgreSQL
  */
 export async function getJournalArticles(): Promise<JournalArticle[]> {
+  let articles: JournalArticle[] = JOURNAL_ARTICLES;
+
   try {
-    const record = await prisma.siteContent.findUnique({
-      where: { key: JOURNAL_STORAGE_KEY },
-    });
+    const [record, cmsOverrides] = await Promise.all([
+      (prisma as any).siteContent.findUnique({
+        where: { key: JOURNAL_STORAGE_KEY },
+      }),
+      (prisma as any).siteContent.findMany({
+        where: {
+          key: { startsWith: 'journal_article_image_' },
+        },
+        select: { key: true, valueFr: true },
+      }),
+    ]);
 
     if (record?.valueFr) {
-      const parsed = JSON.parse(record.valueFr);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+      try {
+        const parsed = JSON.parse(record.valueFr);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          articles = parsed;
+        }
+      } catch (_) {}
+    }
+
+    // Appliquer les images personnalisées sauvegardées depuis le CMS
+    if (Array.isArray(cmsOverrides) && cmsOverrides.length > 0) {
+      const imgMap = new Map<string, string>();
+      for (const item of cmsOverrides) {
+        if (item.valueFr) {
+          const slug = item.key.replace('journal_article_image_', '').trim();
+          imgMap.set(slug, item.valueFr);
+        }
       }
+
+      articles = articles.map((art) => {
+        const customImg = imgMap.get(art.slug);
+        if (customImg) {
+          return {
+            ...art,
+            image: customImg,
+            translations: {
+              ...art.translations,
+              es: art.translations?.es ? { ...art.translations.es, image: customImg } : undefined,
+              en: art.translations?.en ? { ...art.translations.en, image: customImg } : undefined,
+            } as any,
+          };
+        }
+        return art;
+      });
     }
   } catch (err) {
     console.warn('[GET JOURNAL ARTICLES DB ERROR]:', err);
   }
 
-  // Fallback initial aux articles de haute confection
-  return JOURNAL_ARTICLES;
+  return articles;
 }
 
 /**

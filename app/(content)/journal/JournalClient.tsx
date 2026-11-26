@@ -85,7 +85,7 @@ export default function JournalClient({ articles }: JournalClientProps) {
                 aspectRatio="full"
                 priority={true}
                 className="w-full h-full"
-                imageClassName="transition-transform duration-700 ease-in-out group-hover:scale-105 filter grayscale contrast-[1.05]"
+                imageClassName="transition-transform duration-700 ease-in-out group-hover:scale-105 object-cover"
                 sizes="100vw"
               />
             </div>
@@ -138,7 +138,7 @@ export default function JournalClient({ articles }: JournalClientProps) {
                     alt={article.title}
                     aspectRatio="full"
                     className="w-full h-full"
-                    imageClassName="transition-transform duration-700 ease-in-out group-hover:scale-105 filter grayscale contrast-[1.05]"
+                    imageClassName="transition-transform duration-700 ease-in-out group-hover:scale-105 object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
