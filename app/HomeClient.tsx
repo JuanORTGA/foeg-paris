@@ -326,15 +326,26 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
     },
   ];
 
-  // Priorité absolue aux produits réels ajoutés dans l'admin, complétés jusqu'à 5 par la sélection atelier
-  const combinedProducts: ProductItem[] = [...initialProducts];
-  for (const fallback of fallbackCuratedProducts) {
-    if (combinedProducts.length >= 5) break;
-    if (!combinedProducts.some((p) => p.id === fallback.id || p.name === fallback.name)) {
-      combinedProducts.push(fallback);
+  // Produits réels de la base de données (si vide, fallback élégant de secours)
+  const productsToDisplay = initialProducts.length > 0
+    ? initialProducts.slice(0, 5)
+    : fallbackCuratedProducts.slice(0, 5);
+
+  const getDesktopGridClass = (count: number) => {
+    switch (count) {
+      case 1:
+        return 'md:grid-cols-1 md:max-w-xs md:mx-auto';
+      case 2:
+        return 'md:grid-cols-2 md:max-w-2xl md:mx-auto';
+      case 3:
+        return 'md:grid-cols-3 md:max-w-5xl md:mx-auto';
+      case 4:
+        return 'md:grid-cols-4 md:max-w-6xl md:mx-auto';
+      case 5:
+      default:
+        return 'md:grid-cols-5 md:w-full';
     }
-  }
-  const productsToDisplay = combinedProducts.slice(0, 5);
+  };
 
   const handleAddToCart = () => {
     if (!quickViewProduct) return;
@@ -623,8 +634,8 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
           </Link>
         </div>
 
-        {/* CONTENEDOR 5 PIEZAS CÔTE À CÔTE (UNA AL LADO DE LA OTRA EN PC Y EN MÓVIL) */}
-        <div className="flex md:grid md:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-thin pb-4 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
+        {/* CONTENEDOR AUTO-ADAPTABLE (UNA AL LADO DE LA OTRA EN PC Y EN MÓVIL, SIN HUECOS EN BLANCO) */}
+        <div className={`flex md:grid ${getDesktopGridClass(productsToDisplay.length)} gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-thin pb-4 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0`}>
           {productsToDisplay.slice(0, 5).map((product) => {
             const productImgKey = `iconic_product_image_${product.id}`;
             const productTitleKey = `iconic_product_title_${product.id}`;

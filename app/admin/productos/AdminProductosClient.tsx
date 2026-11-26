@@ -71,12 +71,8 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
   const [formSubcategory, setFormSubcategory] = useState('Iconique');
   const [formDescription, setFormDescription] = useState('');
   const [formComposition, setFormComposition] = useState('');
-  const [formImage, setFormImage] = useState(
-    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85'
-  );
-  const [formImages, setFormImages] = useState<string[]>([
-    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85',
-  ]);
+  const [formImage, setFormImage] = useState('');
+  const [formImages, setFormImages] = useState<string[]>([]);
   const [formBadge, setFormBadge] = useState<string>('NONE');
   const [customBadgeInput, setCustomBadgeInput] = useState<string>('');
 
@@ -126,8 +122,8 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
     setFormStock36('4');
     setFormColors(['Noir Carbone']);
     setCustomColorInput('');
-    setFormImage('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85');
-    setFormImages(['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85']);
+    setFormImage('');
+    setFormImages([]);
     setFormBadge('NONE');
     setCustomBadgeInput('');
     setErrorMessage(null);
@@ -164,15 +160,8 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
     setFormColors(extractedColors.length > 0 ? extractedColors : ['Noir Carbone']);
     setCustomColorInput('');
 
-    setFormImage(
-      p.images?.[0] ||
-        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85'
-    );
-    setFormImages(
-      Array.isArray(p.images) && p.images.length > 0
-        ? p.images
-        : ['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85']
-    );
+    setFormImage(p.images?.[0] || '');
+    setFormImages(Array.isArray(p.images) ? p.images : []);
 
     const currentBadge = p.badge || 'NONE';
     if (['NONE', 'LIMITED', 'SALE', 'NEW', 'EXCLUSIVE', 'UNIQUE'].includes(currentBadge)) {
@@ -437,7 +426,7 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
               p.variants?.reduce((acc, curr) => acc + (curr.stock || 0), 0) ?? 15;
             const img =
               p.images?.[0] ||
-              'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85';
+              'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80';
 
             return (
               <div key={p.id} className="bg-white border border-foeg-border p-3.5 space-y-3 shadow-2xs">
@@ -565,7 +554,7 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
                   p.variants?.reduce((acc, curr) => acc + (curr.stock || 0), 0) ?? 15;
                 const img =
                   p.images?.[0] ||
-                  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85';
+                  'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80';
 
                 return (
                   <tr key={p.id} className="hover:bg-foeg-surface/30 transition-colors">
