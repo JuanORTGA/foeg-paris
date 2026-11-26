@@ -634,8 +634,8 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
           </Link>
         </div>
 
-        {/* CONTENEDOR AUTO-ADAPTABLE (UNA AL LADO DE LA OTRA EN PC Y EN MÓVIL, SIN HUECOS EN BLANCO) */}
-        <div className={`flex md:grid ${getDesktopGridClass(productsToDisplay.length)} gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-thin pb-4 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0`}>
+        {/* CONTENEDOR AUTO-ADAPTABLE (UNA AL LADO DE LA OTRA EN PC Y CARRUSEL ALINEADO EN MÓVIL) */}
+        <div className={`flex md:grid ${getDesktopGridClass(productsToDisplay.length)} gap-4 sm:gap-5 lg:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-px-4 scrollbar-none pb-4 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0`}>
           {productsToDisplay.slice(0, 5).map((product) => {
             const productImgKey = `iconic_product_image_${product.id}`;
             const productTitleKey = `iconic_product_title_${product.id}`;
@@ -644,25 +644,26 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
             return (
               <article
                 key={product.id}
-                className="min-w-[70vw] sm:min-w-[44vw] md:min-w-0 flex-shrink-0 md:flex-shrink snap-start group text-left flex flex-col justify-between"
+                className="w-[74vw] max-w-[270px] sm:w-[44vw] md:w-auto shrink-0 md:shrink snap-start group text-left flex flex-col justify-between bg-white/40 md:bg-transparent p-2.5 sm:p-0 border border-foeg-border/50 md:border-none shadow-2xs md:shadow-none"
               >
-                <div className="relative overflow-hidden bg-foeg-surface aspect-[2/3] border border-foeg-border/80">
+                <div className="relative overflow-hidden bg-foeg-surface aspect-[3/4] sm:aspect-[2/3] md:aspect-[2/3] border border-foeg-border/80">
                   <EditableImage
                     contentKey={productImgKey}
                     defaultSrc={getCms(productImgKey, product.image)}
                     defaultGrayscale={isProdGray}
                     alt={product.name}
-                    aspectRatio="2/3"
+                    aspectRatio="full"
                     className="w-full h-full"
                     imageClassName="group-hover:scale-105 transition-transform duration-700 ease-out object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 768px) 75vw, 25vw"
                     label={`Image ${product.name}`}
                   />
 
-                  <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out flex gap-2 z-20">
+                  {/* Acceso directo a detalle */}
+                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out flex gap-2 z-20">
                     <Link
                       href={`/producto/${product.id}`}
-                      className="w-full bg-foeg-white/95 text-foeg-black hover:bg-foeg-navy hover:text-foeg-white py-3 px-4 text-[10px] uppercase tracking-[0.22em] font-medium transition-colors duration-300 rounded-none shadow-subtle border border-foeg-border/80 flex items-center justify-center space-x-2 cursor-pointer"
+                      className="w-full bg-foeg-white/95 text-foeg-black hover:bg-foeg-navy hover:text-foeg-white py-2.5 sm:py-3 px-3 text-[10px] uppercase tracking-[0.2em] font-medium transition-colors duration-300 shadow-subtle border border-foeg-border/80 flex items-center justify-center space-x-1.5 cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" strokeWidth={1} />
                       <span>{t('products.viewDetails')}</span>
@@ -670,10 +671,11 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
                   </div>
                 </div>
 
-                <div className="mt-5 space-y-1.5 flex-1 flex flex-col justify-between">
+                <div className="mt-3.5 sm:mt-5 flex-1 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-start justify-between gap-4">
-                      <h3 className="font-serif text-lg md:text-xl font-normal text-foeg-black group-hover:text-foeg-navy transition-colors leading-snug">
+                    {/* Título y Flecha con altura fija mínima para alineación estricta */}
+                    <div className="flex items-start justify-between gap-2 min-h-[2.6rem] sm:min-h-[3rem]">
+                      <h3 className="font-serif text-base sm:text-lg md:text-xl font-normal text-foeg-black group-hover:text-foeg-navy transition-colors leading-snug line-clamp-2">
                         <EditableText
                           contentKey={productTitleKey}
                           initialValue={getCms(productTitleKey, product.name)}
@@ -683,19 +685,21 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
                       </h3>
                       <Link
                         href={`/producto/${product.id}`}
-                        className="group/arrow p-1.5 -mr-1.5 -mt-1 text-foeg-muted hover:text-foeg-navy group-hover:text-foeg-navy transition-all duration-200 cursor-pointer flex items-center justify-center rounded-full hover:bg-foeg-navy/10 hover:scale-110"
+                        className="group/arrow p-1 shrink-0 text-foeg-muted hover:text-foeg-navy group-hover:text-foeg-navy transition-all duration-200 cursor-pointer flex items-center justify-center rounded-full hover:bg-foeg-navy/10"
                         aria-label={`Voir ${product.name}`}
                       >
                         <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover/arrow:translate-x-0.5 group-hover/arrow:-translate-y-0.5" strokeWidth={1.5} />
                       </Link>
                     </div>
-                    <p className="text-xs text-foeg-muted font-light leading-relaxed mt-1 line-clamp-1">
+                    {/* Subtítulo alineado a una sola línea */}
+                    <p className="text-[11px] sm:text-xs text-foeg-muted font-light leading-relaxed mt-1 line-clamp-1 h-4">
                       {product.subtitle}
                     </p>
                   </div>
 
-                  <div className="pt-2">
-                    <span className="text-xs font-medium tracking-wider text-foeg-black block">
+                  {/* Precio alineado exactamente en la misma base */}
+                  <div className="pt-2 sm:pt-3 border-t border-foeg-border/40 mt-2.5 sm:mt-3">
+                    <span className="text-xs font-mono font-medium tracking-wider text-foeg-black block">
                       {formatPrice(product.numericPrice)}
                     </span>
                   </div>
@@ -704,6 +708,20 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
             );
           })}
         </div>
+
+        {/* Indicador de desplazamiento sutil para móvil */}
+        {productsToDisplay.length > 1 && (
+          <div className="flex md:hidden items-center justify-center gap-1.5 mt-4">
+            {productsToDisplay.slice(0, 5).map((_, i) => (
+              <span
+                key={`scroll-dot-${i}`}
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  i === 0 ? 'w-5 bg-foeg-navy' : 'w-1.5 bg-foeg-border'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* =========================================================================
