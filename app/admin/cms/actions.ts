@@ -147,12 +147,57 @@ export async function updateContentField(
       }
     }
 
+    // Synchronisation automatique des images ou titres de produits modifiés depuis le CMS
+    if (key.startsWith('iconic_product_image_')) {
+      const slug = key.replace('iconic_product_image_', '').trim();
+      try {
+        const prod = await prisma.product.findUnique({
+          where: { slug },
+          select: { id: true, images: true },
+        });
+        if (prod && trimmed) {
+          const currentImages = Array.isArray(prod.images) ? prod.images : [];
+          // Mettre la photo du CMS en couverture principale (images[0])
+          const updatedImages = [trimmed, ...currentImages.filter((img: string) => img !== trimmed)];
+          await prisma.product.update({
+            where: { slug },
+            data: { images: updatedImages },
+          });
+          revalidatePath('/admin/productos');
+          revalidatePath('/hombre');
+          revalidatePath('/mujer');
+          revalidatePath('/colecciones');
+          revalidatePath(`/producto/${slug}`);
+        }
+      } catch (prodSyncErr) {
+        console.warn('[CMS PRODUCT SYNC WARNING]:', prodSyncErr);
+      }
+    } else if (key.startsWith('iconic_product_title_')) {
+      const slug = key.replace('iconic_product_title_', '').trim();
+      try {
+        if (trimmed) {
+          await prisma.product.update({
+            where: { slug },
+            data: { name: trimmed },
+          });
+          revalidatePath('/admin/productos');
+          revalidatePath('/hombre');
+          revalidatePath('/mujer');
+          revalidatePath('/colecciones');
+          revalidatePath(`/producto/${slug}`);
+        }
+      } catch (prodSyncErr) {
+        console.warn('[CMS PRODUCT TITLE SYNC WARNING]:', prodSyncErr);
+      }
+    }
+
     // Revalidation instantanée du cache pour affichage direct dans la boutique
     try {
       revalidatePath('/', 'layout');
       revalidatePath('/');
       revalidatePath('/(shop)', 'layout');
       revalidatePath('/admin/cms');
+      revalidatePath('/admin/productos');
       revalidatePath('/admin/contenido');
     } catch (_) {}
 
@@ -215,7 +260,11 @@ export async function publishAllCmsAction() {
     revalidatePath('/');
     revalidatePath('/(shop)', 'layout');
     revalidatePath('/admin/cms');
+    revalidatePath('/admin/productos');
     revalidatePath('/admin/contenido');
+    revalidatePath('/hombre');
+    revalidatePath('/mujer');
+    revalidatePath('/colecciones');
     return { success: true };
   } catch (err: any) {
     console.error('[CMS PUBLISH ALL ERROR]:', err);
