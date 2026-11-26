@@ -15,8 +15,10 @@ export function getProductBadge(
   }
 
   if (badge === 'ICONIC' || badge === 'Iconique') {
+    const rawLabel = t ? t('products.iconic') : 'Pièce Iconique';
+    const label = !rawLabel || rawLabel.toLowerCase().includes('products.') ? '★ Pieza Icónica' : rawLabel;
     return {
-      label: t ? (t('products.iconic') || 'Pièce Iconique') : 'Pièce Iconique',
+      label,
       className: 'bg-foeg-navy text-amber-300 border border-amber-300/40 shadow-xs font-medium',
     };
   }

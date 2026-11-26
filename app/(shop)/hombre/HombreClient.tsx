@@ -13,8 +13,9 @@ import { useLanguage } from '@/lib/language-context';
 
 const SUBCATEGORIES = [
   'Tout',
-  'Manteaux',
+  'Iconique',
   'Chemises',
+  'Manteaux',
   'Pantalons',
   'Chaussures',
   'Accessoires',
@@ -49,12 +50,13 @@ export default function HombreClient({
 
   const getSubcategoryLabel = (cat: string) => {
     switch (cat.toLowerCase()) {
-      case 'tout': return t('catalog.subAll');
-      case 'manteaux': return t('catalog.subCoats');
-      case 'chemises': return t('catalog.subShirts');
-      case 'pantalons': return t('catalog.subPants');
-      case 'chaussures': return t('catalog.subShoes');
-      case 'accessoires': return t('catalog.subAccessories');
+      case 'tout': return t('catalog.subAll') || 'Toutes les pièces';
+      case 'iconique': return t ? (t('products.iconic') ? `★ ${t('products.iconic')}` : '★ Pièces Iconiques') : '★ Pièces Iconiques';
+      case 'manteaux': return t('catalog.subCoats') || 'Manteaux & Vestes';
+      case 'chemises': return t('catalog.subShirts') || 'Chemises & Polos';
+      case 'pantalons': return t('catalog.subPants') || 'Pantalons';
+      case 'chaussures': return t('catalog.subShoes') || 'Chaussures';
+      case 'accessoires': return t('catalog.subAccessories') || 'Accessoires';
       default: return cat;
     }
   };

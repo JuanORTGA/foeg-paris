@@ -55,22 +55,63 @@ export default async function HombrePage({ searchParams }: PageProps) {
   if (!isAllSubcategories) {
     // Normalisation multi-langue pour correspondance souple (FR, ES, EN)
     const sub = activeSubcategory.toLowerCase();
-    let subMatches = [activeSubcategory];
-    if (sub.includes('chemise') || sub.includes('camisa') || sub.includes('shirt') || sub.includes('top')) {
-      subMatches = ['Chemises', 'Camisas y Tops', 'Camisas', 'Shirts'];
-    } else if (sub.includes('manteau') || sub.includes('abrigo') || sub.includes('coat')) {
-      subMatches = ['Manteaux', 'Abrigos', 'Coats'];
-    } else if (sub.includes('pantalon') || sub.includes('pant')) {
-      subMatches = ['Pantalons', 'Pantalones', 'Pants'];
-    } else if (sub.includes('chaussure') || sub.includes('calzado') || sub.includes('shoe')) {
-      subMatches = ['Chaussures', 'Calzado', 'Shoes'];
-    } else if (sub.includes('accessoire') || sub.includes('accesorio') || sub.includes('accessory')) {
-      subMatches = ['Accessoires', 'Accesorios', 'Accessories'];
-    }
+    if (sub.includes('iconi')) {
+      whereClause.OR = [
+        { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
+        { badge: { equals: 'ICONIC', mode: 'insensitive' } },
+      ];
+    } else {
+      let subMatches = [activeSubcategory];
+      if (sub.includes('chemise') || sub.includes('camisa') || sub.includes('shirt') || sub.includes('top') || sub.includes('polo')) {
+        subMatches = ['Chemises', 'Camisas y Tops', 'Camisas', 'Shirts', 'Polo', 'Polos'];
+      } else if (sub.includes('manteau') || sub.includes('abrigo') || sub.includes('coat') || sub.includes('veste') || sub.includes('chaqueta')) {
+        subMatches = ['Manteaux', 'Abrigos', 'Coats', 'Vestes & Costumes', 'Vestes'];
+      } else if (sub.includes('pantalon') || sub.includes('pant')) {
+        subMatches = ['Pantalons', 'Pantalones', 'Pants'];
+      } else if (sub.includes('chaussure') || sub.includes('calzado') || sub.includes('shoe')) {
+        subMatches = ['Chaussures', 'Calzado', 'Shoes'];
+      } else if (sub.includes('accessoire') || sub.includes('accesorio') || sub.includes('accessory')) {
+        subMatches = ['Accessoires', 'Accesorios', 'Accessories'];
+      }
 
-    whereClause.OR = subMatches.map((val) => ({
-      subcategory: { equals: val, mode: 'insensitive' },
-    }));
+      whereClause.OR = [
+        ...subMatches.map((val) => ({
+          subcategory: { equals: val, mode: 'insensitive' },
+        })),
+        ...(sub.includes('chemise') || sub.includes('camisa') || sub.includes('polo')
+          ? [
+              {
+                AND: [
+                  { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
+                  { name: { contains: 'polo', mode: 'insensitive' } },
+                ],
+              },
+              {
+                AND: [
+                  { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
+                  { name: { contains: 'chemise', mode: 'insensitive' } },
+                ],
+              },
+            ]
+          : []),
+        ...(sub.includes('manteau') || sub.includes('abrigo') || sub.includes('veste')
+          ? [
+              {
+                AND: [
+                  { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
+                  { name: { contains: 'veste', mode: 'insensitive' } },
+                ],
+              },
+              {
+                AND: [
+                  { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
+                  { name: { contains: 'manteau', mode: 'insensitive' } },
+                ],
+              },
+            ]
+          : []),
+      ];
+    }
   }
 
   if (activeSize && !['toutes', 'todas', 'all'].includes(activeSize.toLowerCase())) {
