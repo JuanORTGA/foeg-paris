@@ -82,14 +82,23 @@ const INITIAL_DEMO_CAMPAIGNS: NewsletterCampaignItem[] = [
  */
 export async function getNewsletterSubscribers(): Promise<NewsletterSubscriberItem[]> {
   try {
-    const record = await prisma.siteContent.findUnique({
-      where: { key: NEWSLETTER_STORAGE_KEY },
-    });
+    const [record, prismaSubs] = await Promise.all([
+      prisma.siteContent.findUnique({
+        where: { key: NEWSLETTER_STORAGE_KEY },
+      }),
+      (prisma as any).newsletterSubscriber
+        .findMany({
+          orderBy: { createdAt: 'desc' },
+        })
+        .catch(() => []),
+    ]);
+
+    let subscribers: NewsletterSubscriberItem[] = [];
 
     if (record?.valueFr) {
       const parsed = JSON.parse(record.valueFr);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map((item: any) => ({
+        subscribers = parsed.map((item: any) => ({
           id: item.id || `sub_${Math.random()}`,
           email: item.email || '',
           source: item.source || 'Pied de page',
@@ -99,6 +108,27 @@ export async function getNewsletterSubscribers(): Promise<NewsletterSubscriberIt
           updatedAt: item.updatedAt,
         }));
       }
+    }
+
+    // Fusion bilatérale : inclure les abonnés de la table Prisma non présents dans le JSON
+    if (Array.isArray(prismaSubs) && prismaSubs.length > 0) {
+      for (const ps of prismaSubs) {
+        if (!subscribers.some((s) => s.email.toLowerCase() === ps.email.toLowerCase())) {
+          subscribers.push({
+            id: ps.id,
+            email: ps.email,
+            source: ps.source || 'Cercle Privé VIP',
+            status: (ps.status as any) || 'ACTIVE',
+            notes: '',
+            createdAt: ps.createdAt ? new Date(ps.createdAt).toISOString() : new Date().toISOString(),
+            updatedAt: ps.updatedAt ? new Date(ps.updatedAt).toISOString() : undefined,
+          });
+        }
+      }
+    }
+
+    if (subscribers.length > 0) {
+      return subscribers;
     }
   } catch (err) {
     console.warn('[GET NEWSLETTER SUBSCRIBERS ERROR]:', err);
@@ -303,8 +333,18 @@ export async function updateAdminSubscriber(
 export async function deleteNewsletterSubscriber(id: string): Promise<{ success: boolean; error?: string }> {
   try {
     const current = await getNewsletterSubscribers();
+    const target = current.find((s) => s.id === id);
     const filtered = current.filter((s) => s.id !== id);
     await saveSubscribersToDb(filtered);
+
+    // Supprimer également de la table Prisma si existant
+    if (target?.email) {
+      try {
+        await (prisma as any).newsletterSubscriber.deleteMany({
+          where: { email: target.email },
+        });
+      } catch (_) {}
+    }
 
     try {
       revalidatePath('/admin/newsletter');
@@ -574,6 +614,26 @@ async function saveSubscribersToDb(subscribers: NewsletterSubscriberItem[]) {
       valueEs: serialized,
     },
   });
+
+  // Miroir bilatéral dans la table Prisma NewsletterSubscriber
+  try {
+    for (const sub of subscribers) {
+      if (sub.email && sub.email.includes('@')) {
+        await (prisma as any).newsletterSubscriber.upsert({
+          where: { email: sub.email.toLowerCase().trim() },
+          create: {
+            email: sub.email.toLowerCase().trim(),
+            source: sub.source || 'Cercle Privé VIP',
+            status: sub.status || 'ACTIVE',
+          },
+          update: {
+            source: sub.source || 'Cercle Privé VIP',
+            status: sub.status || 'ACTIVE',
+          },
+        });
+      }
+    }
+  } catch (_) {}
 }
 
 async function saveCampaignsToDb(campaigns: NewsletterCampaignItem[]) {
