@@ -27,6 +27,31 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
   const { isWishlisted, toggleWishlist } = useWishlist();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const distance = touchStartX - touchEndX;
+    const isLeftSwipe = distance > 40;
+    const isRightSwipe = distance < -40;
+    if (isLeftSwipe && selectedImageIndex < currentProduct.images.length - 1) {
+      setSelectedImageIndex((prev) => prev + 1);
+    } else if (isRightSwipe && selectedImageIndex > 0) {
+      setSelectedImageIndex((prev) => prev - 1);
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
   // Detección de tipo de prenda (Pantalones vs Prendas Superiores)
@@ -200,43 +225,9 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
         {/* COLUMNA IZQUIERDA: GALERÍA EDITORIAL + MINIATURAS VERTICALES (THE ROW + TEMU HYBRID) */}
         <div className="lg:col-span-7">
-          {/* TAREA 3: CARROUSEL HORIZONTAL RESPONSIVE (MÓVIL) - Visible solo en < md */}
-          {currentProduct.images.length > 1 && (
-            <div className="flex md:hidden overflow-x-auto gap-2.5 pb-2.5 mb-3 snap-x no-scrollbar">
-              {currentProduct.images.map((img, idx) => {
-                const isSelected = selectedImageIndex === idx;
-                return (
-                  <button
-                    key={`thumb-mobile-${idx}`}
-                    type="button"
-                    onMouseEnter={() => setSelectedImageIndex(idx)}
-                    onClick={() => setSelectedImageIndex(idx)}
-                    className={`relative w-16 h-20 shrink-0 snap-start overflow-hidden bg-foeg-surface transition-all duration-200 border cursor-pointer ${isSelected
-                        ? 'border-b-2 border-b-foeg-navy ring-1 ring-foeg-navy shadow-sm opacity-100'
-                        : 'border-foeg-border/80 opacity-70 hover:opacity-100'
-                      }`}
-                    aria-label={`Vue ${idx + 1}`}
-                  >
-                    <MediaBox
-                      src={img}
-                      alt={`${currentProduct.name} — Miniature ${idx + 1}`}
-                      aspectRatio="full"
-                      priority={idx === 0}
-                      sizes="64px"
-                      className="w-full h-full"
-                    />
-                    {isSelected && (
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-foeg-navy" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* CONTENEDOR FLEX (DESKTOP) */}
-          <div className="flex flex-col md:flex-row gap-4 lg:gap-6 items-start">
-            {/* TAREA 1 & 2: EXTREMO IZQUIERDO - MINIATURAS VERTICALES (TEMU STYLE: HOVER & CLICK) - Visible en md+ */}
+          {/* CONTENEDOR FLEX (DESKTOP Y MÓVIL) */}
+          <div className="flex flex-col md:flex-row gap-4 lg:gap-6 items-start w-full">
+            {/* MINIATURAS VERTICALES - Visible solo en Desktop (md+) */}
             {currentProduct.images.length > 1 && (
               <div
                 className="hidden md:flex flex-col gap-2.5 w-20 lg:w-24 shrink-0 max-h-[720px] overflow-y-auto no-scrollbar scroll-smooth pr-0.5"
@@ -264,11 +255,9 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
                         sizes="(max-width: 1024px) 80px, 96px"
                         className="w-full h-full"
                       />
-                      {/* Borde inferior fino para la miniatura seleccionada */}
                       {isSelected && (
                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-foeg-navy" />
                       )}
-                      {/* Hover cursor de lupa sutil */}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                         <ZoomIn className="w-4 h-4 text-white drop-shadow" strokeWidth={1.5} />
                       </div>
@@ -278,12 +267,15 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
               </div>
             )}
 
-            {/* CENTRO: GRID EDITORIAL (THE ROW STYLE) */}
-            <div className="flex-1 space-y-4 min-w-0">
+            {/* CENTRO: FOTO PRINCIPAL Y MINIATURAS INFERIORES EN MÓVIL */}
+            <div className="w-full flex-1 space-y-3 sm:space-y-4 min-w-0">
               {/* IMAGEN PRINCIPAL GRANDE CON TRANSICIÓN SUAVE */}
               <div
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
                 onClick={() => handleOpenLightbox(selectedImageIndex)}
-                className="group relative aspect-[3/4] w-full overflow-hidden bg-foeg-surface border border-foeg-border/60 cursor-zoom-in"
+                className="group relative aspect-[3/4] w-full overflow-hidden bg-foeg-surface border border-foeg-border/60 cursor-zoom-in select-none"
                 title="Cliquer pour agrandir et examiner les détails de la matière"
               >
                 <MediaBox
@@ -311,8 +303,41 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
                   return null;
                 })()}
 
-                {/* OVERLAY LUPA SUTIL (TOQUE TEMU) */}
-                <div className="absolute bottom-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {/* BOTONES FLOTANTES DE NAVEGACIÓN EN MÓVIL */}
+                {currentProduct.images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImageIndex((prev) => (prev === 0 ? currentProduct.images.length - 1 : prev - 1));
+                      }}
+                      className="md:hidden absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-foeg-white/85 backdrop-blur-md border border-foeg-border/80 flex items-center justify-center text-foeg-black shadow-subtle active:scale-95 transition-transform z-10 cursor-pointer"
+                      aria-label="Image précédente"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImageIndex((prev) => (prev === currentProduct.images.length - 1 ? 0 : prev + 1));
+                      }}
+                      className="md:hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-foeg-white/85 backdrop-blur-md border border-foeg-border/80 flex items-center justify-center text-foeg-black shadow-subtle active:scale-95 transition-transform z-10 cursor-pointer"
+                      aria-label="Image suivante"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+
+                    {/* INDICADOR DE FOTO EN MÓVIL */}
+                    <div className="md:hidden absolute bottom-3 left-3 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] tracking-widest font-mono px-2.5 py-0.5 rounded-full shadow-subtle pointer-events-none">
+                      {selectedImageIndex + 1} / {currentProduct.images.length}
+                    </div>
+                  </>
+                )}
+
+                {/* OVERLAY LUPA SUTIL (TOQUE TEMU - SOLO DESKTOP) */}
+                <div className="hidden md:flex absolute bottom-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="bg-foeg-white/95 text-foeg-navy text-[11px] uppercase tracking-wider px-3 py-1.5 font-light border border-foeg-border/60 flex items-center gap-1.5 shadow-sm">
                     <ZoomIn className="w-3.5 h-3.5" strokeWidth={1.5} />
                     <span>{t('pdp.zoomFabric')}</span>
@@ -320,9 +345,47 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
                 </div>
               </div>
 
-              {/* GRID SECUNDARIO DE 2 COLUMNAS */}
+              {/* MINIATURAS EN MÓVIL DIRECTAMENTE DEBAJO DE LA FOTO PRINCIPAL (BOCETO CAPTURA 3) */}
               {currentProduct.images.length > 1 && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex md:hidden gap-2.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar snap-x w-full">
+                  {currentProduct.images.map((img, idx) => {
+                    const isSelected = selectedImageIndex === idx;
+                    const itemWidthClass =
+                      currentProduct.images.length === 2
+                        ? 'w-[calc((100%-0.625rem)/2)]'
+                        : 'w-[calc((100%-1.25rem)/3)]';
+
+                    return (
+                      <button
+                        key={`thumb-mobile-${idx}`}
+                        type="button"
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className={`relative aspect-[3/4] ${itemWidthClass} shrink-0 snap-start overflow-hidden bg-foeg-surface transition-all duration-200 border cursor-pointer ${
+                          isSelected
+                            ? 'border-b-2 border-b-foeg-navy ring-1 ring-foeg-navy shadow-sm opacity-100'
+                            : 'border-foeg-border/80 opacity-70 hover:opacity-100'
+                        }`}
+                        aria-label={`Vue ${idx + 1}`}
+                      >
+                        <MediaBox
+                          src={img}
+                          alt={`${currentProduct.name} — Miniature ${idx + 1}`}
+                          aspectRatio="full"
+                          sizes="(max-width: 768px) 33vw, 120px"
+                          className="w-full h-full"
+                        />
+                        {isSelected && (
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-foeg-navy" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* GRID SECUNDARIO DE 2 COLUMNAS (SOLO DESKTOP) */}
+              {currentProduct.images.length > 1 && (
+                <div className="hidden md:grid grid-cols-2 gap-4">
                   {currentProduct.images
                     .filter((_, idx) => idx !== selectedImageIndex)
                     .slice(0, 2)
