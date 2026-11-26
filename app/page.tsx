@@ -69,18 +69,13 @@ export default async function HomePage() {
       }),
     ]);
 
-    // Priorité aux produits identifiés comme "Iconique"
-    const fetchedProducts = (productsRes || []).slice();
-    fetchedProducts.sort((a: any, b: any) => {
-      const aIconic = a.badge === 'ICONIC' || a.subcategory === 'Iconique';
-      const bIconic = b.badge === 'ICONIC' || b.subcategory === 'Iconique';
-      if (aIconic && !bIconic) return -1;
-      if (!aIconic && bIconic) return 1;
-      return 0;
+    // Filtrage strict : seules les pièces expressément marquées comme ICONIC ou Iconique apparaissent dans "Pièces Iconiques"
+    const iconicOnly = (productsRes || []).filter((p: any) => {
+      return p.badge === 'ICONIC' || p.subcategory === 'Iconique';
     });
 
     rawContent = contentRes || [];
-    rawProducts = fetchedProducts;
+    rawProducts = iconicOnly;
   } catch (err) {
     console.warn('[HOME PARALLEL FETCH ERROR]:', err);
   }
