@@ -117,45 +117,6 @@ export default function Header() {
           className="hidden md:flex items-center justify-center space-x-6 lg:space-x-8 xl:space-x-10"
           aria-label="Navigation principale"
         >
-          {/* Femme con Mega-Menú Desplegable */}
-          <div className="relative group py-4">
-            <Link
-              href="/mujer"
-              prefetch={true}
-              className={`text-[13px] uppercase tracking-[0.22em] font-medium transition-colors duration-300 py-1 ${textClass} ${hoverClass}`}
-            >
-              {t('nav.women')}
-            </Link>
-            <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 ease-out z-50">
-              <div className="bg-foeg-white border border-foeg-border text-foeg-black shadow-floating py-4 px-6 min-w-[210px] text-left">
-                <span className="text-[10px] uppercase tracking-[0.25em] text-foeg-muted block mb-3 font-medium">
-                  {t('nav.womenWardrobe')}
-                </span>
-                <ul className="space-y-2 text-xs tracking-wider">
-                  {[
-                    { label: t('catalog.subAll'), href: '/mujer' },
-                    { label: t('catalog.subCoats'), href: '/mujer' },
-                    { label: t('catalog.subShirts'), href: '/mujer' },
-                    { label: t('catalog.subPants'), href: '/mujer' },
-                    { label: t('catalog.subDresses'), href: '/mujer' },
-                    { label: t('catalog.subShoes'), href: '/mujer' },
-                    { label: t('catalog.subAccessories'), href: '/mujer' },
-                  ].map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        href={item.href}
-                        prefetch={true}
-                        className="text-foeg-black/75 hover:text-foeg-black hover:translate-x-1 transition-all duration-200 block py-0.5"
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
           {/* Homme con Mega-Menú Desplegable */}
           <div className="relative group py-4">
             <Link
@@ -374,18 +335,6 @@ export default function Header() {
           <nav className="flex flex-col space-y-5">
             {/* 1. Categorías Principales con Tipografía de Alta Costura */}
             <div className="space-y-1 divide-y divide-foeg-border/40 border-b border-foeg-border/60 pb-3">
-              <Link
-                href="/mujer"
-                prefetch={true}
-                onClick={() => setMobileMenuOpen(false)}
-                className="font-serif text-2xl font-light text-foeg-black hover:text-foeg-navy py-2.5 flex items-center justify-between group transition-colors"
-              >
-                <span className="tracking-wide">{t('nav.women')}</span>
-                <span className="text-[10px] uppercase tracking-[0.22em] text-foeg-muted font-sans font-normal opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
-                  Vestiaire
-                </span>
-              </Link>
-
               <Link
                 href="/hombre"
                 prefetch={true}

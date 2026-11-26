@@ -115,14 +115,8 @@ export default function SearchClient({ query, products }: SearchClientProps) {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <Link
-              href="/femme"
-              className="px-6 py-3 border border-foeg-black text-foeg-black text-xs uppercase tracking-[0.2em] hover:bg-foeg-black hover:text-white transition-all duration-200"
-            >
-              {uiTexts.femmeBtn}
-            </Link>
-            <Link
               href="/hombre"
-              className="px-6 py-3 border border-foeg-border hover:border-foeg-black text-foeg-black text-xs uppercase tracking-[0.2em] hover:bg-foeg-black hover:text-white transition-all duration-200"
+              className="px-6 py-3 border border-foeg-black text-foeg-black text-xs uppercase tracking-[0.2em] hover:bg-foeg-black hover:text-white transition-all duration-200"
             >
               {uiTexts.hommeBtn}
             </Link>

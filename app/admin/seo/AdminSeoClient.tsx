@@ -127,17 +127,6 @@ export default function AdminSeoClient({ initialSettings }: AdminSeoClientProps)
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab('femme')}
-          className={`pb-3 transition-colors cursor-pointer shrink-0 ${
-            activeTab === 'femme'
-              ? 'border-b-2 border-foeg-navy text-foeg-navy font-semibold'
-              : 'text-foeg-muted hover:text-foeg-black'
-          }`}
-        >
-          {t('admin.seo.tabFemme')}
-        </button>
-        <button
-          type="button"
           onClick={() => setActiveTab('homme')}
           className={`pb-3 transition-colors cursor-pointer shrink-0 ${
             activeTab === 'homme'

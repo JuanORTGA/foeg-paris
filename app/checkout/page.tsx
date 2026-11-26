@@ -316,7 +316,7 @@ export default function CheckoutPage() {
       {/* Retorno discret */}
       <div className="mb-8">
         <Link
-          href="/mujer"
+          href="/hombre"
           className="inline-flex items-center space-x-2 text-xs uppercase tracking-[0.2em] text-foeg-muted hover:text-foeg-black transition-colors font-light"
         >
           <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1} />
