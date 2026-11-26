@@ -192,6 +192,31 @@ export async function updateContentField(
     } else if (key.startsWith('journal_article_image_')) {
       const slug = key.replace('journal_article_image_', '').trim();
       try {
+        // Mettre à jour aussi site_journal_articles pour synchronisation bidirectionnelle totale avec le panel Admin Journal
+        const record = await (prisma as any).siteContent.findUnique({
+          where: { key: 'site_journal_articles' },
+        });
+        if (record?.valueFr) {
+          let arts = JSON.parse(record.valueFr);
+          arts = arts.map((a: any) => {
+            if (a.slug === slug) {
+              a.image = trimmed;
+              if (a.translations?.es) a.translations.es.image = trimmed;
+              if (a.translations?.en) a.translations.en.image = trimmed;
+            }
+            return a;
+          });
+          const serialized = JSON.stringify(arts);
+          await (prisma as any).siteContent.update({
+            where: { key: 'site_journal_articles' },
+            data: { valueFr: serialized, valueEn: serialized, valueEs: serialized },
+          });
+        }
+      } catch (syncErr) {
+        console.warn('[CMS TO ADMIN JOURNAL SYNC WARNING]:', syncErr);
+      }
+
+      try {
         revalidatePath('/journal');
         revalidatePath(`/journal/${slug}`);
         revalidatePath('/');

@@ -4,7 +4,8 @@ import { getJournalArticleBySlug, getJournalArticles } from '@/lib/journal-actio
 import { JOURNAL_ARTICLES } from '@/lib/journal-data';
 import JournalDetailClient from './JournalDetailClient';
 
-export const revalidate = 60; // Habilita ISR de 60s y navegación instantánea
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface ArticlePageProps {
   params: Promise<{

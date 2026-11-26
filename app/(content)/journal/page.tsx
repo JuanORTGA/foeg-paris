@@ -2,7 +2,8 @@ import React from 'react';
 import { getJournalArticles } from '@/lib/journal-actions';
 import JournalClient from './JournalClient';
 
-export const revalidate = 60; // Habilita ISR de 60s y navegación instantánea
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata = {
   title: 'Journal & Chroniques | FOEG Paris',
