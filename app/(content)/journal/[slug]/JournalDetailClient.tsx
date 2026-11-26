@@ -117,9 +117,30 @@ export default function JournalDetailClient({
       {/* Cuerpo del Artículo */}
       <div className="max-w-2xl mx-auto space-y-8 text-base md:text-lg text-foeg-black/90 font-light leading-relaxed">
         {article.content.map((paragraph, idx) => (
-          <p key={idx} className="first-letter:text-4xl first-letter:font-serif first-letter:mr-1">
-            {paragraph}
-          </p>
+          <React.Fragment key={idx}>
+            <p className="first-letter:text-4xl first-letter:font-serif first-letter:mr-1">
+              {paragraph}
+            </p>
+
+            {/* Fotografía interna ilustrativa de atelier */}
+            {article.internalImages && article.internalImages[idx] && (
+              <div className="my-10 sm:my-14 -mx-2 sm:-mx-6 md:-mx-12">
+                <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full overflow-hidden bg-foeg-surface border border-foeg-border/60">
+                  <MediaBox
+                    src={article.internalImages[idx]}
+                    alt={`${article.title} — Illustration ${idx + 1}`}
+                    aspectRatio="full"
+                    className="w-full h-full"
+                    imageClassName="w-full h-full object-cover transition-transform duration-700"
+                    sizes="(max-width: 1024px) 100vw, 896px"
+                  />
+                </div>
+                <p className="text-[10px] uppercase tracking-[0.18em] text-foeg-muted text-right mt-2 font-light">
+                  {uiTexts.archive} · Atelier FOEG
+                </p>
+              </div>
+            )}
+          </React.Fragment>
         ))}
 
         {/* Cita Editorial en Serif */}
@@ -129,6 +150,23 @@ export default function JournalDetailClient({
               {article.pullQuote}
             </p>
           </blockquote>
+        )}
+
+        {/* Galería adicional si hay más fotos internas que párrafos */}
+        {article.internalImages && article.internalImages.length > article.content.length && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 my-10 sm:my-14 -mx-2 sm:-mx-6 md:-mx-12">
+            {article.internalImages.slice(article.content.length).map((img, i) => (
+              <div key={i} className="relative aspect-[4/3] w-full overflow-hidden bg-foeg-surface border border-foeg-border/60">
+                <MediaBox
+                  src={img}
+                  alt={`${article.title} — Atelier Archive ${i + 1}`}
+                  aspectRatio="full"
+                  className="w-full h-full"
+                  imageClassName="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

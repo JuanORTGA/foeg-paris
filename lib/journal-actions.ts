@@ -89,6 +89,7 @@ export async function saveJournalArticle(
     body: string;
     readTime?: string;
     image?: string;
+    internalImages?: string[];
     author?: string;
   }
 ): Promise<{ success: boolean; article?: JournalArticle; error?: string }> {
@@ -137,7 +138,27 @@ export async function saveJournalArticle(
         content: paragraphs.length > 0 ? paragraphs : currentArticles[index].content,
         readTime: articleData.readTime || currentArticles[index].readTime,
         image: articleData.image || currentArticles[index].image,
+        internalImages: articleData.internalImages || currentArticles[index].internalImages || [],
         author: articleData.author || currentArticles[index].author || 'Direction Artistique FOEG',
+        translations: {
+          ...currentArticles[index].translations,
+          es: currentArticles[index].translations?.es ? {
+            ...currentArticles[index].translations.es,
+            title: articleData.title.trim(),
+            excerpt: articleData.excerpt.trim() || currentArticles[index].translations.es.excerpt,
+            content: paragraphs.length > 0 ? paragraphs : currentArticles[index].translations.es.content,
+            image: articleData.image || currentArticles[index].image,
+            internalImages: articleData.internalImages || currentArticles[index].internalImages || [],
+          } : undefined,
+          en: currentArticles[index].translations?.en ? {
+            ...currentArticles[index].translations.en,
+            title: articleData.title.trim(),
+            excerpt: articleData.excerpt.trim() || currentArticles[index].translations.en.excerpt,
+            content: paragraphs.length > 0 ? paragraphs : currentArticles[index].translations.en.content,
+            image: articleData.image || currentArticles[index].image,
+            internalImages: articleData.internalImages || currentArticles[index].internalImages || [],
+          } : undefined,
+        },
       };
 
       currentArticles[index] = savedArticle;
@@ -155,6 +176,7 @@ export async function saveJournalArticle(
         image:
           articleData.image ||
           'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1600&q=85',
+        internalImages: articleData.internalImages || [],
         excerpt: articleData.excerpt.trim() || articleData.body.slice(0, 160) + '...',
         content: paragraphs.length > 0 ? paragraphs : [articleData.body.trim()],
       };
@@ -178,6 +200,8 @@ export async function saveJournalArticle(
             readTime: savedArticle.readTime.replace('de lecture', 'de lectura'),
             author: savedArticle.author.replace('Direction Artistique', 'Dirección Artística'),
             category: savedArticle.category === 'Savoir-Faire' ? 'Saber Hacer' : savedArticle.category,
+            image: savedArticle.image,
+            internalImages: savedArticle.internalImages,
           },
           en: {
             title: titleEn || savedArticle.title,
@@ -188,6 +212,8 @@ export async function saveJournalArticle(
             readTime: savedArticle.readTime.replace('de lecture', 'read'),
             author: savedArticle.author.replace('Direction Artistique', 'Artistic Direction'),
             category: savedArticle.category === 'Savoir-Faire' ? 'Craftsmanship' : savedArticle.category,
+            image: savedArticle.image,
+            internalImages: savedArticle.internalImages,
           },
         };
       } catch (transErr) {
@@ -211,8 +237,33 @@ export async function saveJournalArticle(
 
     await saveArticlesToDb(currentArticles);
 
+    // Synchronisation bidirectionnelle immédiate avec SiteContent (clé CMS de la Home)
+    if (savedArticle.image && savedArticle.slug) {
+      try {
+        await (prisma as any).siteContent.upsert({
+          where: { key: `journal_article_image_${savedArticle.slug}` },
+          create: {
+            key: `journal_article_image_${savedArticle.slug}`,
+            section: 'journal',
+            valueFr: savedArticle.image,
+            valueEn: savedArticle.image,
+            valueEs: savedArticle.image,
+          },
+          update: {
+            valueFr: savedArticle.image,
+            valueEn: savedArticle.image,
+            valueEs: savedArticle.image,
+          },
+        });
+      } catch (cmsSyncErr) {
+        console.warn('[CMS SYNC JOURNAL IMAGE ERROR]:', cmsSyncErr);
+      }
+    }
+
     try {
       revalidatePath('/admin/journal');
+      revalidatePath('/admin/cms');
+      revalidatePath('/');
       revalidatePath('/journal');
       revalidatePath(`/journal/${savedArticle.slug}`);
     } catch {}

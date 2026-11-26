@@ -1,8 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Plus, Eye, Clock, X, Check, Pencil, Trash2, AlertCircle } from 'lucide-react';
+import {
+  Plus,
+  Eye,
+  Clock,
+  X,
+  Check,
+  Pencil,
+  Trash2,
+  AlertCircle,
+  UploadCloud,
+  Image as ImageIcon,
+  Loader2,
+  Link as LinkIcon,
+  Camera,
+} from 'lucide-react';
 import MediaBox from '@/components/ui/MediaBox';
 import { JournalArticle } from '@/lib/journal-data';
 import {
@@ -31,6 +45,56 @@ export default function AdminJournalPage() {
   const [image, setImage] = useState(
     'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1600&q=85'
   );
+  const [internalImages, setInternalImages] = useState<string[]>([]);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingInternalIdx, setUploadingInternalIdx] = useState<number | null>(null);
+  const [showManualCoverUrl, setShowManualCoverUrl] = useState(false);
+  const [manualInternalInput, setManualInternalInput] = useState('');
+  const [showManualInternalUrl, setShowManualInternalUrl] = useState(false);
+
+  const fileCoverInputRef = useRef<HTMLInputElement>(null);
+  const fileInternalInputRef = useRef<HTMLInputElement>(null);
+  const activeInternalUploadIndex = useRef<number | null>(null);
+
+  // Helper de subida de imágenes a /api/upload
+  const handleUploadFile = async (file: File, isCover: boolean, internalIndex?: number) => {
+    if (isCover) {
+      setUploadingCover(true);
+    } else if (typeof internalIndex === 'number') {
+      setUploadingInternalIdx(internalIndex);
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors du téléversement.');
+      }
+      const uploadedUrl = data.secure_url;
+      if (isCover) {
+        setImage(uploadedUrl);
+      } else if (typeof internalIndex === 'number') {
+        setInternalImages((prev) => {
+          const next = [...prev];
+          next[internalIndex] = uploadedUrl;
+          return next;
+        });
+      } else {
+        setInternalImages((prev) => [...prev, uploadedUrl]);
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Error al subir la imagen');
+    } finally {
+      setUploadingCover(false);
+      setUploadingInternalIdx(null);
+      activeInternalUploadIndex.current = null;
+    }
+  };
 
   // Carga inicial desde Neon PostgreSQL
   useEffect(() => {
@@ -68,6 +132,10 @@ export default function AdminJournalPage() {
     setImage(
       'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1600&q=85'
     );
+    setInternalImages([]);
+    setShowManualCoverUrl(false);
+    setShowManualInternalUrl(false);
+    setManualInternalInput('');
     setIsEditorOpen(true);
   };
 
@@ -80,6 +148,10 @@ export default function AdminJournalPage() {
     setBody(Array.isArray(article.content) ? article.content.join('\n\n') : (article.content as string) || '');
     setReadTime(article.readTime || '5 min de lecture');
     setImage(article.image || '');
+    setInternalImages(article.internalImages || []);
+    setShowManualCoverUrl(false);
+    setShowManualInternalUrl(false);
+    setManualInternalInput('');
     setIsEditorOpen(true);
   };
 
@@ -98,6 +170,7 @@ export default function AdminJournalPage() {
         body: body.trim(),
         readTime: readTime.trim(),
         image: image.trim(),
+        internalImages: internalImages.filter((img) => img.trim().length > 0),
       }
     );
 
@@ -292,17 +365,17 @@ export default function AdminJournalPage() {
           MODAL GRANDE / EDITOR DE ENSAYO EDITORIAL (CREATE & UPDATE EN NEON)
       ========================================================================= */}
       {isEditorOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-10 animate-fadeIn">
-          <div className="bg-white w-full max-w-4xl max-h-[90vh] flex flex-col shadow-floating border border-foeg-border">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-6 md:p-10 animate-fadeIn">
+          <div className="bg-white w-full max-w-4xl max-h-[94vh] sm:max-h-[90vh] flex flex-col shadow-floating border border-foeg-border">
             {/* Header del Editor */}
-            <div className="p-6 md:p-8 border-b border-foeg-border/80 flex items-center justify-between shrink-0">
+            <div className="p-4 sm:p-6 md:p-8 border-b border-foeg-border/80 flex items-center justify-between shrink-0">
               <div>
                 <span className="text-[10px] uppercase tracking-[0.3em] text-foeg-navy font-medium block">
                   {language === 'es'
                     ? 'Journal FOEG París · Redacción de Atelier'
                     : 'Journal FOEG Paris · Rédaction d’Atelier'}
                 </span>
-                <h2 className="font-serif text-2xl md:text-3xl font-light text-foeg-black tracking-tight mt-1">
+                <h2 className="font-serif text-xl sm:text-2xl md:text-3xl font-light text-foeg-black tracking-tight mt-1">
                   {editingId
                     ? language === 'es'
                       ? 'Modificar Ensayo Editorial'
@@ -322,12 +395,12 @@ export default function AdminJournalPage() {
                 className="p-2 text-foeg-muted hover:text-foeg-black transition-colors cursor-pointer"
                 aria-label="Cerrar editor"
               >
-                <X className="w-6 h-6" strokeWidth={1} />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1} />
               </button>
             </div>
 
             {/* Formulario del Editor */}
-            <form onSubmit={handleSaveArticle} className="p-6 md:p-8 overflow-y-auto space-y-6 flex-1 text-xs font-light">
+            <form onSubmit={handleSaveArticle} className="p-4 sm:p-6 md:p-8 overflow-y-auto space-y-5 sm:space-y-6 flex-1 text-xs font-light">
               {/* Título */}
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
@@ -399,18 +472,258 @@ export default function AdminJournalPage() {
                 />
               </div>
 
-              {/* Imagen de Portada */}
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
-                  {language === 'es' ? 'Fotografía de Portada (URL)' : 'Photographie de Couverture (URL)'}
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  className="w-full bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-2.5 focus:outline-none focus:border-foeg-navy font-light"
-                />
+              {/* Input ocultos para subida de fotos (Móvil y Escritorio) */}
+              <input
+                type="file"
+                ref={fileCoverInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleUploadFile(file, true);
+                  e.target.value = '';
+                }}
+              />
+              <input
+                type="file"
+                ref={fileInternalInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    if (typeof activeInternalUploadIndex.current === 'number') {
+                      handleUploadFile(file, false, activeInternalUploadIndex.current);
+                    } else {
+                      handleUploadFile(file, false);
+                    }
+                  }
+                  e.target.value = '';
+                }}
+              />
+
+              {/* Fotografía de Portada del Ensayo */}
+              <div className="space-y-3 pt-2 border-t border-foeg-border/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-foeg-navy block font-semibold">
+                      {language === 'es' ? 'Fotografía de Portada' : 'Photographie de Couverture'}
+                    </label>
+                    <span className="text-[11px] text-foeg-muted font-light">
+                      {language === 'es'
+                        ? 'Imagen principal visible en la Home, listado del Journal y cabecera del artículo'
+                        : "Image principale visible sur l'accueil, le journal et l'en-tête de l'article"}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => fileCoverInputRef.current?.click()}
+                      disabled={uploadingCover}
+                      className="inline-flex items-center space-x-1.5 bg-foeg-navy text-white text-[11px] uppercase tracking-wider px-3.5 py-2 font-medium transition-colors hover:bg-foeg-black cursor-pointer active:scale-95 disabled:opacity-50"
+                    >
+                      {uploadingCover ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Camera className="w-3.5 h-3.5" />
+                      )}
+                      <span>
+                        {uploadingCover
+                          ? language === 'es'
+                            ? 'Subiendo...'
+                            : 'Téléversement...'
+                          : language === 'es'
+                          ? 'Subir Foto'
+                          : 'Téléverser'}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowManualCoverUrl((prev) => !prev)}
+                      className="text-[11px] uppercase tracking-wider text-foeg-muted hover:text-foeg-black underline underline-offset-4 px-2 py-1.5 cursor-pointer"
+                    >
+                      {showManualCoverUrl ? (language === 'es' ? 'Ocultar URL' : 'Masquer URL') : 'URL'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Vista Previa de la Portada */}
+                <div className="relative aspect-[16/9] w-full max-h-56 overflow-hidden bg-foeg-surface border border-foeg-border/80 group">
+                  {image ? (
+                    <MediaBox
+                      src={image}
+                      alt="Aperçu couverture"
+                      aspectRatio="full"
+                      className="w-full h-full"
+                      imageClassName="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-foeg-muted text-xs p-4 text-center">
+                      <ImageIcon className="w-8 h-8 stroke-[1] mb-2 opacity-50" />
+                      <span>
+                        {language === 'es'
+                          ? 'Sin foto de portada seleccionada'
+                          : 'Aucune photo de couverture sélectionnée'}
+                      </span>
+                    </div>
+                  )}
+
+                  {uploadingCover && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center text-white text-xs gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>{language === 'es' ? 'Procesando imagen...' : 'Traitement image...'}</span>
+                    </div>
+                  )}
+                </div>
+
+                {showManualCoverUrl && (
+                  <div className="pt-1">
+                    <input
+                      type="url"
+                      placeholder="https://..."
+                      value={image}
+                      onChange={(e) => setImage(e.target.value)}
+                      className="w-full bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-2.5 focus:outline-none focus:border-foeg-navy font-light font-mono"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Fotografías Internas del Ensayo (Atelier / Ilustración) */}
+              <div className="space-y-4 pt-4 border-t border-foeg-border/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <label className="text-[10px] uppercase tracking-[0.2em] text-foeg-navy font-semibold">
+                        {language === 'es' ? 'Fotografías Internas del Ensayo' : 'Photographies Internes de l’Essai'}
+                      </label>
+                      <span className="text-[10px] bg-foeg-surface border border-foeg-border/80 px-2 py-0.5 font-mono text-foeg-muted">
+                        {internalImages.length} {language === 'es' ? 'imágenes' : 'images'}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-foeg-muted font-light block mt-0.5">
+                      {language === 'es'
+                        ? 'Imágenes de alta costura que ilustran el proceso o atelier dentro del artículo'
+                        : "Images illustrant les coulisses et l'atelier au fil de la lecture"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        activeInternalUploadIndex.current = null;
+                        fileInternalInputRef.current?.click();
+                      }}
+                      className="inline-flex items-center space-x-1.5 bg-foeg-surface border border-foeg-border/80 hover:border-foeg-navy text-foeg-black text-[11px] uppercase tracking-wider px-3 py-2 font-medium transition-colors cursor-pointer active:scale-95"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>{language === 'es' ? 'Añadir Foto' : 'Ajouter Photo'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowManualInternalUrl((prev) => !prev)}
+                      className="text-[11px] uppercase tracking-wider text-foeg-muted hover:text-foeg-black underline underline-offset-4 px-2 py-1.5 cursor-pointer"
+                    >
+                      {showManualInternalUrl ? (language === 'es' ? 'Ocultar URL' : 'Masquer URL') : 'Pegar URL'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Input para agregar URL manual */}
+                {showManualInternalUrl && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="url"
+                      placeholder="https://..."
+                      value={manualInternalInput}
+                      onChange={(e) => setManualInternalInput(e.target.value)}
+                      className="flex-1 bg-foeg-surface/40 border border-foeg-border text-xs text-foeg-black p-2.5 focus:outline-none focus:border-foeg-navy font-light font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (manualInternalInput.trim()) {
+                          setInternalImages((prev) => [...prev, manualInternalInput.trim()]);
+                          setManualInternalInput('');
+                          setShowManualInternalUrl(false);
+                        }
+                      }}
+                      className="bg-foeg-navy text-white text-[11px] uppercase tracking-wider px-4 py-2.5 font-medium cursor-pointer shrink-0"
+                    >
+                      {language === 'es' ? 'Añadir' : 'Ajouter'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Lista de Imágenes Internas */}
+                {internalImages.length === 0 ? (
+                  <div className="py-6 px-4 border border-dashed border-foeg-border bg-foeg-surface/20 text-center text-[11px] text-foeg-muted font-light">
+                    {language === 'es'
+                      ? 'No hay imágenes internas aún. Añade fotos para ilustrar los párrafos del ensayo.'
+                      : "Aucune image interne pour l'instant. Ajoutez des photos pour illustrer le récit d'atelier."}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {internalImages.map((imgUrl, idx) => {
+                      const isUploadingThis = uploadingInternalIdx === idx;
+                      return (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-3 p-2.5 bg-foeg-surface/30 border border-foeg-border/80 group"
+                        >
+                          <div className="relative w-20 h-14 shrink-0 overflow-hidden bg-foeg-surface border border-foeg-border">
+                            <MediaBox
+                              src={imgUrl}
+                              alt={`Illustration ${idx + 1}`}
+                              aspectRatio="full"
+                              className="w-full h-full"
+                              imageClassName="w-full h-full object-cover"
+                            />
+                            {isUploadingThis && (
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[10px] uppercase tracking-widest text-foeg-navy font-semibold block">
+                              {language === 'es' ? `Foto ${idx + 1}` : `Photo ${idx + 1}`}
+                            </span>
+                            <p className="text-[10px] text-foeg-muted truncate font-mono mt-0.5">
+                              {imgUrl}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center space-x-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                activeInternalUploadIndex.current = idx;
+                                fileInternalInputRef.current?.click();
+                              }}
+                              title={language === 'es' ? 'Reemplazar foto' : 'Remplacer photo'}
+                              className="p-1.5 text-foeg-muted hover:text-foeg-navy transition-colors cursor-pointer"
+                            >
+                              <Camera className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInternalImages((prev) => prev.filter((_, i) => i !== idx));
+                              }}
+                              title={language === 'es' ? 'Eliminar foto' : 'Supprimer photo'}
+                              className="p-1.5 text-foeg-muted hover:text-red-700 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Cuerpo del Artículo */}

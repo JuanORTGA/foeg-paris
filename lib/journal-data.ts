@@ -9,6 +9,7 @@ export interface JournalArticle {
   readTime: string;
   author: string;
   image: string;
+  internalImages?: string[];
   category: string;
   pullQuote?: string;
   translations?: {
@@ -20,6 +21,8 @@ export interface JournalArticle {
       date: string;
       readTime: string;
       author: string;
+      image?: string;
+      internalImages?: string[];
       category: string;
       pullQuote?: string;
     };
@@ -31,6 +34,8 @@ export interface JournalArticle {
       date: string;
       readTime: string;
       author: string;
+      image?: string;
+      internalImages?: string[];
       category: string;
       pullQuote?: string;
     };
