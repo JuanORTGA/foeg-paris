@@ -273,7 +273,7 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
     }
   };
 
-  const productsToDisplay = initialProducts.length > 0 ? initialProducts : [
+  const fallbackCuratedProducts: ProductItem[] = [
     {
       id: 'le-manteau-en-cachemire',
       name: 'Le Manteau en Cachemire',
@@ -285,26 +285,56 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
       sizes: ['S', 'M', 'L'],
     },
     {
-      id: 'la-chemise-en-soie',
-      name: 'La Chemise en Soie',
-      subtitle: 'Crêpe de Chine 19 mommes, boutons de nacre · Écru',
-      numericPrice: 490,
-      image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=85',
-      category: 'Chemises & Tops',
-      materials: '100% Crêpe de Chine de Soie de mûrier',
+      id: 'la-veste-structuree-laine',
+      name: 'La Veste Structurée',
+      subtitle: 'Laine froide peignée, épaulettes souples · Bleu Nuit',
+      numericPrice: 1200,
+      image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=85',
+      category: 'Vestes & Costumes',
+      materials: '100% Laine Vierge peignée',
+      sizes: ['48', '50', '52'],
+    },
+    {
+      id: 'le-pantalon-tailleur-droit',
+      name: 'Le Pantalon Tailleur Droit',
+      subtitle: 'Tombé lourd, taille haute sans passant · Noir Carbone',
+      numericPrice: 680,
+      image: 'https://images.unsplash.com/photo-1508427953056-b00b8d78ebf5?auto=format&fit=crop&w=1200&q=85',
+      category: 'Pantalons',
+      materials: '100% Gabardine de Laine Vierge',
       sizes: ['S', 'M', 'L'],
     },
     {
-      id: 'le-pantalon-tailleur',
-      name: 'Le Pantalon Tailleur',
-      subtitle: 'Tombé lourd, taille haute sans passant · Bleu Nuit',
-      numericPrice: 680,
-      image: 'https://images.unsplash.com/photo-1508427953056-b00b8d78ebf5?auto=format&fit=crop&w=1200&q=85',
-      category: 'Pantalons & Jupes',
-      materials: '100% Gabardine de Laine Vierge froide',
+      id: 'la-chemise-en-soie-peignee',
+      name: 'La Chemise en Soie Peignée',
+      subtitle: 'Crêpe de Chine 19 mommes, boutons de nacre · Écru',
+      numericPrice: 490,
+      image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=1200&q=85',
+      category: 'Chemises & Tops',
+      materials: '100% Soie de mûrier',
       sizes: ['S', 'M', 'L'],
     },
+    {
+      id: 'le-pull-cachemire-col-rond',
+      name: 'Le Pull Cachemire Col Rond',
+      subtitle: 'Tricot jauge 12, finitions tubulaires · Gris Anthracite',
+      numericPrice: 580,
+      image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=1200&q=85',
+      category: 'Mailles & Cachemires',
+      materials: '100% Cachemire peigné',
+      sizes: ['S', 'M', 'L', 'XL'],
+    },
   ];
+
+  // Priorité absolue aux produits réels ajoutés dans l'admin, complétés jusqu'à 5 par la sélection atelier
+  const combinedProducts: ProductItem[] = [...initialProducts];
+  for (const fallback of fallbackCuratedProducts) {
+    if (combinedProducts.length >= 5) break;
+    if (!combinedProducts.some((p) => p.id === fallback.id || p.name === fallback.name)) {
+      combinedProducts.push(fallback);
+    }
+  }
+  const productsToDisplay = combinedProducts.slice(0, 5);
 
   const handleAddToCart = () => {
     if (!quickViewProduct) return;
@@ -593,14 +623,18 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-6 lg:gap-12">
-          {productsToDisplay.slice(0, 3).map((product) => {
+        {/* CONTENEDOR 5 PIEZAS CÔTE À CÔTE (UNA AL LADO DE LA OTRA EN PC Y EN MÓVIL) */}
+        <div className="flex md:grid md:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-thin pb-4 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {productsToDisplay.slice(0, 5).map((product) => {
             const productImgKey = `iconic_product_image_${product.id}`;
             const productTitleKey = `iconic_product_title_${product.id}`;
             const isProdGray = getCms(`${productImgKey}_grayscale`, '') === 'true';
 
             return (
-              <article key={product.id} className="group text-left flex flex-col justify-between">
+              <article
+                key={product.id}
+                className="min-w-[70vw] sm:min-w-[44vw] md:min-w-0 flex-shrink-0 md:flex-shrink snap-start group text-left flex flex-col justify-between"
+              >
                 <div className="relative overflow-hidden bg-foeg-surface aspect-3/4 border border-foeg-border/80">
                   <EditableImage
                     contentKey={productImgKey}

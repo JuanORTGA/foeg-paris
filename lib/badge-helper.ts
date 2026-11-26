@@ -14,6 +14,13 @@ export function getProductBadge(
     return null;
   }
 
+  if (badge === 'ICONIC' || badge === 'Iconique') {
+    return {
+      label: t ? (t('products.iconic') || 'Pièce Iconique') : 'Pièce Iconique',
+      className: 'bg-foeg-navy text-amber-300 border border-amber-300/40 shadow-xs font-medium',
+    };
+  }
+
   if (badge === 'LIMITED') {
     return {
       label: t ? t('products.limited') : 'Édition Limitée',

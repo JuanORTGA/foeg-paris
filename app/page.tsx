@@ -50,8 +50,8 @@ export default async function HomePage() {
             mode: 'insensitive',
           },
         },
-        take: 6,
-        orderBy: { createdAt: 'desc' },
+        take: 12,
+        orderBy: [{ isNew: 'desc' }, { createdAt: 'desc' }],
         select: {
           slug: true,
           name: true,
@@ -59,6 +59,8 @@ export default async function HomePage() {
           price: true,
           images: true,
           category: true,
+          subcategory: true,
+          badge: true,
           composition: true,
           variants: {
             select: { size: true },
@@ -67,8 +69,18 @@ export default async function HomePage() {
       }),
     ]);
 
+    // Priorité aux produits identifiés comme "Iconique"
+    const fetchedProducts = (productsRes || []).slice();
+    fetchedProducts.sort((a: any, b: any) => {
+      const aIconic = a.badge === 'ICONIC' || a.subcategory === 'Iconique';
+      const bIconic = b.badge === 'ICONIC' || b.subcategory === 'Iconique';
+      if (aIconic && !bIconic) return -1;
+      if (!aIconic && bIconic) return 1;
+      return 0;
+    });
+
     rawContent = contentRes || [];
-    rawProducts = productsRes || [];
+    rawProducts = fetchedProducts;
   } catch (err) {
     console.warn('[HOME PARALLEL FETCH ERROR]:', err);
   }

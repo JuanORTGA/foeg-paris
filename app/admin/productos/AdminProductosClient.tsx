@@ -67,8 +67,8 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
   // Formulaire d'ajout / modification
   const [formName, setFormName] = useState('');
   const [formPrice, setFormPrice] = useState('');
-  const [formCategory, setFormCategory] = useState<'Mujer' | 'Hombre'>('Mujer');
-  const [formSubcategory, setFormSubcategory] = useState('Manteaux');
+  const [formCategory, setFormCategory] = useState<'Mujer' | 'Hombre'>('Hombre');
+  const [formSubcategory, setFormSubcategory] = useState('Iconique');
   const [formDescription, setFormDescription] = useState('');
   const [formComposition, setFormComposition] = useState('');
   const [formImage, setFormImage] = useState(
@@ -108,8 +108,8 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
     setEditingProduct(null);
     setFormName('');
     setFormPrice('');
-    setFormCategory('Mujer');
-    setFormSubcategory('Manteaux');
+    setFormCategory('Hombre');
+    setFormSubcategory('Iconique');
     setFormSizeType('standard');
     setFormDescription('');
     setFormComposition('');
@@ -406,7 +406,7 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
             {t('admin.table.category')}:
           </span>
           <div className="flex items-center gap-1.5 text-xs whitespace-nowrap">
-            {['Toutes', 'Mujer', 'Hombre'].map((cat) => (
+            {['Toutes', 'Hombre'].map((cat) => (
               <button
                 key={cat}
                 type="button"
@@ -418,7 +418,7 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
                     : 'bg-white border border-foeg-border text-foeg-muted hover:text-foeg-black font-light'
                 }`}
               >
-                {cat === 'Mujer' ? t('nav.women') : cat === 'Hombre' ? t('nav.men') : t('admin.actions.all')}
+                {cat === 'Hombre' ? t('nav.men') : t('admin.actions.all')}
               </button>
             ))}
           </div>
@@ -789,7 +789,6 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
                         onChange={(e) => setFormCategory(e.target.value as 'Mujer' | 'Hombre')}
                         className="w-full border border-foeg-border p-2.5 text-xs focus:outline-none focus:border-foeg-navy rounded-none bg-white"
                       >
-                        <option value="Mujer">{t('nav.women')}</option>
                         <option value="Hombre">{t('nav.men')}</option>
                       </select>
                     </div>
@@ -814,10 +813,10 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
                         }}
                         className="w-full border border-foeg-border p-2.5 text-xs focus:outline-none focus:border-foeg-navy rounded-none bg-white"
                       >
+                        <option value="Iconique">★ Piezas Icónicas (Sélection Atelier)</option>
                         <option value="Manteaux">{t('admin.subcat.manteaux')}</option>
                         <option value="Chemises">{t('admin.subcat.chemises')}</option>
                         <option value="Pantalons">{t('admin.subcat.pantalons')}</option>
-                        <option value="Robes">{t('admin.subcat.robes')}</option>
                         <option value="Chaussures">{t('admin.subcat.chaussures')}</option>
                         <option value="Accessoires">{t('admin.subcat.accessoires')}</option>
                       </select>
@@ -835,6 +834,7 @@ export default function AdminProductosClient({ initialProducts }: AdminProductos
                         className="w-full border border-foeg-border p-2.5 text-xs focus:outline-none focus:border-foeg-navy rounded-none bg-white"
                       >
                         <option value="NONE">{t('admin.badge.none') || 'Sin insignia (Normal)'}</option>
+                        <option value="ICONIC">★ Pieza Icónica (Destacar en Home)</option>
                         <option value="LIMITED">{t('admin.badge.limited') || 'Edición Limitada'}</option>
                         <option value="SALE">{t('admin.badge.sale') || 'Oferta / Descuento'}</option>
                         <option value="NEW">{t('admin.badge.new') || 'Novedad / Nueva Colección'}</option>
