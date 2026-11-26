@@ -646,13 +646,13 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
                 key={product.id}
                 className="min-w-[70vw] sm:min-w-[44vw] md:min-w-0 flex-shrink-0 md:flex-shrink snap-start group text-left flex flex-col justify-between"
               >
-                <div className="relative overflow-hidden bg-foeg-surface aspect-3/4 border border-foeg-border/80">
+                <div className="relative overflow-hidden bg-foeg-surface aspect-[2/3] border border-foeg-border/80">
                   <EditableImage
                     contentKey={productImgKey}
                     defaultSrc={getCms(productImgKey, product.image)}
                     defaultGrayscale={isProdGray}
                     alt={product.name}
-                    aspectRatio="3/4"
+                    aspectRatio="2/3"
                     className="w-full h-full"
                     imageClassName="group-hover:scale-105 transition-transform duration-700 ease-out object-cover"
                     sizes="(max-width: 768px) 100vw, 33vw"

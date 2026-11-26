@@ -57,6 +57,8 @@ export default function MediaBox({
   const aspectClass =
     aspectRatio === '3/4'
       ? 'aspect-[3/4]'
+      : aspectRatio === '2/3'
+      ? 'aspect-[2/3]'
       : aspectRatio === '9/16'
       ? 'aspect-[9/16]'
       : aspectRatio === '16/9'
