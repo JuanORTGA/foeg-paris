@@ -9,7 +9,7 @@ export async function createProduct(formData: FormData) {
     const name = String(formData.get('name') || '').trim();
     const rawPrice = String(formData.get('price') || '0').replace(',', '.');
     const price = parseFloat(rawPrice) || 0;
-    const category = (formData.get('category') as string) || 'Mujer';
+    const category = (formData.get('category') as string) || 'Hombre';
     const subcategory = String(formData.get('subcategory') || 'Manteaux').trim();
     const badge = String(formData.get('badge') || '').trim() || null;
     const description = String(formData.get('description') || '').trim();
@@ -193,7 +193,7 @@ export async function updateProduct(formData: FormData) {
     const name = String(formData.get('name') || '').trim();
     const rawPrice = String(formData.get('price') || '0').replace(',', '.');
     const price = parseFloat(rawPrice) || 0;
-    const category = (formData.get('category') as string) || 'Mujer';
+    const category = (formData.get('category') as string) || 'Hombre';
     const subcategory = String(formData.get('subcategory') || 'Manteaux').trim();
     const badge = String(formData.get('badge') || '').trim() || null;
     const description = String(formData.get('description') || '').trim();
