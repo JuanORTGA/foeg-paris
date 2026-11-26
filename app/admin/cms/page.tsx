@@ -34,8 +34,14 @@ export default async function AdminCmsPage() {
         },
       }),
       prisma.product.findMany({
-        take: 6,
-        orderBy: { createdAt: 'desc' },
+        where: {
+          category: {
+            equals: 'Hombre',
+            mode: 'insensitive',
+          },
+        },
+        take: 12,
+        orderBy: [{ isNew: 'desc' }, { createdAt: 'desc' }],
         select: {
           slug: true,
           name: true,
@@ -43,6 +49,8 @@ export default async function AdminCmsPage() {
           price: true,
           images: true,
           category: true,
+          subcategory: true,
+          badge: true,
           composition: true,
           variants: {
             select: { size: true },
@@ -51,8 +59,13 @@ export default async function AdminCmsPage() {
       }),
     ]);
 
+    // Filtrage strict : seules les pièces expressément marquées comme ICONIC ou Iconique apparaissent dans "Pièces Iconiques"
+    const iconicOnly = (productsRes || []).filter((p: any) => {
+      return p.badge === 'ICONIC' || p.subcategory === 'Iconique';
+    });
+
     rawContent = contentRes || [];
-    rawProducts = productsRes || [];
+    rawProducts = iconicOnly;
   } catch (err) {
     console.warn('[CMS LIVE FETCH ERROR]:', err);
   }
@@ -92,7 +105,7 @@ export default async function AdminCmsPage() {
     <AdminCmsClient
       cmsContent={cmsMap}
       initialProducts={sanitizedProducts}
-      journalArticles={JOURNAL_ARTICLES}
+      journalArticles={JOURNAL_ARTICLES.slice(0, 3)}
     />
   );
 }

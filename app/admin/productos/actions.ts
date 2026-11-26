@@ -138,6 +138,7 @@ export async function createProduct(formData: FormData) {
 
     // 3. Revalidation des pages pour mise à jour instantanée
     revalidatePath('/admin/productos');
+    revalidatePath('/admin/cms');
     revalidatePath('/mujer');
     revalidatePath('/hombre');
     revalidatePath('/femme');
@@ -175,6 +176,7 @@ export async function deleteProduct(id: string) {
     });
 
     revalidatePath('/admin/productos');
+    revalidatePath('/admin/cms');
     revalidatePath('/mujer');
     revalidatePath('/hombre');
     revalidatePath('/femme');
@@ -341,6 +343,7 @@ export async function updateProduct(formData: FormData) {
     }
 
     revalidatePath('/admin/productos');
+    revalidatePath('/admin/cms');
     revalidatePath('/mujer');
     revalidatePath('/hombre');
     revalidatePath('/femme');

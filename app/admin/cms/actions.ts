@@ -213,6 +213,7 @@ export async function publishAllCmsAction() {
   try {
     revalidatePath('/', 'layout');
     revalidatePath('/');
+    revalidatePath('/(shop)', 'layout');
     revalidatePath('/admin/cms');
     revalidatePath('/admin/contenido');
     return { success: true };
