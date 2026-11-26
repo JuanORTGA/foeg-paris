@@ -5,7 +5,8 @@ import { ensureProductsSeeded } from '@/lib/db-seed-helper';
 import { MOCK_PRODUCTS, MockProduct } from '@/lib/mock-data';
 import ProductoClient from './ProductoClient';
 
-export const revalidate = 60; // Habilita ISR de 60s y prefetch ultra-rápido
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{ slug: string }>;

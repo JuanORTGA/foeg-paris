@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Plus, Minus, Truck, RotateCcw, Heart, Bell, Check, Loader2, ZoomIn, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import MediaBox from '@/components/ui/MediaBox';
+import MediaBox, { isVideoUrl } from '@/components/ui/MediaBox';
 import ProductCard from '@/components/product/ProductCard';
 import Reviews from '@/components/product/Reviews';
 import { useCart } from '@/lib/cart-context';
@@ -241,15 +241,23 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
                 onClick={() => handleOpenLightbox(0)}
                 className="relative w-full aspect-square min-h-[320px] max-h-[440px] overflow-hidden bg-foeg-surface border border-foeg-border/80 shadow-subtle cursor-zoom-in"
               >
-                <MediaBox
-                  src={currentProduct.images[0]}
-                  alt={`${currentProduct.name} — Vue principale`}
-                  aspectRatio="full"
-                  priority={true}
-                  sizes="100vw"
-                  className="w-full h-full"
-                  imageClassName="w-full h-full object-cover object-center"
-                />
+                {isVideoUrl(currentProduct.images[0]) ? (
+                  <video
+                    src={currentProduct.images[0]}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover object-center"
+                  />
+                ) : (
+                  <img
+                    src={currentProduct.images[0]}
+                    alt={`${currentProduct.name} — Vue principale`}
+                    className="w-full h-full object-cover object-center select-none"
+                    loading="eager"
+                  />
+                )}
                 {(() => {
                   const badgeConfig = getProductBadge(currentProduct, t);
                   if (badgeConfig) {
@@ -273,15 +281,23 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
                     onClick={() => handleOpenLightbox(idx)}
                     className="relative w-full aspect-square overflow-hidden bg-foeg-surface border border-foeg-border/80 shadow-subtle cursor-zoom-in"
                   >
-                    <MediaBox
-                      src={img}
-                      alt={`${currentProduct.name} — Vue ${idx + 1}`}
-                      aspectRatio="full"
-                      priority={idx === 0}
-                      sizes="50vw"
-                      className="w-full h-full"
-                      imageClassName="w-full h-full object-cover object-center"
-                    />
+                    {isVideoUrl(img) ? (
+                      <video
+                        src={img}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : (
+                      <img
+                        src={img}
+                        alt={`${currentProduct.name} — Vue ${idx + 1}`}
+                        className="w-full h-full object-cover object-center select-none"
+                        loading={idx === 0 ? 'eager' : 'lazy'}
+                      />
+                    )}
                     {idx === 0 && (() => {
                       const badgeConfig = getProductBadge(currentProduct, t);
                       if (badgeConfig) {
@@ -313,15 +329,23 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
                       onClick={() => handleOpenLightbox(idx)}
                       className="w-[82vw] sm:w-[48vw] shrink-0 snap-center relative aspect-square min-h-[300px] overflow-hidden bg-foeg-surface border border-foeg-border/80 shadow-subtle cursor-zoom-in"
                     >
-                      <MediaBox
-                        src={img}
-                        alt={`${currentProduct.name} — Vue ${idx + 1}`}
-                        aspectRatio="full"
-                        priority={idx === 0}
-                        sizes="85vw"
-                        className="w-full h-full"
-                        imageClassName="w-full h-full object-cover object-center"
-                      />
+                      {isVideoUrl(img) ? (
+                        <video
+                          src={img}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover object-center"
+                        />
+                      ) : (
+                        <img
+                          src={img}
+                          alt={`${currentProduct.name} — Vue ${idx + 1}`}
+                          className="w-full h-full object-cover object-center select-none"
+                          loading={idx === 0 ? 'eager' : 'lazy'}
+                        />
+                      )}
 
                       {idx === 0 && (() => {
                         const badgeConfig = getProductBadge(currentProduct, t);
@@ -378,14 +402,22 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
                             : 'border-foeg-border/80 opacity-60 hover:opacity-100'
                         }`}
                       >
-                        <MediaBox
-                          src={img}
-                          alt={`Miniature ${idx + 1}`}
-                          aspectRatio="full"
-                          sizes="56px"
-                          className="w-full h-full"
-                          imageClassName="w-full h-full object-cover"
-                        />
+                        {isVideoUrl(img) ? (
+                          <video
+                            src={img}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <img
+                            src={img}
+                            alt={`Miniature ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
                       </button>
                     );
                   })}
