@@ -232,40 +232,62 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
         {/* COLUMNA IZQUIERDA / GALERÍA COMPLETA (MÓVIL Y ESCRITORIO) */}
         <div className="lg:col-span-7 w-full">
           {/* =========================================================================
-              1. MÓVIL (< md): CARRUSEL DESLIZABLE EDITORIAL CON DESLIZAMIENTO TÁCTIL, DOTS Y MINIATURAS
+              1. MÓVIL (< md): FOTOS EN CUADRO UNA AL LADO DE OTRA (SEGÚN CANTIDAD DE FOTOS)
           ========================================================================= */}
-          <div className="block md:hidden w-full mb-6 select-none">
-            {/* Contenedor del Carrusel Deslizable */}
-            <div className="relative w-full overflow-hidden bg-foeg-surface border border-foeg-border/80">
+          <div className="block md:hidden w-full mb-8 select-none">
+            {currentProduct.images.length === 1 ? (
+              /* CASO 1: 1 SOLA FOTO -> CUADRO DESTACADO GRANDE */
               <div
-                ref={mobileCarouselRef}
-                onScroll={handleMobileScroll}
-                className="flex w-full overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar"
-                style={{ WebkitOverflowScrolling: 'touch' }}
+                onClick={() => handleOpenLightbox(0)}
+                className="relative w-full aspect-square min-h-[320px] max-h-[440px] overflow-hidden bg-foeg-surface border border-foeg-border/80 shadow-subtle cursor-zoom-in"
               >
+                <MediaBox
+                  src={currentProduct.images[0]}
+                  alt={`${currentProduct.name} — Vue principale`}
+                  aspectRatio="full"
+                  priority={true}
+                  sizes="100vw"
+                  className="w-full h-full"
+                  imageClassName="w-full h-full object-cover object-center"
+                />
+                {(() => {
+                  const badgeConfig = getProductBadge(currentProduct, t);
+                  if (badgeConfig) {
+                    return (
+                      <div className="absolute top-3 left-3 z-10 pointer-events-none">
+                        <span className={`${badgeConfig.className} text-[9px] uppercase tracking-[0.22em] px-2.5 py-1 font-medium shadow-subtle`}>
+                          {badgeConfig.label}
+                        </span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            ) : currentProduct.images.length === 2 ? (
+              /* CASO 2: 2 FOTOS -> DOS CUADROS UNO AL LADO DEL OTRO */
+              <div className="grid grid-cols-2 gap-2.5 w-full">
                 {currentProduct.images.map((img, idx) => (
                   <div
-                    key={`mobile-slide-${idx}`}
+                    key={`mobile-2grid-${idx}`}
                     onClick={() => handleOpenLightbox(idx)}
-                    className="w-full shrink-0 snap-center relative aspect-[3/4] min-h-[380px] max-h-[500px] overflow-hidden bg-foeg-surface cursor-zoom-in"
+                    className="relative w-full aspect-square overflow-hidden bg-foeg-surface border border-foeg-border/80 shadow-subtle cursor-zoom-in"
                   >
                     <MediaBox
                       src={img}
                       alt={`${currentProduct.name} — Vue ${idx + 1}`}
                       aspectRatio="full"
                       priority={idx === 0}
-                      sizes="100vw"
+                      sizes="50vw"
                       className="w-full h-full"
-                      imageClassName="w-full h-full object-cover"
+                      imageClassName="w-full h-full object-cover object-center"
                     />
-
-                    {/* Badge */}
                     {idx === 0 && (() => {
                       const badgeConfig = getProductBadge(currentProduct, t);
                       if (badgeConfig) {
                         return (
-                          <div className="absolute top-3 left-3 z-10 pointer-events-none">
-                            <span className={`${badgeConfig.className} text-[9px] uppercase tracking-[0.22em] px-2.5 py-1 font-medium shadow-subtle`}>
+                          <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                            <span className={`${badgeConfig.className} text-[8px] uppercase tracking-[0.2em] px-2 py-0.5 font-medium shadow-subtle`}>
                               {badgeConfig.label}
                             </span>
                           </div>
@@ -276,84 +298,91 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
                   </div>
                 ))}
               </div>
+            ) : (
+              /* CASO 3: 3 O MÁS FOTOS -> CARRUSEL DE CUADROS UNO AL LADO DEL OTRO */
+              <div className="space-y-3">
+                <div
+                  ref={mobileCarouselRef}
+                  onScroll={handleMobileScroll}
+                  className="flex gap-2.5 w-full overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar pb-1"
+                  style={{ WebkitOverflowScrolling: 'touch' }}
+                >
+                  {currentProduct.images.map((img, idx) => (
+                    <div
+                      key={`mobile-carousel-${idx}`}
+                      onClick={() => handleOpenLightbox(idx)}
+                      className="w-[82vw] sm:w-[48vw] shrink-0 snap-center relative aspect-square min-h-[300px] overflow-hidden bg-foeg-surface border border-foeg-border/80 shadow-subtle cursor-zoom-in"
+                    >
+                      <MediaBox
+                        src={img}
+                        alt={`${currentProduct.name} — Vue ${idx + 1}`}
+                        aspectRatio="full"
+                        priority={idx === 0}
+                        sizes="85vw"
+                        className="w-full h-full"
+                        imageClassName="w-full h-full object-cover object-center"
+                      />
 
-              {/* Botones de navegación flotantes sutiles en móvil (si hay más de 1 imagen) */}
-              {currentProduct.images.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const prevIdx = mobileActiveIndex === 0 ? currentProduct.images.length - 1 : mobileActiveIndex - 1;
-                      scrollToMobileSlide(prevIdx);
-                    }}
-                    className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md border border-foeg-border/80 flex items-center justify-center text-foeg-black shadow-subtle active:scale-95 transition-transform z-10 cursor-pointer"
-                    aria-label="Image précédente"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const nextIdx = mobileActiveIndex === currentProduct.images.length - 1 ? 0 : mobileActiveIndex + 1;
-                      scrollToMobileSlide(nextIdx);
-                    }}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md border border-foeg-border/80 flex items-center justify-center text-foeg-black shadow-subtle active:scale-95 transition-transform z-10 cursor-pointer"
-                    aria-label="Image suivante"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-
-                  {/* Contador sutil */}
-                  <div className="absolute bottom-3 right-3 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] tracking-widest font-mono px-2.5 py-0.5 rounded-full pointer-events-none">
-                    {mobileActiveIndex + 1} / {currentProduct.images.length}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Controles y Miniaturas inferiores (< md) */}
-            {currentProduct.images.length > 1 && (
-              <div className="mt-3.5 space-y-3">
-                {/* Dots / Líneas indicadoras de posición */}
-                <div className="flex items-center justify-center space-x-1.5">
-                  {currentProduct.images.map((_, idx) => (
-                    <button
-                      key={`dot-${idx}`}
-                      type="button"
-                      onClick={() => scrollToMobileSlide(idx)}
-                      className={`h-1 transition-all duration-300 rounded-full cursor-pointer ${
-                        mobileActiveIndex === idx
-                          ? 'w-6 bg-foeg-navy'
-                          : 'w-2 bg-foeg-border hover:bg-foeg-muted'
-                      }`}
-                      aria-label={`Vue ${idx + 1}`}
-                    />
+                      {idx === 0 && (() => {
+                        const badgeConfig = getProductBadge(currentProduct, t);
+                        if (badgeConfig) {
+                          return (
+                            <div className="absolute top-2.5 left-2.5 z-10 pointer-events-none">
+                              <span className={`${badgeConfig.className} text-[8px] uppercase tracking-[0.2em] px-2 py-0.5 font-medium shadow-subtle`}>
+                                {badgeConfig.label}
+                              </span>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
                   ))}
                 </div>
 
-                {/* Tira de miniaturas interactivas (Tap para cambiar carrusel) */}
-                <div className="flex gap-2.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar snap-x w-full">
+                {/* Dots indicadores y contador */}
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center space-x-1.5">
+                    {currentProduct.images.map((_, idx) => (
+                      <button
+                        key={`dot-cuadro-${idx}`}
+                        type="button"
+                        onClick={() => scrollToMobileSlide(idx)}
+                        className={`h-1 transition-all duration-300 rounded-full cursor-pointer ${
+                          mobileActiveIndex === idx
+                            ? 'w-6 bg-foeg-navy'
+                            : 'w-2 bg-foeg-border hover:bg-foeg-muted'
+                        }`}
+                        aria-label={`Vue ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <span className="text-[10px] tracking-widest font-mono text-foeg-muted uppercase">
+                    {mobileActiveIndex + 1} / {currentProduct.images.length}
+                  </span>
+                </div>
+
+                {/* Tira inferior de miniaturas en cuadro */}
+                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar snap-x">
                   {currentProduct.images.map((img, idx) => {
                     const isSelected = mobileActiveIndex === idx;
                     return (
                       <button
-                        key={`thumb-strip-${idx}`}
+                        key={`thumb-cuadro-${idx}`}
                         type="button"
                         onClick={() => scrollToMobileSlide(idx)}
-                        className={`relative aspect-[3/4] w-16 sm:w-20 shrink-0 snap-start overflow-hidden bg-foeg-surface transition-all duration-200 border cursor-pointer ${
+                        className={`relative aspect-square w-14 shrink-0 snap-start overflow-hidden bg-foeg-surface transition-all duration-200 border cursor-pointer ${
                           isSelected
                             ? 'border-b-2 border-b-foeg-navy ring-1 ring-foeg-navy opacity-100 shadow-sm'
                             : 'border-foeg-border/80 opacity-60 hover:opacity-100'
                         }`}
-                        aria-label={`Miniature ${idx + 1}`}
                       >
                         <MediaBox
                           src={img}
                           alt={`Miniature ${idx + 1}`}
                           aspectRatio="full"
-                          sizes="80px"
+                          sizes="56px"
                           className="w-full h-full"
                           imageClassName="w-full h-full object-cover"
                         />
