@@ -6,8 +6,7 @@ import { JOURNAL_ARTICLES } from '@/lib/journal-data';
 import { getSeoSettings } from '@/lib/settings-actions';
 import HomeClient, { CmsDictionary, ProductItem } from './HomeClient';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0; // Carga en vivo sin cache estática para reflejar cambios del CMS en 0ms
+export const revalidate = 60; // Cache Edge ultra-rapide (<50ms) avec réinvalidation instantanée au CMS
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoSettings();
@@ -25,11 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  // 1. Initialisations non-bloquantes en mémoire
-  ensureContentSeeded().catch(() => {});
-  ensureProductsSeeded().catch(() => {});
-
-  // 2. Récupération parallèle CMS + Produits avec select optimisé (zéro cascade)
+  // Récupération parallèle CMS + Produits avec select optimisé (zéro cascade)
   let rawContent: any[] = [];
   let rawProducts: any[] = [];
 

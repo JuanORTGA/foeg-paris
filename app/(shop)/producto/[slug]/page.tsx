@@ -16,9 +16,6 @@ export default async function ProductoPage({ params }: PageProps) {
   const slug = decodeURIComponent(rawSlug || '');
   const cleanSlug = slug.replace(/^\//, '').trim();
 
-  // Intentar seeding en segundo plano sin bloquear la respuesta si la DB tarda
-  ensureProductsSeeded().catch(() => {});
-
   // 1. Recherche parallèle du produit et des pièces associées dans Neon
   let dbProduct: any = null;
   let dbRelated: any[] = [];

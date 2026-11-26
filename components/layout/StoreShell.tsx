@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import CookieBanner from '@/components/layout/CookieBanner';
 import MiniCart from '@/components/layout/MiniCart';
 import ConciergeWidget from '@/components/layout/ConciergeWidget';
+import NavigationProgress from '@/components/ui/NavigationProgress';
 
 export default function StoreShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export default function StoreShell({ children }: { children: React.ReactNode }) 
 
   return (
     <>
+      <NavigationProgress />
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />

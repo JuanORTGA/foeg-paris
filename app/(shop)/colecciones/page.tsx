@@ -13,8 +13,6 @@ export const metadata: Metadata = {
 };
 
 export default async function ColeccionesPage() {
-  ensureProductsSeeded().catch(() => {});
-
   let dbProducts: any[] = [];
   try {
     dbProducts = await prisma.product.findMany({
