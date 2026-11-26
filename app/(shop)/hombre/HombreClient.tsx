@@ -48,6 +48,23 @@ export default function HombreClient({
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
 
+  // État local instantané pour navigation fluide (0ms de latence)
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>(activeSubcategory || 'Tout');
+  const [selectedSize, setSelectedSize] = useState<string>(activeSize || 'Toutes');
+  const [selectedSort, setSelectedSort] = useState<string>(activeSort || 'newest');
+
+  // Synchronisation avec les boutons Précédent/Suivant du navigateur
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const p = new URLSearchParams(window.location.search);
+      setSelectedSubcategory(p.get('category') || p.get('subcategory') || 'Tout');
+      setSelectedSize(p.get('size') || 'Toutes');
+      setSelectedSort(p.get('sort') || 'newest');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const getSubcategoryLabel = (cat: string) => {
     switch (cat.toLowerCase()) {
       case 'tout': return t('catalog.subAll') || 'Toutes les pièces';
@@ -67,27 +84,133 @@ export default function HombreClient({
     { label: t('catalog.sortPriceDesc'), value: 'price_desc' },
   ];
 
+  // Mise à jour instantanée en mémoire + mise à jour discrète de l'URL
   const updateFilters = (newParams: Record<string, string | null>) => {
-    const current = new URLSearchParams(searchParams.toString());
-    Object.entries(newParams).forEach(([k, v]) => {
-      if (v === null || v === 'Tout' || v === 'Toutes' || v === 'newest') {
-        current.delete(k);
-      } else {
-        current.set(k, v);
-      }
-    });
-    const query = current.toString();
-    router.push(query ? `?${query}` : window.location.pathname, { scroll: false });
+    let nextSub = selectedSubcategory;
+    let nextSize = selectedSize;
+    let nextSort = selectedSort;
+
+    if ('category' in newParams || 'subcategory' in newParams) {
+      nextSub = newParams.category || newParams.subcategory || 'Tout';
+      setSelectedSubcategory(nextSub);
+    }
+    if ('size' in newParams) {
+      nextSize = newParams.size || 'Toutes';
+      setSelectedSize(nextSize);
+    }
+    if ('sort' in newParams) {
+      nextSort = newParams.sort || 'newest';
+      setSelectedSort(nextSort);
+    }
+
+    if (typeof window !== 'undefined') {
+      const current = new URLSearchParams();
+      if (nextSub && nextSub !== 'Tout') current.set('category', nextSub);
+      if (nextSize && nextSize !== 'Toutes') current.set('size', nextSize);
+      if (nextSort && nextSort !== 'newest') current.set('sort', nextSort);
+      const query = current.toString();
+      const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+      window.history.pushState(null, '', newUrl);
+    }
   };
 
   const resetAllFilters = () => {
-    router.push(window.location.pathname, { scroll: false });
+    setSelectedSubcategory('Tout');
+    setSelectedSize('Toutes');
+    setSelectedSort('newest');
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', window.location.pathname);
+    }
   };
 
   const hasActiveFilters =
-    (activeSubcategory && activeSubcategory !== 'Tout') ||
-    (activeSize && activeSize !== 'Toutes') ||
-    (activeSort && activeSort !== 'newest');
+    (selectedSubcategory && selectedSubcategory !== 'Tout') ||
+    (selectedSize && selectedSize !== 'Toutes') ||
+    (selectedSort && selectedSort !== 'newest');
+
+  // Filtrage ultra-rapide instantané côté client
+  const filteredProducts = React.useMemo(() => {
+    return products
+      .filter((p) => {
+        // 1. Filtre par sous-catégorie
+        if (!selectedSubcategory || ['tout', 'todas', 'todos', 'all'].includes(selectedSubcategory.toLowerCase())) {
+          return true;
+        }
+        const sub = selectedSubcategory.toLowerCase();
+        const prodSub = (p.subcategory || '').toLowerCase();
+        const prodName = (p.name || '').toLowerCase();
+        const prodBadge = (p.badge || '').toLowerCase();
+
+        if (sub.includes('iconi')) {
+          return (
+            prodBadge === 'iconic' ||
+            prodSub.includes('iconi') ||
+            prodSub === 'iconique' ||
+            prodSub === 'piezas icónicas' ||
+            prodSub === 'pièces iconiques'
+          );
+        }
+
+        if (sub.includes('chemise') || sub.includes('camisa') || sub.includes('shirt') || sub.includes('top') || sub.includes('polo')) {
+          return (
+            prodSub.includes('chemise') ||
+            prodSub.includes('camisa') ||
+            prodSub.includes('shirt') ||
+            prodSub.includes('top') ||
+            prodSub.includes('polo') ||
+            prodName.includes('polo') ||
+            prodName.includes('chemise') ||
+            prodName.includes('camisa')
+          );
+        }
+
+        if (sub.includes('manteau') || sub.includes('abrigo') || sub.includes('coat') || sub.includes('veste') || sub.includes('chaqueta')) {
+          return (
+            prodSub.includes('manteau') ||
+            prodSub.includes('abrigo') ||
+            prodSub.includes('coat') ||
+            prodSub.includes('veste') ||
+            prodSub.includes('chaqueta') ||
+            prodName.includes('veste') ||
+            prodName.includes('manteau') ||
+            prodName.includes('abrigo')
+          );
+        }
+
+        if (sub.includes('pantalon') || sub.includes('pant')) {
+          return prodSub.includes('pantalon') || prodSub.includes('pant');
+        }
+
+        if (sub.includes('chaussure') || sub.includes('calzado') || sub.includes('shoe')) {
+          return prodSub.includes('chaussure') || prodSub.includes('calzado') || prodSub.includes('shoe');
+        }
+
+        if (sub.includes('accessoire') || sub.includes('accesorio') || sub.includes('accessory')) {
+          return prodSub.includes('accessoire') || prodSub.includes('accesorio') || prodSub.includes('accessory');
+        }
+
+        return prodSub === sub;
+      })
+      .filter((p) => {
+        // 2. Filtre par taille
+        if (!selectedSize || ['toutes', 'todas', 'all'].includes(selectedSize.toLowerCase())) {
+          return true;
+        }
+        return (p.variants || []).some(
+          (v) => v.size?.toLowerCase() === selectedSize.toLowerCase() && (v.stock || 0) > 0
+        );
+      })
+      .sort((a, b) => {
+        // 3. Tri
+        if (selectedSort === 'price_asc') {
+          return Number(a.price) - Number(b.price);
+        }
+        if (selectedSort === 'price_desc') {
+          return Number(b.price) - Number(a.price);
+        }
+        return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+      });
+  }, [products, selectedSubcategory, selectedSize, selectedSort]);
 
   return (
     <div className="pt-24 sm:pt-28 md:pt-36 pb-32 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto">
@@ -101,7 +224,7 @@ export default function HombreClient({
             {t('nav.men')}
           </h1>
           <span className="text-[11px] uppercase tracking-[0.25em] text-foeg-muted font-light">
-            {products.length} {products.length === 1 ? t('catalog.piece') : t('catalog.pieces')}
+            {filteredProducts.length} {filteredProducts.length === 1 ? t('catalog.piece') : t('catalog.pieces')}
           </span>
         </div>
       </header>
@@ -113,8 +236,8 @@ export default function HombreClient({
       >
         {SUBCATEGORIES.map((cat) => {
           const isActive =
-            activeSubcategory.toLowerCase() === cat.toLowerCase() ||
-            (cat === 'Tout' && (!activeSubcategory || activeSubcategory === 'Tout'));
+            selectedSubcategory.toLowerCase() === cat.toLowerCase() ||
+            (cat === 'Tout' && (!selectedSubcategory || selectedSubcategory === 'Tout'));
           return (
             <button
               key={cat}
@@ -142,7 +265,7 @@ export default function HombreClient({
             </span>
             <div className="flex items-center space-x-1 sm:space-x-1.5 flex-wrap gap-y-1">
               {SIZES.map((s) => {
-                const isActive = activeSize === s;
+                const isActive = selectedSize === s;
                 return (
                   <button
                     key={s}
@@ -167,7 +290,7 @@ export default function HombreClient({
               {t('catalog.sort')}
             </span>
             <select
-              value={activeSort}
+              value={selectedSort}
               onChange={(e) => updateFilters({ sort: e.target.value })}
               className="bg-transparent border-b border-foeg-border focus:border-foeg-navy text-xs text-foeg-black py-0.5 pr-4 uppercase tracking-wider focus:outline-none cursor-pointer"
             >
@@ -194,9 +317,9 @@ export default function HombreClient({
       </div>
 
       {/* GRID DE PRODUCTOS */}
-      {products.length > 0 ? (
+      {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6 md:gap-10 lg:gap-14">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
               product={product}

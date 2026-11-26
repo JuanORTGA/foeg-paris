@@ -33,112 +33,25 @@ interface PageProps {
 }
 
 export default async function HombrePage({ searchParams }: PageProps) {
-  ensureProductsSeeded().catch(() => {});
-
   const params = searchParams ? await searchParams : {};
   const activeSubcategory = params.subcategory || params.category || 'Tout';
   const activeSize = params.size || 'Toutes';
   const activeSort = params.sort || 'newest';
 
-  // Construction du filtre Prisma
-  const whereClause: any = {
-    category: {
-      equals: 'Hombre',
-      mode: 'insensitive',
-    },
-  };
-
-  const isAllSubcategories =
-    !activeSubcategory ||
-    ['tout', 'todas', 'todos', 'all'].includes(activeSubcategory.toLowerCase());
-
-  if (!isAllSubcategories) {
-    // Normalisation multi-langue pour correspondance souple (FR, ES, EN)
-    const sub = activeSubcategory.toLowerCase();
-    if (sub.includes('iconi')) {
-      whereClause.OR = [
-        { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
-        { badge: { equals: 'ICONIC', mode: 'insensitive' } },
-      ];
-    } else {
-      let subMatches = [activeSubcategory];
-      if (sub.includes('chemise') || sub.includes('camisa') || sub.includes('shirt') || sub.includes('top') || sub.includes('polo')) {
-        subMatches = ['Chemises', 'Camisas y Tops', 'Camisas', 'Shirts', 'Polo', 'Polos'];
-      } else if (sub.includes('manteau') || sub.includes('abrigo') || sub.includes('coat') || sub.includes('veste') || sub.includes('chaqueta')) {
-        subMatches = ['Manteaux', 'Abrigos', 'Coats', 'Vestes & Costumes', 'Vestes'];
-      } else if (sub.includes('pantalon') || sub.includes('pant')) {
-        subMatches = ['Pantalons', 'Pantalones', 'Pants'];
-      } else if (sub.includes('chaussure') || sub.includes('calzado') || sub.includes('shoe')) {
-        subMatches = ['Chaussures', 'Calzado', 'Shoes'];
-      } else if (sub.includes('accessoire') || sub.includes('accesorio') || sub.includes('accessory')) {
-        subMatches = ['Accessoires', 'Accesorios', 'Accessories'];
-      }
-
-      whereClause.OR = [
-        ...subMatches.map((val) => ({
-          subcategory: { equals: val, mode: 'insensitive' },
-        })),
-        ...(sub.includes('chemise') || sub.includes('camisa') || sub.includes('polo')
-          ? [
-              {
-                AND: [
-                  { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
-                  { name: { contains: 'polo', mode: 'insensitive' } },
-                ],
-              },
-              {
-                AND: [
-                  { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
-                  { name: { contains: 'chemise', mode: 'insensitive' } },
-                ],
-              },
-            ]
-          : []),
-        ...(sub.includes('manteau') || sub.includes('abrigo') || sub.includes('veste')
-          ? [
-              {
-                AND: [
-                  { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
-                  { name: { contains: 'veste', mode: 'insensitive' } },
-                ],
-              },
-              {
-                AND: [
-                  { subcategory: { in: ['Iconique', 'Pièces Iconiques', 'Piezas Icónicas'], mode: 'insensitive' } },
-                  { name: { contains: 'manteau', mode: 'insensitive' } },
-                ],
-              },
-            ]
-          : []),
-      ];
-    }
-  }
-
-  if (activeSize && !['toutes', 'todas', 'all'].includes(activeSize.toLowerCase())) {
-    whereClause.variants = {
-      some: {
-        size: { equals: activeSize, mode: 'insensitive' },
-        stock: { gt: 0 },
-      },
-    };
-  }
-
-  // Tri Prisma
-  let orderByClause: any = { createdAt: 'desc' };
-  if (activeSort === 'price_asc') {
-    orderByClause = { price: 'asc' };
-  } else if (activeSort === 'price_desc') {
-    orderByClause = { price: 'desc' };
-  }
-
   let dbProducts: any[] = [];
   try {
     dbProducts = await prisma.product.findMany({
-      where: whereClause,
+      where: {
+        category: {
+          equals: 'Hombre',
+          mode: 'insensitive',
+        },
+      },
       include: {
         variants: true,
+        measurements: true,
       },
-      orderBy: orderByClause,
+      orderBy: { createdAt: 'desc' },
     });
   } catch (err) {
     console.warn('[HOMBRE FETCH ERROR]:', err);
@@ -184,27 +97,7 @@ export default async function HombrePage({ searchParams }: PageProps) {
 
   // Fallback si la DB est injoignable ou vide
   if (products.length === 0 && dbProducts.length === 0) {
-    let mockFiltered = MOCK_PRODUCTS.filter((p) => p.category?.toLowerCase() === 'hombre');
-
-    if (!isAllSubcategories) {
-      mockFiltered = mockFiltered.filter(
-        (p) => p.subcategory?.toLowerCase() === activeSubcategory.toLowerCase()
-      );
-    }
-
-    if (activeSize && !['toutes', 'todas', 'all'].includes(activeSize.toLowerCase())) {
-      mockFiltered = mockFiltered.filter((p) =>
-        p.variants.some((v) => v.size.toLowerCase() === activeSize.toLowerCase() && v.stock > 0)
-      );
-    }
-
-    if (activeSort === 'price_asc') {
-      mockFiltered.sort((a, b) => a.price - b.price);
-    } else if (activeSort === 'price_desc') {
-      mockFiltered.sort((a, b) => b.price - a.price);
-    }
-
-    products = mockFiltered;
+    products = MOCK_PRODUCTS.filter((p) => p.category?.toLowerCase() === 'hombre');
   }
 
   return (
