@@ -187,8 +187,8 @@ export default function ProductoClient({ currentProduct, relatedProducts }: Prod
           Accueil
         </Link>
         <span>/</span>
-        <Link href="/mujer" className="hover:text-foeg-black transition-colors">
-          {currentProduct.category}
+        <Link href="/hombre" className="hover:text-foeg-black transition-colors">
+          {currentProduct.category || 'Hombre'}
         </Link>
         <span>/</span>
         <span className="text-foeg-black font-normal truncate max-w-xs">

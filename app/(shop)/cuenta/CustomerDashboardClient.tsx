@@ -724,10 +724,10 @@ export default function CustomerDashboardClient({
                   Vous n’avez aucune commande active
                 </p>
                 <p className="text-xs text-foeg-muted font-light max-w-sm mx-auto">
-                  Découvrez nos collections pour femme et homme confectionnées dans nos ateliers parisiens.
+                  Découvrez nos créations exclusives pour homme confectionnées dans nos ateliers parisiens.
                 </p>
                 <Link
-                  href="/femme"
+                  href="/hombre"
                   className="inline-block mt-2 px-6 py-2.5 bg-foeg-navy text-white text-xs uppercase tracking-[0.2em]"
                 >
                   Explorer la Collection

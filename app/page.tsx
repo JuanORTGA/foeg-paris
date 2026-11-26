@@ -44,6 +44,12 @@ export default async function HomePage() {
         },
       }),
       prisma.product.findMany({
+        where: {
+          category: {
+            equals: 'Hombre',
+            mode: 'insensitive',
+          },
+        },
         take: 6,
         orderBy: { createdAt: 'desc' },
         select: {

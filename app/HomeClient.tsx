@@ -586,7 +586,7 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
             />
           </div>
           <Link
-            href="/mujer"
+            href="/hombre"
             className="text-xs uppercase tracking-[0.22em] text-foeg-black hover:text-foeg-navy font-medium transition-colors border-b border-foeg-black pb-1 self-start md:self-auto"
           >
             {t('products.discoverAll')} →

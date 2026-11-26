@@ -82,10 +82,6 @@ export default function NotFound() {
 
         {/* Enlaces de Exploración Rápida */}
         <div className="pt-8 border-t border-[#E6E3DC] flex items-center justify-center space-x-8 text-xs uppercase tracking-[0.18em] text-[#6E6B67] font-light">
-          <Link href="/mujer" className="hover:text-[#1A1A1A] transition-colors">
-            {uiTexts.femme}
-          </Link>
-          <span>·</span>
           <Link href="/hombre" className="hover:text-[#1A1A1A] transition-colors">
             {uiTexts.homme}
           </Link>

@@ -90,7 +90,7 @@ export default function CustomerOrdersClient({
           </div>
           <div className="pt-2">
             <Link
-              href="/mujer"
+              href="/hombre"
               className="inline-flex items-center space-x-2 bg-foeg-navy hover:bg-foeg-black text-white px-6 py-3 text-xs uppercase tracking-[0.2em] transition-colors"
             >
               <span>{t('orders.discover')}</span>

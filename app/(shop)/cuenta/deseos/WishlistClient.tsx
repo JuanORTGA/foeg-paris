@@ -69,7 +69,7 @@ export default function WishlistClient() {
         </Link>
 
         <Link
-          href="/mujer"
+          href="/hombre"
           className="text-xs uppercase tracking-[0.2em] text-foeg-muted hover:text-foeg-black transition-colors font-light"
         >
           {t('wishlist.explore')} →
@@ -107,7 +107,7 @@ export default function WishlistClient() {
           </div>
           <div className="pt-4">
             <Link
-              href="/mujer"
+              href="/hombre"
               className="inline-block bg-foeg-navy text-white hover:bg-foeg-black py-3.5 px-8 text-xs uppercase tracking-[0.22em] font-medium transition-colors"
             >
               {t('wishlist.explore')}
