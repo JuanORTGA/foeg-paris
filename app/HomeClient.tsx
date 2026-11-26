@@ -1085,16 +1085,20 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 text-left">
+          {/* CONTENEDOR REVISTA EDITORIAL (CARRUSEL ALINEADO EN MÓVIL, GRID EN PC) */}
+          <div className="flex md:grid md:grid-cols-3 gap-5 sm:gap-6 lg:gap-12 text-left overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-px-4 scrollbar-none pb-4 md:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
             {articlesToDisplay.map((art) => {
               const artImgKey = `journal_article_image_${art.slug}`;
               const artTitleKey = `journal_article_title_${art.slug}`;
               const isArtGray = getCms(`${artImgKey}_grayscale`, '') === 'true';
 
               return (
-                <article key={art.id} className="group flex flex-col justify-between">
+                <article
+                  key={art.id}
+                  className="w-[78vw] max-w-[290px] sm:w-[44vw] md:w-auto shrink-0 md:shrink snap-start group flex flex-col justify-between bg-white/40 md:bg-transparent p-3 sm:p-0 border border-foeg-border/50 md:border-none shadow-2xs md:shadow-none"
+                >
                   <div className="block">
-                    <div className="relative aspect-[4/5] overflow-hidden bg-foeg-surface border border-foeg-border/80 mb-5">
+                    <div className="relative aspect-[4/5] overflow-hidden bg-foeg-surface border border-foeg-border/80 mb-4 sm:mb-5">
                       <EditableImage
                         contentKey={artImgKey}
                         defaultSrc={getCms(artImgKey, art.image)}
@@ -1103,32 +1107,34 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
                         aspectRatio="full"
                         className="w-full h-full"
                         imageClassName="group-hover:scale-105 transition-transform duration-700 ease-out object-cover"
-                        sizes="(max-width: 768px) 100vw, 33vw"
+                        sizes="(max-width: 768px) 80vw, 33vw"
                         label={`Image ${art.title}`}
                       />
                     </div>
 
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       <div className="flex items-center space-x-3 text-[10px] uppercase tracking-wider text-foeg-muted font-light">
                         <span className="text-foeg-navy font-medium">{art.category}</span>
                         <span>·</span>
                         <span>{art.readTime}</span>
                       </div>
 
-                      <EditableText
-                        contentKey={artTitleKey}
-                        initialValue={getCms(artTitleKey, art.title)}
-                        as="h3"
-                        className="font-serif text-xl sm:text-2xl font-light text-foeg-black group-hover:text-foeg-navy transition-colors leading-snug block"
-                      />
+                      <div className="min-h-[3rem] sm:min-h-[3.5rem] flex items-start">
+                        <EditableText
+                          contentKey={artTitleKey}
+                          initialValue={getCms(artTitleKey, art.title)}
+                          as="h3"
+                          className="font-serif text-lg sm:text-xl md:text-2xl font-light text-foeg-black group-hover:text-foeg-navy transition-colors leading-snug line-clamp-2 block"
+                        />
+                      </div>
 
-                      <p className="text-xs text-foeg-muted font-light leading-relaxed line-clamp-2">
+                      <p className="text-xs text-foeg-muted font-light leading-relaxed line-clamp-2 h-9">
                         {art.excerpt}
                       </p>
                     </div>
                   </div>
 
-                  <div className="pt-4 mt-2 border-t border-foeg-border/40">
+                  <div className="pt-3.5 mt-3 border-t border-foeg-border/40">
                     <Link
                       href={`/journal/${art.slug}`}
                       className="inline-flex items-center space-x-2 text-xs uppercase tracking-[0.2em] text-foeg-black group-hover:text-foeg-navy font-medium transition-colors"
@@ -1141,6 +1147,20 @@ export default function HomeClient({ cmsContent, initialProducts, journalArticle
               );
             })}
           </div>
+
+          {/* Indicador de desplazamiento sutil para móvil */}
+          {articlesToDisplay.length > 1 && (
+            <div className="flex md:hidden items-center justify-center gap-1.5 mt-2">
+              {articlesToDisplay.map((_, i) => (
+                <span
+                  key={`journal-dot-${i}`}
+                  className={`h-1 rounded-full transition-all duration-300 ${
+                    i === 0 ? 'w-5 bg-foeg-navy' : 'w-1.5 bg-foeg-border'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
