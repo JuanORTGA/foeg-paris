@@ -20,6 +20,12 @@ import {
   FileText,
   Clock,
   ExternalLink,
+  Ticket,
+  LayoutGrid,
+  List,
+  UserCheck,
+  Sparkles,
+  ShoppingBag,
 } from 'lucide-react';
 import {
   NewsletterSubscriberItem,
@@ -29,17 +35,25 @@ import {
   deleteNewsletterSubscriber,
   sendNewsletterCampaign,
   deleteNewsletterCampaign,
+  toggleSubscriberVipStatus,
+  createVipCouponForSubscriber,
 } from '@/lib/newsletter-actions';
 import { useLanguage } from '@/lib/language-context';
 
 interface NewsletterClientProps {
   initialSubscribers: NewsletterSubscriberItem[];
   initialCampaigns: NewsletterCampaignItem[];
+  clientStats?: {
+    registeredTotal: number;
+    registeredVip: number;
+    registeredNormal: number;
+  };
 }
 
 export default function NewsletterClient({
   initialSubscribers,
   initialCampaigns,
+  clientStats = { registeredTotal: 0, registeredVip: 0, registeredNormal: 0 },
 }: NewsletterClientProps) {
   const { t, language } = useLanguage();
 
@@ -49,7 +63,23 @@ export default function NewsletterClient({
   const [campaigns, setCampaigns] = useState<NewsletterCampaignItem[]>(initialCampaigns);
   const [search, setSearch] = useState('');
   const [segmentFilter, setSegmentFilter] = useState<string>('ALL');
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Modal Cupón Rápido VIP
+  const [couponModalOpen, setCouponModalOpen] = useState(false);
+  const [couponTargetSubscriber, setCouponTargetSubscriber] = useState<NewsletterSubscriberItem | null>(null);
+  const [couponForm, setCouponForm] = useState<{
+    code: string;
+    discountType: 'PERCENTAGE' | 'FIXED';
+    discountValue: number;
+    expiresDays: number;
+  }>({
+    code: '',
+    discountType: 'PERCENTAGE',
+    discountValue: 20,
+    expiresDays: 30,
+  });
 
   // Modales
   const [subscriberModalOpen, setSubscriberModalOpen] = useState(false);
@@ -148,12 +178,23 @@ export default function NewsletterClient({
       !q ||
       sub.email.toLowerCase().includes(q) ||
       sub.source.toLowerCase().includes(q) ||
+      (sub.userName && sub.userName.toLowerCase().includes(q)) ||
       (sub.notes && sub.notes.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
 
     if (segmentFilter === 'VIP') {
-      return sub.source.toLowerCase().includes('vip') || sub.source.toLowerCase().includes('cercle');
+      return (
+        sub.source.toLowerCase().includes('vip') ||
+        sub.source.toLowerCase().includes('cercle') ||
+        Boolean(sub.isQualifiedVip)
+      );
+    }
+    if (segmentFilter === 'REGISTERED') {
+      return Boolean(sub.hasUserAccount);
+    }
+    if (segmentFilter === 'BUYER_VIP') {
+      return (sub.totalSpent || 0) >= 1000;
     }
     if (segmentFilter === 'WEB') {
       return (
@@ -178,10 +219,96 @@ export default function NewsletterClient({
   // Métricas
   const totalCount = subscribers.length;
   const vipCount = subscribers.filter(
-    (s) => s.source.toLowerCase().includes('vip') || s.source.toLowerCase().includes('cercle')
+    (s) =>
+      s.source.toLowerCase().includes('vip') ||
+      s.source.toLowerCase().includes('cercle') ||
+      Boolean(s.isQualifiedVip)
   ).length;
+  const registeredAccountCount = subscribers.filter((s) => Boolean(s.hasUserAccount)).length;
   const activeCount = subscribers.filter((s) => s.status === 'ACTIVE').length;
   const activeRate = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 100;
+
+  // Alternar Estatus VIP en un Clic
+  const handleToggleVip = async (sub: NewsletterSubscriberItem) => {
+    const isCurrentlyVip =
+      sub.source.toLowerCase().includes('vip') || sub.source.toLowerCase().includes('cercle');
+    const newVip = !isCurrentlyVip;
+
+    try {
+      const res = await toggleSubscriberVipStatus(sub.id, newVip);
+      if (res.success && res.subscriber) {
+        setSubscribers((prev) =>
+          prev.map((s) => (s.id === sub.id ? { ...s, source: res.subscriber!.source, isQualifiedVip: newVip } : s))
+        );
+        setFeedback({
+          type: 'success',
+          message: newVip
+            ? (language === 'es'
+                ? `El cliente ${sub.email} ha sido promovido al Círculo Privado VIP.`
+                : `Le client ${sub.email} a été promu au Cercle Privé VIP.`)
+            : (language === 'es'
+                ? `Estatus VIP retirado de ${sub.email}.`
+                : `Statut VIP retiré pour ${sub.email}.`),
+        });
+        setTimeout(() => setFeedback(null), 4000);
+      } else {
+        setFeedback({ type: 'error', message: res.error || 'Erreur' });
+      }
+    } catch (_) {
+      setFeedback({ type: 'error', message: 'Erreur lors de la mise à jour.' });
+    }
+  };
+
+  // Abrir Modal de Cupón VIP
+  const handleOpenCouponModal = (sub: NewsletterSubscriberItem) => {
+    const safeName = (sub.userName || sub.email.split('@')[0])
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '')
+      .slice(0, 8);
+    setCouponTargetSubscriber(sub);
+    setCouponForm({
+      code: `VIP-${safeName || 'FOEG'}-20`,
+      discountType: 'PERCENTAGE',
+      discountValue: 20,
+      expiresDays: 30,
+    });
+    setCouponModalOpen(true);
+  };
+
+  // Guardar Cupón VIP
+  const handleCreateVipCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponTargetSubscriber) return;
+
+    setIsSubmitting(true);
+    try {
+      const res = await createVipCouponForSubscriber({
+        email: couponTargetSubscriber.email,
+        code: couponForm.code,
+        discountType: couponForm.discountType,
+        discountValue: Number(couponForm.discountValue),
+        expiresDays: Number(couponForm.expiresDays),
+      });
+
+      if (res.success) {
+        setFeedback({
+          type: 'success',
+          message:
+            language === 'es'
+              ? `Cupón ${couponForm.code} creado con éxito para ${couponTargetSubscriber.email}.`
+              : `Coupon ${couponForm.code} créé avec succès pour ${couponTargetSubscriber.email}.`,
+        });
+        setCouponModalOpen(false);
+        setTimeout(() => setFeedback(null), 4500);
+      } else {
+        setFeedback({ type: 'error', message: res.error || 'Erreur' });
+      }
+    } catch (_) {
+      setFeedback({ type: 'error', message: 'Erreur lors de la création du coupon.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Acciones CRUD Suscriptor
   const handleOpenAddSubscriber = () => {
@@ -511,36 +638,56 @@ export default function NewsletterClient({
       </div>
 
       {/* =========================================================================
-          PESTAÑA 1: GESTIÓN DE SUSCRIPTORES
+          PESTAÑA 1: GESTIÓN DE SUSCRIPTORES Y CLIENTES CERCLE PRIVÉ
          ========================================================================= */}
       {activeTab === 'subscribers' && (
         <div className="space-y-6">
-          {/* Métricas rápidas (KPIs) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="p-5 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
+          {/* Métricas rápidas (KPIs Integrados con Neon DB) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {/* KPI 1: Suscriptores Boletín */}
+            <div className="p-4 sm:p-5 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
               <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block">
                 {t('admin.newsletter.totalSubscribers')}
               </span>
               <p className="font-serif text-3xl text-foeg-black">{totalCount}</p>
+              <div className="flex items-center space-x-1.5 text-[10px] text-foeg-muted font-light">
+                <span className="text-amber-800 font-medium">{vipCount} VIP</span>
+                <span>·</span>
+                <span>{totalCount - vipCount} Web</span>
+              </div>
+            </div>
+
+            {/* KPI 2: Cuentas Registradas en Tienda */}
+            <div className="p-4 sm:p-5 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block">
+                  {language === 'es' ? 'Cuentas Registradas' : 'Registered Accounts'}
+                </span>
+                <Users className="w-3.5 h-3.5 text-foeg-navy" />
+              </div>
+              <p className="font-serif text-3xl text-foeg-black">{clientStats.registeredTotal}</p>
               <span className="text-[10px] text-foeg-muted font-light block">
-                {language === 'es' ? 'Contactos en la base de datos' : 'Registered in database'}
+                {clientStats.registeredNormal} {language === 'es' ? 'normales' : 'normals'} ·{' '}
+                <strong className="text-amber-700 font-medium">{clientStats.registeredVip} VIP</strong>
               </span>
             </div>
 
-            <div className="p-5 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
+            {/* KPI 3: Clientes VIP Calificados */}
+            <div className="p-4 sm:p-5 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block">
-                  {t('admin.newsletter.vipCircle')}
+                  {language === 'es' ? 'Compradores VIP (≥ 1.000€)' : 'Qualified VIP Buyers'}
                 </span>
                 <Crown className="w-3.5 h-3.5 text-amber-700" />
               </div>
-              <p className="font-serif text-3xl text-foeg-navy">{vipCount}</p>
-              <span className="text-[10px] text-amber-800 font-light block">
-                {language === 'es' ? 'Acceso a colecciones privadas' : 'Private collections access'}
+              <p className="font-serif text-3xl text-amber-800">{clientStats.registeredVip}</p>
+              <span className="text-[10px] text-amber-900 font-light block">
+                {language === 'es' ? 'Acceso a Cercle Privé' : 'Cercle Privé Access'}
               </span>
             </div>
 
-            <div className="p-5 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
+            {/* KPI 4: Tasa Activa */}
+            <div className="p-4 sm:p-5 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block">
                   {t('admin.newsletter.activeRate')}
@@ -552,38 +699,25 @@ export default function NewsletterClient({
                 {activeCount} {language === 'es' ? 'suscriptores activos' : 'active subscribers'}
               </span>
             </div>
-
-            <div className="p-5 bg-white border border-foeg-border/80 space-y-2 shadow-subtle">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block">
-                {t('admin.newsletter.lastSubscription')}
-              </span>
-              <p className="font-serif text-2xl text-foeg-black pt-1">
-                {subscribers.length > 0
-                  ? new Date(subscribers[0].createdAt).toLocaleDateString(
-                      language === 'es' ? 'es-ES' : language === 'en' ? 'en-US' : 'fr-FR',
-                      {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      }
-                    )
-                  : '—'}
-              </p>
-              <span className="text-[10px] text-foeg-muted font-light block">
-                {subscribers.length > 0
-                  ? new Date(subscribers[0].createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : ''}
-              </span>
-            </div>
           </div>
 
-          {/* Filtros de Segmento + Barra de Búsqueda */}
+          {/* Filtros de Segmento + Selector de Vista + Barra de Búsqueda */}
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white p-4 border border-foeg-border/80 shadow-subtle">
             {/* Píldoras de segmento */}
-            <div className="flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar whitespace-nowrap pb-1 lg:pb-0">
+            <div className="flex items-center gap-1.5 text-xs overflow-x-auto pb-1 lg:pb-0 scrollbar-thin">
               {[
                 { id: 'ALL', label: t('admin.newsletter.filterAll'), count: subscribers.length },
                 { id: 'VIP', label: t('admin.newsletter.filterVip'), count: vipCount },
+                {
+                  id: 'REGISTERED',
+                  label: language === 'es' ? 'Con Cuenta Registrada' : 'Registered Accounts',
+                  count: registeredAccountCount,
+                },
+                {
+                  id: 'BUYER_VIP',
+                  label: language === 'es' ? 'VIP Compradores (≥ 1.000€)' : 'VIP Buyers (≥ 1.000€)',
+                  count: subscribers.filter((s) => (s.totalSpent || 0) >= 1000).length,
+                },
                 {
                   id: 'WEB',
                   label: t('admin.newsletter.filterWeb'),
@@ -594,19 +728,7 @@ export default function NewsletterClient({
                       s.source.toLowerCase().includes('hero')
                   ).length,
                 },
-                {
-                  id: 'BOUTIQUE',
-                  label: t('admin.newsletter.filterBoutique'),
-                  count: subscribers.filter(
-                    (s) => s.source.toLowerCase().includes('boutique') || s.source.toLowerCase().includes('atelier')
-                  ).length,
-                },
                 { id: 'ACTIVE', label: t('admin.newsletter.filterActive'), count: activeCount },
-                {
-                  id: 'PAUSED',
-                  label: t('admin.newsletter.filterPaused'),
-                  count: subscribers.filter((s) => s.status === 'PAUSED' || s.status === 'UNSUBSCRIBED').length,
-                },
               ].map((btn) => (
                 <button
                   key={btn.id}
@@ -623,169 +745,416 @@ export default function NewsletterClient({
               ))}
             </div>
 
-            {/* Input de Búsqueda */}
-            <div className="flex items-center bg-foeg-surface/40 border border-foeg-border px-3.5 py-2 w-full lg:w-auto min-w-0 lg:min-w-[260px]">
-              <Search className="w-3.5 h-3.5 text-foeg-muted mr-2.5 shrink-0" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('admin.newsletter.searchPlaceholder')}
-                className="w-full text-xs text-foeg-black placeholder:text-gray-400 focus:outline-none font-light bg-transparent"
-              />
-              {search && (
+            {/* Herramientas derechas: Selector de vista + Input de búsqueda */}
+            <div className="flex items-center gap-2.5">
+              {/* Botón selector Vista Tabla / Vista Tarjetas (Móvil) */}
+              <div className="flex items-center border border-foeg-border bg-foeg-surface/40 p-0.5 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setSearch('')}
-                  className="text-gray-400 hover:text-black ml-1 cursor-pointer"
+                  onClick={() => setViewMode('table')}
+                  className={`p-1.5 transition-colors cursor-pointer ${
+                    viewMode === 'table' ? 'bg-white text-foeg-navy shadow-xs' : 'text-foeg-muted hover:text-foeg-black'
+                  }`}
+                  title={language === 'es' ? 'Vista Tabla' : 'Table View'}
                 >
-                  <X className="w-3 h-3" />
+                  <List className="w-3.5 h-3.5" />
                 </button>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setViewMode('cards')}
+                  className={`p-1.5 transition-colors cursor-pointer ${
+                    viewMode === 'cards' ? 'bg-white text-foeg-navy shadow-xs' : 'text-foeg-muted hover:text-foeg-black'
+                  }`}
+                  title={language === 'es' ? 'Vista Tarjetas (Optimizado Móvil)' : 'Card View'}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Input de Búsqueda */}
+              <div className="flex items-center bg-foeg-surface/40 border border-foeg-border px-3 py-1.5 w-full lg:w-auto min-w-0 lg:min-w-[240px]">
+                <Search className="w-3.5 h-3.5 text-foeg-muted mr-2 shrink-0" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t('admin.newsletter.searchPlaceholder')}
+                  className="w-full text-xs text-foeg-black placeholder:text-gray-400 focus:outline-none font-light bg-transparent"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="text-gray-400 hover:text-black ml-1 cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Tabla de Suscriptores con CRUD */}
-          <div className="bg-white border border-foeg-border/80 overflow-x-auto no-scrollbar shadow-subtle">
-            <table className="w-full text-left text-xs font-light whitespace-nowrap min-w-[650px]">
-              <thead className="bg-foeg-surface/60 border-b border-foeg-border text-[10px] uppercase tracking-[0.2em] text-foeg-muted font-medium">
-                <tr>
-                  <th className="py-3.5 px-6">{t('admin.newsletter.thEmail')}</th>
-                  <th className="py-3.5 px-6">{t('admin.newsletter.thSource')}</th>
-                  <th className="py-3.5 px-6">{t('admin.newsletter.thStatus')}</th>
-                  <th className="py-3.5 px-6">{t('admin.newsletter.thNotes')}</th>
-                  <th className="py-3.5 px-6">{t('admin.newsletter.thDate')}</th>
-                  <th className="py-3.5 px-6 text-right">{t('admin.newsletter.thAction')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-foeg-border/60">
-                {filteredSubscribers.length > 0 ? (
-                  filteredSubscribers.map((sub) => {
-                    const isVip =
-                      sub.source.toLowerCase().includes('vip') || sub.source.toLowerCase().includes('cercle');
+          {/* VISTA 1: TABLA PRINCIPAL CON COLUMNAS OPTIMIZADAS Y SIN CORTES */}
+          {viewMode === 'table' && (
+            <div className="w-full overflow-x-auto border border-foeg-border/80 bg-white shadow-subtle scrollbar-thin scrollbar-thumb-gray-300">
+              <table className="w-full text-left text-xs font-light whitespace-nowrap min-w-[860px]">
+                <thead className="bg-foeg-surface/60 border-b border-foeg-border text-[10px] uppercase tracking-[0.2em] text-foeg-muted font-medium">
+                  <tr>
+                    <th className="py-3.5 px-5">{t('admin.newsletter.thEmail')}</th>
+                    <th className="py-3.5 px-4">{t('admin.newsletter.thSource')}</th>
+                    <th className="py-3.5 px-3">{t('admin.newsletter.thStatus')}</th>
+                    <th className="py-3.5 px-4">
+                      {language === 'es' ? 'Cuenta & Compras' : 'Account & Orders'}
+                    </th>
+                    <th className="py-3.5 px-4">{t('admin.newsletter.thNotes')}</th>
+                    <th className="py-3.5 px-4">{t('admin.newsletter.thDate')}</th>
+                    <th className="py-3.5 px-4 text-center sticky right-0 bg-foeg-surface/90 backdrop-blur-xs min-w-[155px] border-l border-foeg-border/80 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">
+                      {t('admin.newsletter.thAction')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-foeg-border/60">
+                  {filteredSubscribers.length > 0 ? (
+                    filteredSubscribers.map((sub) => {
+                      const isVip =
+                        sub.source.toLowerCase().includes('vip') ||
+                        sub.source.toLowerCase().includes('cercle') ||
+                        Boolean(sub.isQualifiedVip);
+                      const hasAccount = Boolean(sub.hasUserAccount);
+                      const isBuyerVip = (sub.totalSpent || 0) >= 1000;
 
-                    return (
-                      <tr key={sub.id} className="hover:bg-foeg-surface/20 transition-colors">
-                        {/* Email */}
-                        <td className="py-4 px-6 font-medium text-foeg-black">
-                          <div className="flex items-center space-x-2.5">
-                            <div className="w-7 h-7 rounded-none bg-foeg-surface border border-foeg-border flex items-center justify-center shrink-0">
-                              <Mail className="w-3.5 h-3.5 text-foeg-navy" />
+                      return (
+                        <tr key={sub.id} className="hover:bg-foeg-surface/20 transition-colors">
+                          {/* Email & Nombre */}
+                          <td className="py-3.5 px-5 font-medium text-foeg-black">
+                            <div className="flex items-center space-x-2.5">
+                              <div className="w-7 h-7 rounded-none bg-foeg-surface border border-foeg-border flex items-center justify-center shrink-0">
+                                <Mail className="w-3.5 h-3.5 text-foeg-navy" />
+                              </div>
+                              <div>
+                                <span className="block font-medium">{sub.email}</span>
+                                <div className="flex items-center space-x-1.5 text-[10px] text-foeg-muted font-light font-mono">
+                                  <span>ID: {sub.id.slice(0, 14)}</span>
+                                  {sub.userName && <span>· {sub.userName}</span>}
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <span className="block font-medium">{sub.email}</span>
-                              <span className="text-[10px] text-foeg-muted font-light font-mono">
-                                ID: {sub.id}
+                          </td>
+
+                          {/* Origen / Segmento */}
+                          <td className="py-3.5 px-4">
+                            <span
+                              className={`inline-flex items-center space-x-1 px-2.5 py-0.5 text-[10px] uppercase tracking-wider font-medium border ${
+                                isVip
+                                  ? 'bg-amber-50/80 border-amber-300 text-amber-900'
+                                  : 'bg-foeg-surface border-foeg-border text-foeg-black'
+                              }`}
+                            >
+                              {isVip && <Crown className="w-3 h-3 mr-0.5 text-amber-700" />}
+                              <span>{formatSourceLabel(sub.source)}</span>
+                            </span>
+                          </td>
+
+                          {/* Estado */}
+                          <td className="py-3.5 px-3">
+                            <span
+                              className={`inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium border ${
+                                sub.status === 'ACTIVE'
+                                  ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                                  : sub.status === 'PAUSED'
+                                  ? 'bg-amber-50 border-amber-300 text-amber-800'
+                                  : 'bg-gray-100 border-gray-300 text-gray-700'
+                              }`}
+                            >
+                              {formatStatusLabel(sub.status || 'ACTIVE')}
+                            </span>
+                          </td>
+
+                          {/* Cuenta en Tienda & Compras Acumuladas */}
+                          <td className="py-3.5 px-4">
+                            <div className="space-y-0.5">
+                              {hasAccount ? (
+                                <span className="inline-flex items-center space-x-1 px-1.5 py-0.2 bg-blue-50 border border-blue-200 text-blue-900 text-[9px] uppercase tracking-wider font-medium">
+                                  <UserCheck className="w-2.5 h-2.5 text-blue-700" />
+                                  <span>{language === 'es' ? 'Cuenta Activa' : 'Registered'}</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-foeg-muted font-light">
+                                  {language === 'es' ? 'Solo Suscriptor' : 'Guest Subscriber'}
+                                </span>
+                              )}
+                              {(sub.totalSpent || 0) > 0 && (
+                                <div className="text-[10px] font-mono text-foeg-black">
+                                  <span className={isBuyerVip ? 'text-amber-800 font-semibold' : 'text-foeg-muted'}>
+                                    {(sub.totalSpent || 0).toLocaleString('fr-FR', {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    })}{' '}
+                                    €
+                                  </span>
+                                  {isBuyerVip && <span className="ml-1 text-[9px] text-amber-700">★ VIP</span>}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Notas de Atelier */}
+                          <td className="py-3.5 px-4 text-foeg-muted max-w-[180px] truncate">
+                            {sub.notes ? (
+                              <span className="text-[11px] text-foeg-black/80 italic font-serif">
+                                «{sub.notes}»
                               </span>
-                            </div>
-                          </div>
-                        </td>
+                            ) : (
+                              <span className="text-[10px] text-foeg-muted/50">—</span>
+                            )}
+                          </td>
 
-                        {/* Origen / Segmento */}
-                        <td className="py-4 px-6">
+                          {/* Fecha */}
+                          <td className="py-3.5 px-4 text-foeg-muted whitespace-nowrap">
+                            <span className="block text-[11px]">
+                              {new Date(sub.createdAt).toLocaleDateString(
+                                language === 'es' ? 'es-ES' : language === 'en' ? 'en-US' : 'fr-FR',
+                                { day: 'numeric', month: 'short', year: 'numeric' }
+                              )}
+                            </span>
+                            <span className="block text-[9px] text-foeg-muted/60">
+                              {new Date(sub.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </td>
+
+                          {/* Acciones CRUD + Herramientas VIP (Sticky & Completamente Visible) */}
+                          <td className="py-3 px-4 text-center sticky right-0 bg-white/95 backdrop-blur-xs border-l border-foeg-border/80 shadow-[-4px_0_10px_rgba(0,0,0,0.03)] whitespace-nowrap">
+                            <div className="inline-flex items-center space-x-1.5">
+                              {/* Editar */}
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditSubscriber(sub)}
+                                className="p-1.5 text-foeg-muted hover:text-foeg-navy transition-colors cursor-pointer border border-transparent hover:border-foeg-border hover:bg-foeg-surface/50"
+                                title={t('admin.newsletter.edit')}
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Alternar VIP (One-Click) */}
+                              <button
+                                type="button"
+                                onClick={() => handleToggleVip(sub)}
+                                className={`p-1.5 transition-colors cursor-pointer border ${
+                                  isVip
+                                    ? 'text-amber-800 bg-amber-50 border-amber-300 hover:bg-amber-100'
+                                    : 'text-foeg-muted border-transparent hover:border-amber-300 hover:bg-amber-50/50 hover:text-amber-800'
+                                }`}
+                                title={
+                                  isVip
+                                    ? language === 'es'
+                                      ? 'Quitar estatus Cercle Privé VIP'
+                                      : 'Remove VIP status'
+                                    : language === 'es'
+                                    ? 'Promover a Cercle Privé VIP'
+                                    : 'Promote to VIP'
+                                }
+                              >
+                                <Crown className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Generar Cupón VIP */}
+                              <button
+                                type="button"
+                                onClick={() => handleOpenCouponModal(sub)}
+                                className="p-1.5 text-foeg-muted hover:text-emerald-700 transition-colors cursor-pointer border border-transparent hover:border-emerald-300 hover:bg-emerald-50/50"
+                                title={language === 'es' ? 'Crear cupón descuento VIP' : 'Create VIP coupon'}
+                              >
+                                <Ticket className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Eliminar */}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setDeleteConfirmTarget({
+                                    type: 'subscriber',
+                                    id: sub.id,
+                                    label: sub.email,
+                                  })
+                                }
+                                className="p-1.5 text-foeg-muted hover:text-red-700 transition-colors cursor-pointer border border-transparent hover:border-red-200 hover:bg-red-50/50"
+                                title={t('admin.newsletter.delete')}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="py-14 text-center text-foeg-muted font-light">
+                        <Mail className="w-8 h-8 text-foeg-muted/40 mx-auto mb-2" />
+                        <p>
+                          {language === 'es'
+                            ? 'No se encontraron suscriptores con los criterios especificados.'
+                            : language === 'en'
+                            ? 'No subscribers matching search criteria.'
+                            : 'Aucun abonné correspondant aux critères.'}
+                        </p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* VISTA 2: TARJETAS RESPONSIVE (OPTIMIZADO PARA PANTALLAS MÓVILES Y TABLETS) */}
+          {viewMode === 'cards' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filteredSubscribers.length > 0 ? (
+                filteredSubscribers.map((sub) => {
+                  const isVip =
+                    sub.source.toLowerCase().includes('vip') ||
+                    sub.source.toLowerCase().includes('cercle') ||
+                    Boolean(sub.isQualifiedVip);
+                  const hasAccount = Boolean(sub.hasUserAccount);
+                  const isBuyerVip = (sub.totalSpent || 0) >= 1000;
+
+                  return (
+                    <div
+                      key={sub.id}
+                      className="bg-white border border-foeg-border/80 p-5 space-y-4 shadow-subtle hover:border-foeg-navy transition-all flex flex-col justify-between"
+                    >
+                      <div className="space-y-3">
+                        {/* Cabecera Tarjeta: Email + Badges */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-0.5">
+                            <span className="font-medium text-xs text-foeg-black block break-all">
+                              {sub.email}
+                            </span>
+                            {sub.userName && (
+                              <span className="text-[11px] text-foeg-navy block font-serif">
+                                {sub.userName}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-foeg-muted font-mono block">
+                              ID: {sub.id.slice(0, 16)}
+                            </span>
+                          </div>
+
                           <span
-                            className={`inline-flex items-center space-x-1 px-2.5 py-1 text-[10px] uppercase tracking-wider font-medium border ${
+                            className={`inline-flex items-center space-x-1 px-2 py-0.5 text-[9px] uppercase tracking-wider font-semibold border shrink-0 ${
                               isVip
-                                ? 'bg-amber-50/70 border-amber-300 text-amber-900'
-                                : 'bg-foeg-surface border-foeg-border text-foeg-black'
+                                ? 'bg-amber-50 text-amber-900 border-amber-300'
+                                : 'bg-foeg-surface text-foeg-black border-foeg-border'
                             }`}
                           >
-                            {isVip && <Crown className="w-3 h-3 mr-0.5 text-amber-700" />}
+                            {isVip && <Crown className="w-3 h-3 text-amber-700 mr-0.5" />}
                             <span>{formatSourceLabel(sub.source)}</span>
                           </span>
-                        </td>
+                        </div>
 
-                        {/* Estado */}
-                        <td className="py-4 px-6">
-                          <span
-                            className={`inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium border ${
-                              sub.status === 'ACTIVE'
-                                ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                                : sub.status === 'PAUSED'
-                                ? 'bg-amber-50 border-amber-300 text-amber-800'
-                                : 'bg-gray-100 border-gray-300 text-gray-700'
-                            }`}
-                          >
-                            {formatStatusLabel(sub.status || 'ACTIVE')}
-                          </span>
-                        </td>
-
-                        {/* Notas / Atelier */}
-                        <td className="py-4 px-6 text-foeg-muted max-w-[200px] truncate">
-                          {sub.notes ? (
-                            <span className="text-[11px] text-foeg-black/80 italic font-serif">
-                              «{sub.notes}»
+                        {/* Detalles: Cuenta & Gasto */}
+                        <div className="grid grid-cols-2 gap-2 p-2.5 bg-foeg-surface/40 border border-foeg-border/60 text-[10px]">
+                          <div>
+                            <span className="text-foeg-muted uppercase tracking-wider block text-[9px]">
+                              {language === 'es' ? 'Cuenta Tienda' : 'Store Account'}
                             </span>
-                          ) : (
-                            <span className="text-[10px] text-foeg-muted/50">—</span>
-                          )}
-                        </td>
+                            <span className="font-medium text-foeg-black">
+                              {hasAccount ? '✓ Registrado' : 'Solo Suscriptor'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-foeg-muted uppercase tracking-wider block text-[9px]">
+                              {language === 'es' ? 'Gasto Acumulado' : 'Total Purchases'}
+                            </span>
+                            <span className={`font-mono font-medium ${isBuyerVip ? 'text-amber-800' : 'text-foeg-black'}`}>
+                              {(sub.totalSpent || 0).toLocaleString('fr-FR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}{' '}
+                              €
+                            </span>
+                          </div>
+                        </div>
 
-                        {/* Fecha */}
-                        <td className="py-4 px-6 text-foeg-muted whitespace-nowrap">
+                        {/* Notas */}
+                        {sub.notes && (
+                          <p className="text-[11px] text-foeg-black/80 font-serif italic border-l-2 border-foeg-navy/30 pl-2.5">
+                            «{sub.notes}»
+                          </p>
+                        )}
+
+                        <span className="text-[10px] text-foeg-muted font-light block">
+                          {language === 'es' ? 'Inscrito el: ' : 'Subscribed: '}
                           {new Date(sub.createdAt).toLocaleDateString(
                             language === 'es' ? 'es-ES' : language === 'en' ? 'en-US' : 'fr-FR',
-                            {
-                              day: 'numeric',
-                              month: 'long',
-                              year: 'numeric',
-                            }
+                            { day: 'numeric', month: 'long', year: 'numeric' }
                           )}
-                          <span className="block text-[10px] text-foeg-muted/60">
-                            {new Date(sub.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </td>
+                        </span>
+                      </div>
 
-                        {/* Acciones CRUD */}
-                        <td className="py-4 px-6 text-right whitespace-nowrap">
-                          <div className="inline-flex items-center space-x-1.5">
-                            {/* Editar */}
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEditSubscriber(sub)}
-                              className="p-1.5 text-foeg-muted hover:text-foeg-navy transition-colors cursor-pointer border border-transparent hover:border-foeg-border hover:bg-foeg-surface/50"
-                              title={t('admin.newsletter.edit')}
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
+                      {/* Botonera Móvil de Acciones con Iconos y Texto Claro */}
+                      <div className="pt-3 border-t border-foeg-border/80 grid grid-cols-4 gap-1.5 text-[10px]">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditSubscriber(sub)}
+                          className="py-2 px-1 text-center bg-foeg-surface hover:bg-foeg-surface/80 text-foeg-black border border-foeg-border flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors"
+                          title={t('admin.newsletter.edit')}
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-foeg-muted" />
+                          <span className="text-[9px] uppercase tracking-wider">Editar</span>
+                        </button>
 
-                            {/* Eliminar */}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setDeleteConfirmTarget({
-                                  type: 'subscriber',
-                                  id: sub.id,
-                                  label: sub.email,
-                                })
-                              }
-                              className="p-1.5 text-foeg-muted hover:text-red-700 transition-colors cursor-pointer border border-transparent hover:border-red-200 hover:bg-red-50/50"
-                              title={t('admin.newsletter.delete')}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="py-14 text-center text-foeg-muted font-light">
-                      <Mail className="w-8 h-8 text-foeg-muted/40 mx-auto mb-2" />
-                      <p>
-                        {language === 'es'
-                          ? 'No se encontraron suscriptores con los criterios especificados.'
-                          : language === 'en'
-                          ? 'No subscribers matching search criteria.'
-                          : 'Aucun abonné correspondant aux critères.'}
-                      </p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleVip(sub)}
+                          className={`py-2 px-1 text-center border flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors ${
+                            isVip
+                              ? 'bg-amber-50 text-amber-900 border-amber-300'
+                              : 'bg-foeg-surface text-foeg-black border-foeg-border hover:bg-amber-50'
+                          }`}
+                          title="Alternar VIP"
+                        >
+                          <Crown className={`w-3.5 h-3.5 ${isVip ? 'text-amber-700' : 'text-foeg-muted'}`} />
+                          <span className="text-[9px] uppercase tracking-wider">{isVip ? 'Es VIP' : '+ VIP'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenCouponModal(sub)}
+                          className="py-2 px-1 text-center bg-foeg-surface hover:bg-emerald-50 text-foeg-black hover:text-emerald-800 border border-foeg-border hover:border-emerald-300 flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors"
+                          title="Generar cupón"
+                        >
+                          <Ticket className="w-3.5 h-3.5 text-emerald-700" />
+                          <span className="text-[9px] uppercase tracking-wider">Cupón</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDeleteConfirmTarget({
+                              type: 'subscriber',
+                              id: sub.id,
+                              label: sub.email,
+                            })
+                          }
+                          className="py-2 px-1 text-center bg-foeg-surface hover:bg-red-50 text-foeg-muted hover:text-red-700 border border-foeg-border hover:border-red-300 flex flex-col items-center justify-center space-y-1 cursor-pointer transition-colors"
+                          title={t('admin.newsletter.delete')}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span className="text-[9px] uppercase tracking-wider">Borrar</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full py-12 text-center text-foeg-muted font-light bg-white border border-foeg-border">
+                  <Mail className="w-8 h-8 text-foeg-muted/40 mx-auto mb-2" />
+                  <p>{language === 'es' ? 'No se encontraron suscriptores.' : 'No subscribers found.'}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -1331,6 +1700,173 @@ export default function NewsletterClient({
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL 4: GENERAR CUPÓN PRIVILEGIO VIP PARA SUSCRIPTOR / CLIENTE
+         ========================================================================= */}
+      {couponModalOpen && couponTargetSubscriber && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white border border-foeg-border shadow-floating w-full max-w-lg p-6 sm:p-7 space-y-6">
+            <div className="flex items-start justify-between border-b border-foeg-border/80 pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-amber-50 border border-amber-300 text-amber-900">
+                  <Ticket className="w-5 h-5 text-amber-700" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase tracking-[0.25em] text-amber-800 font-semibold block">
+                    {language === 'es' ? 'Atelier Privilegios VIP' : 'VIP Privilege Atelier'}
+                  </span>
+                  <h3 className="font-serif text-xl text-foeg-black font-light">
+                    {language === 'es' ? 'Crear Cupón de Descuento Exclusivo' : 'Create Exclusive VIP Coupon'}
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCouponModalOpen(false)}
+                className="text-gray-400 hover:text-black cursor-pointer p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Ficha rápida del cliente destino */}
+            <div className="p-3 bg-foeg-surface/50 border border-foeg-border/70 text-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-foeg-muted text-[10px] uppercase tracking-wider">
+                  {language === 'es' ? 'Destinatario:' : 'Recipient:'}
+                </span>
+                <span className="font-medium text-foeg-black font-mono">
+                  {couponTargetSubscriber.email}
+                </span>
+              </div>
+              {couponTargetSubscriber.userName && (
+                <div className="flex items-center justify-between">
+                  <span className="text-foeg-muted text-[10px] uppercase tracking-wider">
+                    {language === 'es' ? 'Cliente Titular:' : 'Account Holder:'}
+                  </span>
+                  <span className="text-foeg-navy font-serif">
+                    {couponTargetSubscriber.userName}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <form onSubmit={handleCreateVipCoupon} className="space-y-4 text-left">
+              {/* Código */}
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+                  {language === 'es' ? 'Código Promocional VIP *' : 'VIP Promo Code *'}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={couponForm.code}
+                  onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value.toUpperCase() })}
+                  placeholder="VIP-CLAIRE-20"
+                  className="w-full bg-white border border-foeg-border text-xs text-foeg-black p-3 font-mono font-medium tracking-wider focus:outline-none focus:border-foeg-navy"
+                />
+              </div>
+
+              {/* Tipo y Valor */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+                    {language === 'es' ? 'Tipo de Beneficio' : 'Discount Type'}
+                  </label>
+                  <select
+                    value={couponForm.discountType}
+                    onChange={(e) =>
+                      setCouponForm({
+                        ...couponForm,
+                        discountType: e.target.value as 'PERCENTAGE' | 'FIXED',
+                      })
+                    }
+                    className="w-full bg-white border border-foeg-border text-xs text-foeg-black p-3 focus:outline-none focus:border-foeg-navy cursor-pointer"
+                  >
+                    <option value="PERCENTAGE">
+                      {language === 'es' ? 'Porcentaje (%)' : 'Percentage (%)'}
+                    </option>
+                    <option value="FIXED">
+                      {language === 'es' ? 'Monto Fijo (€ EUR)' : 'Fixed Amount (€)'}
+                    </option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+                    {language === 'es' ? 'Valor del Descuento' : 'Discount Value'}
+                  </label>
+                  <div className="relative flex items-center">
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={couponForm.discountType === 'PERCENTAGE' ? 100 : 5000}
+                      value={couponForm.discountValue}
+                      onChange={(e) =>
+                        setCouponForm({ ...couponForm, discountValue: Number(e.target.value) })
+                      }
+                      className="w-full bg-white border border-foeg-border text-xs text-foeg-black p-3 pr-8 font-mono focus:outline-none focus:border-foeg-navy"
+                    />
+                    <span className="absolute right-3 text-xs text-foeg-muted font-mono pointer-events-none">
+                      {couponForm.discountType === 'PERCENTAGE' ? '%' : '€'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Días de validez */}
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase tracking-[0.2em] text-foeg-muted block font-medium">
+                  {language === 'es' ? 'Validez (Días de vigencia)' : 'Validity (Days)'}
+                </label>
+                <select
+                  value={couponForm.expiresDays}
+                  onChange={(e) =>
+                    setCouponForm({ ...couponForm, expiresDays: Number(e.target.value) })
+                  }
+                  className="w-full bg-white border border-foeg-border text-xs text-foeg-black p-3 focus:outline-none focus:border-foeg-navy cursor-pointer"
+                >
+                  <option value={7}>{language === 'es' ? '7 días (Preventa relámpago)' : '7 days'}</option>
+                  <option value={15}>{language === 'es' ? '15 días (Avant-Première)' : '15 days'}</option>
+                  <option value={30}>{language === 'es' ? '30 días (Mes de Atelier)' : '30 days'}</option>
+                  <option value={90}>{language === 'es' ? '90 días (Temporada)' : '90 days'}</option>
+                  <option value={365}>{language === 'es' ? '1 año (Permanente anual)' : '1 year'}</option>
+                </select>
+              </div>
+
+              {/* Botones */}
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-foeg-border/80">
+                <button
+                  type="button"
+                  onClick={() => setCouponModalOpen(false)}
+                  className="px-4 py-2.5 border border-foeg-border text-foeg-black hover:bg-foeg-surface/50 text-xs uppercase tracking-wider cursor-pointer"
+                >
+                  {language === 'es' ? 'Cancelar' : 'Cancel'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center space-x-2 px-6 py-2.5 bg-foeg-navy text-white hover:bg-black transition-colors text-xs uppercase tracking-[0.18em] font-medium cursor-pointer shadow-subtle disabled:opacity-50"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>
+                    {isSubmitting
+                      ? language === 'es'
+                        ? 'Creando...'
+                        : 'Creating...'
+                      : language === 'es'
+                      ? 'Activar Cupón VIP'
+                      : 'Activate VIP Coupon'}
+                  </span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -381,6 +381,48 @@ export async function processPayment(payload: ProcessPaymentPayload) {
       userId: null,
     });
 
+    // 5.1 Notification automatique si le client atteint ou dépasse le seuil VIP (≥ 1.000 €)
+    try {
+      const customerEmail = (payload.email || orderData.email || '').toLowerCase().trim();
+      if (customerEmail) {
+        const paidOrders = await prisma.order.findMany({
+          where: {
+            OR: [
+              { email: { equals: customerEmail, mode: 'insensitive' } },
+              orderData.userId ? { userId: orderData.userId } : {},
+            ],
+            status: { not: 'CANCELLED' },
+          },
+          select: { total: true },
+        });
+        const cumulativeSpent = paidOrders.reduce((acc, curr) => acc + Number(curr.total || 0), 0);
+        const previousSpent = cumulativeSpent - Number(payload.total);
+
+        // Si vient de franchir le seuil VIP de 1.000 €
+        if (cumulativeSpent >= 1000 && previousSpent < 1000) {
+          await createNotification({
+            title: '👑 Nouveau Membre VIP Cercle Privé Débloqué',
+            message: `Le client ${customerEmail} a franchi le seuil VIP (${cumulativeSpent.toFixed(2)} € cumulés). Accès Cercle Privé Haute Confection débloqué !`,
+            type: 'order',
+            link: '/admin/newsletter',
+            userId: null,
+          });
+
+          if (orderData.userId) {
+            await createNotification({
+              userId: orderData.userId,
+              title: '👑 Félicitations · Statut VIP Cercle Privé Débloqué',
+              message: `Vos acquisitions ont atteint le rang d'Exception Maison FOEG Paris. Vos livraisons signature sont désormais gratuites en permanence.`,
+              type: 'order',
+              link: '/cuenta/perfil',
+            });
+          }
+        }
+      }
+    } catch (vipNotifErr) {
+      console.warn('[VIP THRESHOLD NOTIFICATION NOTE]:', vipNotifErr);
+    }
+
     // Notification client si l'acheteur est un membre enregistré
     try {
       if (orderData.userId) {

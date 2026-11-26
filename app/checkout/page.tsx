@@ -304,8 +304,8 @@ export default function CheckoutPage() {
           {language === 'es'
             ? 'Verificando acceso privado al Atelier...'
             : language === 'en'
-            ? 'Verifying private Atelier access...'
-            : 'Vérification de l’accès privé Atelier...'}
+              ? 'Verifying private Atelier access...'
+              : 'Vérification de l’accès privé Atelier...'}
         </span>
       </div>
     );
@@ -352,9 +352,8 @@ export default function CheckoutPage() {
                 : (language === 'es' ? 'Mostrar resumen del pedido' : language === 'en' ? 'Show order summary' : 'Afficher le récapitulatif')}
             </span>
             <ChevronDown
-              className={`w-3.5 h-3.5 text-foeg-muted transition-transform duration-200 ${
-                mobileSummaryOpen ? 'rotate-180' : ''
-              }`}
+              className={`w-3.5 h-3.5 text-foeg-muted transition-transform duration-200 ${mobileSummaryOpen ? 'rotate-180' : ''
+                }`}
             />
           </div>
           <div className="font-serif text-lg font-normal text-foeg-black">
@@ -547,8 +546,8 @@ export default function CheckoutPage() {
                   suppressHydrationWarning
                   onClick={() => setShippingMethod('SHIPPING')}
                   className={`p-4 border text-left transition-all cursor-pointer flex flex-col justify-between ${shippingMethod === 'SHIPPING'
-                      ? 'border-foeg-navy bg-foeg-surface/60 ring-1 ring-foeg-navy'
-                      : 'border-foeg-border bg-white hover:border-foeg-border/80'
+                    ? 'border-foeg-navy bg-foeg-surface/60 ring-1 ring-foeg-navy'
+                    : 'border-foeg-border bg-white hover:border-foeg-border/80'
                     }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -577,8 +576,8 @@ export default function CheckoutPage() {
                   suppressHydrationWarning
                   onClick={() => setShippingMethod('PICKUP')}
                   className={`p-4 border text-left transition-all cursor-pointer flex flex-col justify-between ${shippingMethod === 'PICKUP'
-                      ? 'border-foeg-navy bg-foeg-surface/60 ring-1 ring-foeg-navy'
-                      : 'border-foeg-border bg-white hover:border-foeg-border/80'
+                    ? 'border-foeg-navy bg-foeg-surface/60 ring-1 ring-foeg-navy'
+                    : 'border-foeg-border bg-white hover:border-foeg-border/80'
                     }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -621,17 +620,15 @@ export default function CheckoutPage() {
                           type="button"
                           suppressHydrationWarning
                           onClick={() => setSelectedPickupBoutique(b)}
-                          className={`p-3 text-left border text-xs transition-all cursor-pointer ${
-                            selectedPickupBoutique?.id === b.id
-                              ? 'border-foeg-navy bg-foeg-navy text-white shadow-xs'
-                              : 'border-foeg-border/80 bg-white hover:border-foeg-navy/60 text-foeg-black'
-                          }`}
+                          className={`p-3 text-left border text-xs transition-all cursor-pointer ${selectedPickupBoutique?.id === b.id
+                            ? 'border-foeg-navy bg-foeg-navy text-white shadow-xs'
+                            : 'border-foeg-border/80 bg-white hover:border-foeg-navy/60 text-foeg-black'
+                            }`}
                         >
                           <span className="block font-medium truncate">{b.name}</span>
                           <span
-                            className={`text-[10px] block mt-0.5 truncate ${
-                              selectedPickupBoutique?.id === b.id ? 'text-white/80' : 'text-foeg-muted'
-                            }`}
+                            className={`text-[10px] block mt-0.5 truncate ${selectedPickupBoutique?.id === b.id ? 'text-white/80' : 'text-foeg-muted'
+                              }`}
                           >
                             {b.address ? `${b.address}, ` : ''}{b.city} ({b.country})
                           </span>
@@ -707,15 +704,15 @@ export default function CheckoutPage() {
                             ? language === 'es'
                               ? '(Francia Metropolitana)'
                               : language === 'en'
-                              ? '(Metropolitan France)'
-                              : '(France Métropolitaine)'
+                                ? '(Metropolitan France)'
+                                : '(France Métropolitaine)'
                             : c.isEu
-                            ? language === 'es'
-                              ? '(Unión Europea)'
-                              : language === 'en'
-                              ? '(European Union)'
-                              : '(Union Européenne)'
-                            : '(DHL Express)'}
+                              ? language === 'es'
+                                ? '(Unión Europea)'
+                                : language === 'en'
+                                  ? '(European Union)'
+                                  : '(Union Européenne)'
+                              : '(DHL Express)'}
                         </option>
                       ))}
                     </select>
@@ -798,73 +795,70 @@ export default function CheckoutPage() {
                 paymentSettings.enable_binance ||
                 paymentSettings.enable_zinli ||
                 paymentSettings.enable_pagomovil) && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 border border-foeg-border p-1 bg-foeg-surface/40 gap-1 sm:gap-0 rounded-none">
-                  {(paymentSettings.enable_stripe || paymentSettings.enable_paypal) && (
-                    <button
-                      type="button"
-                      suppressHydrationWarning
-                      onClick={() => {
-                        setPaymentCategory('INTERNATIONAL');
-                        setPaymentMethod(paymentSettings.enable_stripe ? 'STRIPE' : 'PAYPAL');
-                      }}
-                      className={`py-3 px-3 text-[11px] sm:text-xs uppercase tracking-wider font-medium transition-all flex items-center justify-center space-x-2 cursor-pointer rounded-none active:scale-[0.99] ${
-                        paymentCategory === 'INTERNATIONAL'
+                  <div className="grid grid-cols-1 sm:grid-cols-3 border border-foeg-border p-1 bg-foeg-surface/40 gap-1 sm:gap-0 rounded-none">
+                    {(paymentSettings.enable_stripe || paymentSettings.enable_paypal) && (
+                      <button
+                        type="button"
+                        suppressHydrationWarning
+                        onClick={() => {
+                          setPaymentCategory('INTERNATIONAL');
+                          setPaymentMethod(paymentSettings.enable_stripe ? 'STRIPE' : 'PAYPAL');
+                        }}
+                        className={`py-3 px-3 text-[11px] sm:text-xs uppercase tracking-wider font-medium transition-all flex items-center justify-center space-x-2 cursor-pointer rounded-none active:scale-[0.99] ${paymentCategory === 'INTERNATIONAL'
                           ? 'bg-foeg-navy text-white shadow-subtle'
                           : 'text-foeg-muted hover:text-foeg-black hover:bg-white/50'
-                      }`}
-                    >
-                      <CreditCard className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                      <span className="truncate">{t('checkout.cardsAndPaypal')}</span>
-                    </button>
-                  )}
+                          }`}
+                      >
+                        <CreditCard className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                        <span className="truncate">{t('checkout.cardsAndPaypal')}</span>
+                      </button>
+                    )}
 
-                  {(paymentSettings.enable_virement ||
-                    paymentSettings.enable_virement_2 ||
-                    paymentSettings.enable_virement_3) && (
-                    <button
-                      type="button"
-                      suppressHydrationWarning
-                      onClick={() => {
-                        setPaymentCategory('VIREMENT');
-                        setPaymentMethod('VIREMENT');
-                      }}
-                      className={`py-3 px-3 text-[11px] sm:text-xs uppercase tracking-wider font-medium transition-all flex items-center justify-center space-x-2 cursor-pointer rounded-none active:scale-[0.99] ${
-                        paymentCategory === 'VIREMENT'
-                          ? 'bg-foeg-navy text-white shadow-subtle'
-                          : 'text-foeg-muted hover:text-foeg-black hover:bg-white/50'
-                      }`}
-                    >
-                      <Building2 className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                      <span className="truncate">{t('checkout.frenchBankTransfer')}</span>
-                    </button>
-                  )}
+                    {(paymentSettings.enable_virement ||
+                      paymentSettings.enable_virement_2 ||
+                      paymentSettings.enable_virement_3) && (
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => {
+                            setPaymentCategory('VIREMENT');
+                            setPaymentMethod('VIREMENT');
+                          }}
+                          className={`py-3 px-3 text-[11px] sm:text-xs uppercase tracking-wider font-medium transition-all flex items-center justify-center space-x-2 cursor-pointer rounded-none active:scale-[0.99] ${paymentCategory === 'VIREMENT'
+                            ? 'bg-foeg-navy text-white shadow-subtle'
+                            : 'text-foeg-muted hover:text-foeg-black hover:bg-white/50'
+                            }`}
+                        >
+                          <Building2 className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                          <span className="truncate">{t('checkout.frenchBankTransfer')}</span>
+                        </button>
+                      )}
 
-                  {(paymentSettings.enable_zelle ||
-                    paymentSettings.enable_binance ||
-                    paymentSettings.enable_zinli ||
-                    paymentSettings.enable_pagomovil) && (
-                    <button
-                      type="button"
-                      suppressHydrationWarning
-                      onClick={() => {
-                        setPaymentCategory('REGIONAL');
-                        if (paymentSettings.enable_zelle) setPaymentMethod('ZELLE');
-                        else if (paymentSettings.enable_binance) setPaymentMethod('BINANCE');
-                        else if (paymentSettings.enable_zinli) setPaymentMethod('ZINLI');
-                        else if (paymentSettings.enable_pagomovil) setPaymentMethod('PAGO_MOVIL');
-                      }}
-                      className={`py-3 px-3 text-[11px] sm:text-xs uppercase tracking-wider font-medium transition-all flex items-center justify-center space-x-2 cursor-pointer rounded-none active:scale-[0.99] ${
-                        paymentCategory === 'REGIONAL'
-                          ? 'bg-foeg-navy text-white shadow-subtle'
-                          : 'text-foeg-muted hover:text-foeg-black hover:bg-white/50'
-                      }`}
-                    >
-                      <Coins className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                      <span className="truncate">{t('checkout.alternativePayments')}</span>
-                    </button>
-                  )}
-                </div>
-              )}
+                    {(paymentSettings.enable_zelle ||
+                      paymentSettings.enable_binance ||
+                      paymentSettings.enable_zinli ||
+                      paymentSettings.enable_pagomovil) && (
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => {
+                            setPaymentCategory('REGIONAL');
+                            if (paymentSettings.enable_zelle) setPaymentMethod('ZELLE');
+                            else if (paymentSettings.enable_binance) setPaymentMethod('BINANCE');
+                            else if (paymentSettings.enable_zinli) setPaymentMethod('ZINLI');
+                            else if (paymentSettings.enable_pagomovil) setPaymentMethod('PAGO_MOVIL');
+                          }}
+                          className={`py-3 px-3 text-[11px] sm:text-xs uppercase tracking-wider font-medium transition-all flex items-center justify-center space-x-2 cursor-pointer rounded-none active:scale-[0.99] ${paymentCategory === 'REGIONAL'
+                            ? 'bg-foeg-navy text-white shadow-subtle'
+                            : 'text-foeg-muted hover:text-foeg-black hover:bg-white/50'
+                            }`}
+                        >
+                          <Coins className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                          <span className="truncate">{t('checkout.alternativePayments')}</span>
+                        </button>
+                      )}
+                  </div>
+                )}
 
               {/* SÉLECTEUR DE MÉTHODES SELON LA CATÉGORIE */}
               {paymentCategory === 'INTERNATIONAL' && (paymentSettings.enable_stripe || paymentSettings.enable_paypal) && (
@@ -876,11 +870,10 @@ export default function CheckoutPage() {
                         type="button"
                         suppressHydrationWarning
                         onClick={() => setPaymentMethod('STRIPE')}
-                        className={`p-4 border text-left transition-all cursor-pointer flex items-center justify-between rounded-none ${
-                          paymentMethod === 'STRIPE'
-                            ? 'border-foeg-navy bg-foeg-surface/60 ring-1 ring-foeg-navy'
-                            : 'border-foeg-border bg-white hover:border-foeg-border/80'
-                        }`}
+                        className={`p-4 border text-left transition-all cursor-pointer flex items-center justify-between rounded-none ${paymentMethod === 'STRIPE'
+                          ? 'border-foeg-navy bg-foeg-surface/60 ring-1 ring-foeg-navy'
+                          : 'border-foeg-border bg-white hover:border-foeg-border/80'
+                          }`}
                       >
                         <div className="flex items-center space-x-3">
                           <div className="flex items-center space-x-1.5 bg-white p-1 border border-gray-200">
@@ -906,11 +899,10 @@ export default function CheckoutPage() {
                         type="button"
                         suppressHydrationWarning
                         onClick={() => setPaymentMethod('PAYPAL')}
-                        className={`p-4 border text-left transition-all cursor-pointer flex items-center justify-between rounded-none ${
-                          paymentMethod === 'PAYPAL'
-                            ? 'border-foeg-navy bg-foeg-surface/60 ring-1 ring-foeg-navy'
-                            : 'border-foeg-border bg-white hover:border-foeg-border/80'
-                        }`}
+                        className={`p-4 border text-left transition-all cursor-pointer flex items-center justify-between rounded-none ${paymentMethod === 'PAYPAL'
+                          ? 'border-foeg-navy bg-foeg-surface/60 ring-1 ring-foeg-navy'
+                          : 'border-foeg-border bg-white hover:border-foeg-border/80'
+                          }`}
                       >
                         <div className="flex items-center space-x-3">
                           <div className="p-1 bg-white border border-gray-200 flex items-center justify-center">
@@ -996,121 +988,119 @@ export default function CheckoutPage() {
                 (paymentSettings.enable_virement ||
                   paymentSettings.enable_virement_2 ||
                   paymentSettings.enable_virement_3) && (() => {
-                  const availableBanks = [
-                    paymentSettings.enable_virement
-                      ? {
+                    const availableBanks = [
+                      paymentSettings.enable_virement
+                        ? {
                           id: 0,
                           name: paymentSettings.bank_name || 'Banque Principale',
                           holder: paymentSettings.bank_holder_name || 'Maison FOEG Paris SAS',
                           iban: paymentSettings.bank_iban,
                           bic: paymentSettings.bank_bic,
                         }
-                      : null,
-                    paymentSettings.enable_virement_2
-                      ? {
+                        : null,
+                      paymentSettings.enable_virement_2
+                        ? {
                           id: 1,
                           name: paymentSettings.bank_name_2 || 'Banque Secondaire',
                           holder: paymentSettings.bank_holder_name_2 || 'Maison FOEG Paris SAS',
                           iban: paymentSettings.bank_iban_2,
                           bic: paymentSettings.bank_bic_2,
                         }
-                      : null,
-                    paymentSettings.enable_virement_3
-                      ? {
+                        : null,
+                      paymentSettings.enable_virement_3
+                        ? {
                           id: 2,
                           name: paymentSettings.bank_name_3 || 'Banque Alternative',
                           holder: paymentSettings.bank_holder_name_3 || 'Maison FOEG Paris SAS',
                           iban: paymentSettings.bank_iban_3,
                           bic: paymentSettings.bank_bic_3,
                         }
-                      : null,
-                  ].filter(Boolean) as { id: number; name: string; holder: string; iban: string; bic: string }[];
+                        : null,
+                    ].filter(Boolean) as { id: number; name: string; holder: string; iban: string; bic: string }[];
 
-                  const currentBank = availableBanks[selectedBankIndex] || availableBanks[0];
+                    const currentBank = availableBanks[selectedBankIndex] || availableBanks[0];
 
-                  return (
-                    <div className="p-6 border border-foeg-border bg-white space-y-4 animate-fadeIn shadow-subtle">
-                      <div className="flex items-center justify-between border-b border-foeg-border/60 pb-3">
-                        <div className="flex items-center space-x-2.5 text-xs uppercase tracking-wider font-medium text-foeg-navy">
-                          <Building2 className="w-4 h-4 text-foeg-navy" />
-                          <span>{t('checkout.frenchBankOfficial')}</span>
+                    return (
+                      <div className="p-6 border border-foeg-border bg-white space-y-4 animate-fadeIn shadow-subtle">
+                        <div className="flex items-center justify-between border-b border-foeg-border/60 pb-3">
+                          <div className="flex items-center space-x-2.5 text-xs uppercase tracking-wider font-medium text-foeg-navy">
+                            <Building2 className="w-4 h-4 text-foeg-navy" />
+                            <span>{t('checkout.frenchBankOfficial')}</span>
+                          </div>
+                          <span className="text-[10px] font-mono bg-emerald-100 text-emerald-900 px-2 py-0.5 border border-emerald-200">
+                            SEPA
+                          </span>
                         </div>
-                        <span className="text-[10px] font-mono bg-emerald-100 text-emerald-900 px-2 py-0.5 border border-emerald-200">
-                          SEPA
-                        </span>
-                      </div>
 
-                      {availableBanks.length > 1 && (
-                        <div>
-                          <label className="block text-[10px] uppercase tracking-[0.2em] text-foeg-muted font-medium mb-2">
-                            {t('checkout.selectFrenchBank')}
-                          </label>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            {availableBanks.map((b, idx) => (
-                              <button
-                                key={b.id}
-                                type="button"
-                                suppressHydrationWarning
-                                onClick={() => setSelectedBankIndex(idx)}
-                                className={`p-2.5 text-left border text-xs transition-all cursor-pointer ${
-                                  selectedBankIndex === idx
+                        {availableBanks.length > 1 && (
+                          <div>
+                            <label className="block text-[10px] uppercase tracking-[0.2em] text-foeg-muted font-medium mb-2">
+                              {t('checkout.selectFrenchBank')}
+                            </label>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                              {availableBanks.map((b, idx) => (
+                                <button
+                                  key={b.id}
+                                  type="button"
+                                  suppressHydrationWarning
+                                  onClick={() => setSelectedBankIndex(idx)}
+                                  className={`p-2.5 text-left border text-xs transition-all cursor-pointer ${selectedBankIndex === idx
                                     ? 'border-foeg-navy bg-foeg-navy text-white shadow-xs'
                                     : 'border-foeg-border/80 bg-white hover:border-foeg-navy/60 text-foeg-black'
-                                }`}
-                              >
-                                <span className="block font-medium truncate">{b.name}</span>
-                                <span
-                                  className={`text-[10px] truncate block ${
-                                    selectedBankIndex === idx ? 'text-white/80' : 'text-foeg-muted'
-                                  }`}
+                                    }`}
                                 >
-                                  {b.iban.substring(0, 14)}...
-                                </span>
-                              </button>
-                            ))}
+                                  <span className="block font-medium truncate">{b.name}</span>
+                                  <span
+                                    className={`text-[10px] truncate block ${selectedBankIndex === idx ? 'text-white/80' : 'text-foeg-muted'
+                                      }`}
+                                  >
+                                    {b.iban.substring(0, 14)}...
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      <p className="text-xs text-foeg-muted font-light leading-relaxed">
-                        {t('checkout.virementInstruction')}
-                      </p>
-
-                      {currentBank && (
-                        <div className="p-4 bg-foeg-surface/60 border border-foeg-border/80 font-mono text-xs text-foeg-black space-y-2">
-                          <div className="flex flex-col sm:flex-row sm:justify-between py-1 border-b border-foeg-border/40">
-                            <span className="text-foeg-muted font-sans text-[11px] uppercase tracking-wider">{t('checkout.beneficiary')}</span>
-                            <span className="font-semibold">{currentBank.holder}</span>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row sm:justify-between py-1 border-b border-foeg-border/40">
-                            <span className="text-foeg-muted font-sans text-[11px] uppercase tracking-wider">{t('checkout.bankEstablishment')}</span>
-                            <span>{currentBank.name}</span>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row sm:justify-between py-1 border-b border-foeg-border/40">
-                            <span className="text-foeg-muted font-sans text-[11px] uppercase tracking-wider">{t('admin.pagos.bankIban')} :</span>
-                            <span className="font-bold text-foeg-navy tracking-wider">{currentBank.iban}</span>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row sm:justify-between py-1">
-                            <span className="text-foeg-muted font-sans text-[11px] uppercase tracking-wider">{t('admin.pagos.bankBic')} :</span>
-                            <span className="tracking-wider">{currentBank.bic}</span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="p-3 bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-950 font-light space-y-1">
-                        <p className="font-medium text-amber-900">
-                          {t('checkout.virementRefAlert')}
+                        <p className="text-xs text-foeg-muted font-light leading-relaxed">
+                          {t('checkout.virementInstruction')}
                         </p>
-                        <p>
-                          {t('checkout.virementRefNote')}
-                        </p>
+
+                        {currentBank && (
+                          <div className="p-4 bg-foeg-surface/60 border border-foeg-border/80 font-mono text-xs text-foeg-black space-y-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between py-1 border-b border-foeg-border/40">
+                              <span className="text-foeg-muted font-sans text-[11px] uppercase tracking-wider">{t('checkout.beneficiary')}</span>
+                              <span className="font-semibold">{currentBank.holder}</span>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:justify-between py-1 border-b border-foeg-border/40">
+                              <span className="text-foeg-muted font-sans text-[11px] uppercase tracking-wider">{t('checkout.bankEstablishment')}</span>
+                              <span>{currentBank.name}</span>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:justify-between py-1 border-b border-foeg-border/40">
+                              <span className="text-foeg-muted font-sans text-[11px] uppercase tracking-wider">{t('admin.pagos.bankIban')} :</span>
+                              <span className="font-bold text-foeg-navy tracking-wider">{currentBank.iban}</span>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:justify-between py-1">
+                              <span className="text-foeg-muted font-sans text-[11px] uppercase tracking-wider">{t('admin.pagos.bankBic')} :</span>
+                              <span className="tracking-wider">{currentBank.bic}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="p-3 bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-950 font-light space-y-1">
+                          <p className="font-medium text-amber-900">
+                            {t('checkout.virementRefAlert')}
+                          </p>
+                          <p>
+                            {t('checkout.virementRefNote')}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })()}
+                    );
+                  })()}
 
               {/* SECTION PAIEMENTS ALTERNATIFS (ZELLE, BINANCE PAY, ZINLI, PAGO MÓVIL) */}
               {paymentCategory === 'REGIONAL' && (
@@ -1119,134 +1109,130 @@ export default function CheckoutPage() {
                 paymentSettings.enable_zinli ||
                 paymentSettings.enable_pagomovil
               ) && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    {/* Zelle */}
-                    {paymentSettings.enable_zelle && (
-                      <button
-                        type="button"
-                        suppressHydrationWarning
-                        onClick={() => setPaymentMethod('ZELLE')}
-                        className={`p-3.5 border text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5 ${
-                          paymentMethod === 'ZELLE'
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {/* Zelle */}
+                      {paymentSettings.enable_zelle && (
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => setPaymentMethod('ZELLE')}
+                          className={`p-3.5 border text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5 ${paymentMethod === 'ZELLE'
                             ? 'border-foeg-navy bg-foeg-surface/80 ring-1 ring-foeg-navy'
                             : 'border-foeg-border bg-white hover:border-foeg-border/80'
-                        }`}
-                      >
-                        <ZelleIcon className="h-4 w-auto" />
-                        <span className="text-[11px] font-medium text-foeg-black">Zelle</span>
-                        <span className="text-[9px] text-foeg-muted">USD (États-Unis)</span>
-                      </button>
-                    )}
+                            }`}
+                        >
+                          <ZelleIcon className="h-4 w-auto" />
+                          <span className="text-[11px] font-medium text-foeg-black">Zelle</span>
+                          <span className="text-[9px] text-foeg-muted">USD (États-Unis)</span>
+                        </button>
+                      )}
 
-                    {/* Binance Pay */}
-                    {paymentSettings.enable_binance && (
-                      <button
-                        type="button"
-                        suppressHydrationWarning
-                        onClick={() => setPaymentMethod('BINANCE')}
-                        className={`p-3.5 border text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5 ${
-                          paymentMethod === 'BINANCE'
+                      {/* Binance Pay */}
+                      {paymentSettings.enable_binance && (
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => setPaymentMethod('BINANCE')}
+                          className={`p-3.5 border text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5 ${paymentMethod === 'BINANCE'
                             ? 'border-foeg-navy bg-foeg-surface/80 ring-1 ring-foeg-navy'
                             : 'border-foeg-border bg-white hover:border-foeg-border/80'
-                        }`}
-                      >
-                        <BinanceIcon className="h-4 w-auto" />
-                        <span className="text-[11px] font-medium text-foeg-black">Binance Pay</span>
-                        <span className="text-[9px] text-foeg-muted">Crypto / USDT</span>
-                      </button>
-                    )}
+                            }`}
+                        >
+                          <BinanceIcon className="h-4 w-auto" />
+                          <span className="text-[11px] font-medium text-foeg-black">Binance Pay</span>
+                          <span className="text-[9px] text-foeg-muted">Crypto / USDT</span>
+                        </button>
+                      )}
 
-                    {/* Zinli */}
-                    {paymentSettings.enable_zinli && (
-                      <button
-                        type="button"
-                        suppressHydrationWarning
-                        onClick={() => setPaymentMethod('ZINLI')}
-                        className={`p-3.5 border text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5 ${
-                          paymentMethod === 'ZINLI'
+                      {/* Zinli */}
+                      {paymentSettings.enable_zinli && (
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => setPaymentMethod('ZINLI')}
+                          className={`p-3.5 border text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5 ${paymentMethod === 'ZINLI'
                             ? 'border-foeg-navy bg-foeg-surface/80 ring-1 ring-foeg-navy'
                             : 'border-foeg-border bg-white hover:border-foeg-border/80'
-                        }`}
-                      >
-                        <ZinliIcon className="h-4 w-auto" />
-                        <span className="text-[11px] font-medium text-foeg-black">Zinli</span>
-                        <span className="text-[9px] text-foeg-muted">Visa Prépayée</span>
-                      </button>
-                    )}
+                            }`}
+                        >
+                          <ZinliIcon className="h-4 w-auto" />
+                          <span className="text-[11px] font-medium text-foeg-black">Zinli</span>
+                          <span className="text-[9px] text-foeg-muted">Visa Prépayée</span>
+                        </button>
+                      )}
 
-                    {/* Pago Móvil */}
-                    {paymentSettings.enable_pagomovil && (
-                      <button
-                        type="button"
-                        suppressHydrationWarning
-                        onClick={() => setPaymentMethod('PAGO_MOVIL')}
-                        className={`p-3.5 border text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-1 ${
-                          paymentMethod === 'PAGO_MOVIL'
+                      {/* Pago Móvil */}
+                      {paymentSettings.enable_pagomovil && (
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => setPaymentMethod('PAGO_MOVIL')}
+                          className={`p-3.5 border text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-1 ${paymentMethod === 'PAGO_MOVIL'
                             ? 'border-foeg-navy bg-foeg-surface/80 ring-1 ring-foeg-navy'
                             : 'border-foeg-border bg-white hover:border-foeg-border/80'
-                        }`}
-                      >
-                        <Landmark className="w-4 h-4 text-emerald-700" />
-                        <span className="text-[11px] font-medium text-foeg-black">Pago Móvil</span>
-                        <span className="text-[10px] text-foeg-muted">Taux BCV</span>
-                      </button>
-                    )}
-                  </div>
+                            }`}
+                        >
+                          <Landmark className="w-4 h-4 text-emerald-700" />
+                          <span className="text-[11px] font-medium text-foeg-black">Pago Móvil</span>
+                          <span className="text-[10px] text-foeg-muted">Taux BCV</span>
+                        </button>
+                      )}
+                    </div>
 
-                  {/* CADRE INFORMATIF MÉTHODES ALTERNATIVES */}
-                  <div className="p-5 border border-foeg-border bg-foeg-surface/30 space-y-3 animate-fadeIn">
-                    <div className="flex items-center justify-between text-xs font-medium text-foeg-black">
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-                        <span>{t('checkout.settlement')} : {paymentMethod.replace('_', ' ')}</span>
+                    {/* CADRE INFORMATIF MÉTHODES ALTERNATIVES */}
+                    <div className="p-5 border border-foeg-border bg-foeg-surface/30 space-y-3 animate-fadeIn">
+                      <div className="flex items-center justify-between text-xs font-medium text-foeg-black">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                          <span>{t('checkout.settlement')} : {paymentMethod.replace('_', ' ')}</span>
+                        </div>
+                        <span className="text-[9px] font-mono text-foeg-muted">{t('checkout.atelierValidation')}</span>
                       </div>
-                      <span className="text-[9px] font-mono text-foeg-muted">{t('checkout.atelierValidation')}</span>
-                    </div>
 
-                    <p className="text-xs text-foeg-muted font-light leading-relaxed">
-                      {t('checkout.altPaymentReservationNote').replace('{method}', paymentMethod.replace('_', ' '))}
-                    </p>
+                      <p className="text-xs text-foeg-muted font-light leading-relaxed">
+                        {t('checkout.altPaymentReservationNote').replace('{method}', paymentMethod.replace('_', ' '))}
+                      </p>
 
-                    <div className="p-3 bg-white border border-foeg-border/80 text-[11px] font-mono text-foeg-black space-y-1.5">
-                      {paymentMethod === 'ZELLE' && paymentSettings.enable_zelle && (
-                        <div>
-                          <div><strong>Destinataire Zelle :</strong> {paymentSettings.zelle_email}</div>
-                          <div className="text-foeg-muted">Titulaire : {paymentSettings.zelle_name}</div>
-                        </div>
-                      )}
-                      {paymentMethod === 'BINANCE' && paymentSettings.enable_binance && (
-                        <div>
-                          <div><strong>Binance Pay ID :</strong> {paymentSettings.binance_pay_id}</div>
-                          <div className="text-foeg-muted">Réseaux : {paymentSettings.binance_network}</div>
-                        </div>
-                      )}
-                      {paymentMethod === 'ZINLI' && paymentSettings.enable_zinli && (
-                        <div>
-                          <div><strong>Compte Zinli :</strong> {paymentSettings.zinli_email}</div>
-                          <div className="text-foeg-muted">Titulaire : {paymentSettings.zinli_name}</div>
-                        </div>
-                      )}
-                      {paymentMethod === 'PAGO_MOVIL' && paymentSettings.enable_pagomovil && (
-                        <div className="space-y-1.5">
-                          <div><strong>Banque Réceptrice :</strong> {paymentSettings.pagomovil_bank}</div>
-                          <div><strong>Téléphone :</strong> {paymentSettings.pagomovil_phone}</div>
-                          <div><strong>Cédula / RIF :</strong> {paymentSettings.pagomovil_id}</div>
-                          <div><strong>Titulaire :</strong> {paymentSettings.pagomovil_name}</div>
-                          <div className="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-950 font-sans flex items-center justify-between">
-                            <span className="text-xs uppercase tracking-wider font-medium text-emerald-900">
-                              {t('merci.bcvTotal')} :
-                            </span>
-                            <span className="font-mono text-sm font-bold text-emerald-950">
-                              {formatVesPrice(total)}
-                            </span>
+                      <div className="p-3 bg-white border border-foeg-border/80 text-[11px] font-mono text-foeg-black space-y-1.5">
+                        {paymentMethod === 'ZELLE' && paymentSettings.enable_zelle && (
+                          <div>
+                            <div><strong>Destinataire Zelle :</strong> {paymentSettings.zelle_email}</div>
+                            <div className="text-foeg-muted">Titulaire : {paymentSettings.zelle_name}</div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                        {paymentMethod === 'BINANCE' && paymentSettings.enable_binance && (
+                          <div>
+                            <div><strong>Binance Pay ID :</strong> {paymentSettings.binance_pay_id}</div>
+                            <div className="text-foeg-muted">Réseaux : {paymentSettings.binance_network}</div>
+                          </div>
+                        )}
+                        {paymentMethod === 'ZINLI' && paymentSettings.enable_zinli && (
+                          <div>
+                            <div><strong>Compte Zinli :</strong> {paymentSettings.zinli_email}</div>
+                            <div className="text-foeg-muted">Titulaire : {paymentSettings.zinli_name}</div>
+                          </div>
+                        )}
+                        {paymentMethod === 'PAGO_MOVIL' && paymentSettings.enable_pagomovil && (
+                          <div className="space-y-1.5">
+                            <div><strong>Banque Réceptrice :</strong> {paymentSettings.pagomovil_bank}</div>
+                            <div><strong>Téléphone :</strong> {paymentSettings.pagomovil_phone}</div>
+                            <div><strong>Cédula / RIF :</strong> {paymentSettings.pagomovil_id}</div>
+                            <div><strong>Titulaire :</strong> {paymentSettings.pagomovil_name}</div>
+                            <div className="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-950 font-sans flex items-center justify-between">
+                              <span className="text-xs uppercase tracking-wider font-medium text-emerald-900">
+                                {t('merci.bcvTotal')} :
+                              </span>
+                              <span className="font-mono text-sm font-bold text-emerald-950">
+                                {formatVesPrice(total)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
             </section>
 
             {/* Messages d'erreur */}

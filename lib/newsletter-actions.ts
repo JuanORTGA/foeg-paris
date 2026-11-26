@@ -13,6 +13,10 @@ export interface NewsletterSubscriberItem {
   notes?: string;
   createdAt: string;
   updatedAt?: string;
+  hasUserAccount?: boolean;
+  userName?: string | null;
+  totalSpent?: number;
+  isQualifiedVip?: boolean;
 }
 
 export interface NewsletterCampaignItem {
@@ -173,10 +177,12 @@ export async function subscribeNewsletter(
 
     // Déclencher notification en temps réel pour l'administrateur
     try {
+      const isVip =
+        (source || '').toLowerCase().includes('vip') || (source || '').toLowerCase().includes('cercle');
       await createNotification({
-        title: 'Nouvelle Inscription Newsletter',
+        title: isVip ? '👑 Nouvelle Inscription Cercle Privé VIP' : 'Nouvelle Inscription Newsletter',
         message: `${trimmed} s'est inscrit(e) aux communications exclusives FOEG (${source}).`,
-        type: 'info',
+        type: isVip ? 'order' : 'info',
         link: '/admin/newsletter',
       });
     } catch (notifErr) {
@@ -307,6 +313,118 @@ export async function deleteNewsletterSubscriber(id: string): Promise<{ success:
   } catch (err: any) {
     console.error('[DELETE NEWSLETTER SUBSCRIBER ERROR]:', err);
     return { success: false, error: 'Impossible de supprimer cet abonné.' };
+  }
+}
+
+/**
+ * Basculer le statut VIP d'un abonné (Alternar Cercle Privé VIP)
+ */
+export async function toggleSubscriberVipStatus(
+  id: string,
+  makeVip: boolean
+): Promise<{ success: boolean; error?: string; subscriber?: NewsletterSubscriberItem }> {
+  try {
+    const current = await getNewsletterSubscribers();
+    const index = current.findIndex((s) => s.id === id);
+    if (index === -1) {
+      return { success: false, error: 'Abonné introuvable.' };
+    }
+
+    const updatedSource = makeVip ? 'Cercle Privé VIP' : 'Web (Pied de page)';
+    const updatedSub: NewsletterSubscriberItem = {
+      ...current[index],
+      source: updatedSource,
+      updatedAt: new Date().toISOString(),
+      notes: makeVip
+        ? (current[index].notes ? `${current[index].notes} · Promu au Cercle Privé VIP` : 'Promu au Cercle Privé VIP')
+        : current[index].notes,
+    };
+
+    current[index] = updatedSub;
+    await saveSubscribersToDb(current);
+
+    // Mettre à jour également dans la table prisma si existant
+    try {
+      await (prisma as any).newsletterSubscriber.upsert({
+        where: { email: updatedSub.email },
+        create: {
+          email: updatedSub.email,
+          source: updatedSource,
+          status: updatedSub.status,
+        },
+        update: {
+          source: updatedSource,
+        },
+      });
+    } catch (_) {}
+
+    try {
+      revalidatePath('/admin/newsletter');
+    } catch {}
+    return { success: true, subscriber: updatedSub };
+  } catch (err: any) {
+    console.error('[TOGGLE VIP ERROR]:', err);
+    return { success: false, error: 'Erreur lors du changement de statut VIP.' };
+  }
+}
+
+/**
+ * Créer un coupon de réduction VIP depuis le module Newsletter
+ */
+export async function createVipCouponForSubscriber(data: {
+  email: string;
+  code: string;
+  discountType: 'PERCENTAGE' | 'FIXED';
+  discountValue: number;
+  expiresDays?: number;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cleanCode = data.code.trim().toUpperCase();
+    if (!cleanCode) {
+      return { success: false, error: 'Le code promo est requis.' };
+    }
+
+    const existing = await (prisma as any).coupon.findUnique({
+      where: { code: cleanCode },
+    });
+
+    if (existing) {
+      return { success: false, error: 'Ce code coupon existe déjà.' };
+    }
+
+    const expiresAt = data.expiresDays
+      ? new Date(Date.now() + data.expiresDays * 24 * 60 * 60 * 1000)
+      : null;
+
+    await (prisma as any).coupon.create({
+      data: {
+        code: cleanCode,
+        discountType: data.discountType,
+        discountValue: Number(data.discountValue),
+        isActive: true,
+        expiresAt,
+      },
+    });
+
+    // Créer une notification pour l'administrateur
+    try {
+      await createNotification({
+        title: '🎟️ Code Privilège VIP Créé',
+        message: `Le coupon ${cleanCode} (${data.discountValue}${data.discountType === 'PERCENTAGE' ? '%' : '€'}) a été généré pour ${data.email}.`,
+        type: 'info',
+        link: '/admin/cupones',
+      });
+    } catch (_) {}
+
+    try {
+      revalidatePath('/admin/cupones');
+      revalidatePath('/admin/newsletter');
+    } catch {}
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('[CREATE VIP COUPON ERROR]:', err);
+    return { success: false, error: err?.message || 'Erreur lors de la création du coupon.' };
   }
 }
 
